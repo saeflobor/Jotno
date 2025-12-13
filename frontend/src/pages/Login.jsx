@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 const Login = ({ setUser }) => {
     const [formData, setFormData] = useState({
         email: '',
-        password: ''
+        password: '',
+        role: 'patient'
     });
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -49,6 +50,20 @@ const Login = ({ setUser }) => {
                     autoComplete='off'
                     required
                     />
+                </div>
+                <div className='mb-4'>
+                        <label className='block text-grey-600 text-sm font-medium mb-1'>
+                                Role
+                        </label>
+                        <select
+                            className='w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 outline-none focus:border-blue-400'
+                            name='role'
+                            value={formData.role}
+                            onChange={handleChange}
+                        >
+                            <option value='doctor'>Doctor</option>
+                            <option value='patient'>Patient</option>
+                        </select>
                 </div>
                 <div className='mb-6'>
                     <label className='block text-grey-600 text-sm font-medium mb-1'>
