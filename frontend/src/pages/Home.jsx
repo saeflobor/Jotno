@@ -14,7 +14,7 @@ const Home = ({user, error}) => {
             <h2 className='text-2xl font-bold mb-4 text-white'>
               Welcome, {user.username}
             </h2>
-            <p className='text-gray-600'>Email: {user.email}</p>
+            <p className='text-white/70'>Email: {user.email}</p>
           </div>
         ) : (
           <div>

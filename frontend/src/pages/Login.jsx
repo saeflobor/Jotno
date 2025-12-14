@@ -39,48 +39,52 @@ const Login = ({ setUser }) => {
             </h2>
             {error && <p className='text-red-500 mb-4 text-sm'>{error}</p>}
             <form onSubmit={handleSubmit}>
-                <div className='mb-4'>
-                    <label className='block text-white text-sm font-medium mb-1'>
-                        Email
-                    </label>
-                    <input className='w-full p-3 border border-gray-400 rounded-md focus:ring-2
-                    focus:ring-pink-200 outline-none focus:border-pink-400 placeholder-white'
-                    type='email'
-                    name='email'
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder='Enter your email'
-                    autoComplete='off'
-                    required
-                    />
-                </div>
-                <div className='mb-4'>
-                    <label className='block text-white text-sm font-medium mb-1'>
-                            Role
-                    </label>
-                    <select
-                        className='w-full p-3 border border-gray-400 rounded-md focus:ring-2
-                    focus:ring-pink-200 outline-none focus:border-pink-400 text-white'
-                        name='role'
-                        value={formData.role}
+                <div className='grid grid-cols-2 gap-4 mb-4'>
+                    <div>
+                        <label className='block text-white text-sm font-medium mb-1'>
+                            Email
+                        </label>
+                        <input className='w-full p-3 border border-gray-400 rounded-md focus:ring-2
+                        focus:ring-pink-200 outline-none focus:border-pink-400 placeholder-white/50 text-white'
+                        type='email'
+                        name='email'
+                        value={formData.email}
                         onChange={handleChange}
-                    >
-                        <option value='doctor'>Doctor</option>
-                        <option value='patient'>Patient</option>
-                    </select>
+                        placeholder='Enter email'
+                        autoComplete='off'
+                        required
+                        />
+                    </div>
+                    <div>
+                        <label className='block text-white text-sm font-medium mb-1'>
+                                Role
+                        </label>
+                        <select
+                            className='w-full p-3 border border-gray-400 rounded-md focus:ring-2
+                        focus:ring-pink-200 outline-none focus:border-pink-400 text-white'
+                            name='role'
+                            value={formData.role}
+                            onChange={handleChange}
+                        >
+                            <option value='doctor'>Doctor</option>
+                            <option value='patient'>Patient</option>
+                        </select>
+                    </div>
                 </div>
-                <div className='mb-6'>
-                    <label className='block text-white text-sm font-medium mb-1'>
-                        Password
-                    </label>
-                    <input className='w-full p-3 border border-gray-400 rounded-md focus:ring-2
-                    focus:ring-pink-200 outline-none focus:border-pink-400 placeholder-white'
-                    type='password'
-                    name='password'
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder='Enter your password'
-                    />
+                <div className='flex justify-center mb-6'>
+                    <div className='w-1/2'>
+                        <label className='block text-white text-sm font-medium mb-1'>
+                            Password
+                        </label>
+                        <input className='w-full p-3 border border-gray-400 rounded-md focus:ring-2
+                        focus:ring-pink-200 outline-none focus:border-pink-400 placeholder-white/50 text-white'
+                        type='password'
+                        name='password'
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder='Enter password'
+                        />
+                    </div>
                 </div>
                 <button className='w-full bg-[rgb(211,46,149)]/60 text-white p-3 rounded-md hover:bg-[rgb(211,46,149)]/80
                 font-medium cursor-pointer'>
