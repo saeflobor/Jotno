@@ -7,9 +7,9 @@ const router = express.Router();
 
 // Register route
 router.post('/register', async (req, res) => {
-    const { username, email, password, role } = req.body;
+    const { username, email, password, role, gender} = req.body;
     try {
-        if(!username || !email || !password || !role) {
+        if(!username || !email || !password || !role || !gender) {
             return res.status(400).json({ message: 'Please enter all fields' });
         }
 
@@ -22,13 +22,14 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const user = await User.create({ username, email, password, role });
+        const user = await User.create({ username, email, password, role, gender });
         const token = generateToken(user._id);
         res.status(201).json({
             _id: user._id,
             username: user.username,
             email: user.email,
             role: user.role,
+            gender: user.gender,
             token,
         });
     } catch (err) {
@@ -63,6 +64,7 @@ router.post('/login', async (req, res) => {
             username: user.username,
             email: user.email,
             role: user.role,
+            gender: user.gender,
             token,
         });
     } catch (err) {
@@ -72,9 +74,14 @@ router.post('/login', async (req, res) => {
 });
 
 // Me route
+// In auth.js, modify /me route
 router.get("/me", protect, async (req, res) => {
-    res.status(200).json(req.user);
+    const user = await User.findById(req.user._id)
+        .select("-password")
+        .populate("family.father family.mother family.siblings family.children");
+    res.status(200).json(user);
 });
+
 
 // Generate JWT Token
 const generateToken = (id) => {
