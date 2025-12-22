@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import { connectDB } from './config/db.js';
-dotenv.config();
+dotenv.config({ path: '../.env' });
 
 const PORT = process.env.PORT || 5000;
 
