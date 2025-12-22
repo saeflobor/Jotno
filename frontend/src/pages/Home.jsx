@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp, Bell, Users, AlertTriangle, Calendar, Activity,
 
 const Home = ({user, error}) => {
   const [showAllFeatures, setShowAllFeatures] = useState(false);
-  const [useDarkBackground, setUseDarkBackground] = useState(true);
+  const [useDarkBackground, setUseDarkBackground] = useState(false);
 
   const features = [
     {
@@ -92,26 +92,26 @@ const Home = ({user, error}) => {
             <div className="relative">
               <button
                 onClick={() => setUseDarkBackground(!useDarkBackground)}
-                className={`fixed top-20 right-4 z-50 p-2 rounded-full transition duration-300 ${
+                className={`fixed top-5 right-4 z-50 p-2 rounded-full transition duration-300 ${
                   useDarkBackground
-                    ? 'bg-white/20 hover:bg-white/30 text-white'
-                    : 'bg-black/20 hover:bg-black/30 text-black'
+                    ? 'bg-black/50 hover:bg-white/50 text-white'
+                    : 'bg-black/50 hover:bg-black/10 text-white'
                 }`}
                 title={useDarkBackground ? 'Switch to light background' : 'Switch to dark background'}
               >
                 {useDarkBackground ? (
-                  <Sun className="w-6 h-6" />
+                  <Sun className="w-8 h-5" />
                 ) : (
-                  <Moon className="w-6 h-6" />
+                  <Moon className="w-8 h-5" />
                 )}
               </button>
               <section className="container mx-auto px-4 py-16 md:py-24">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-16">
                   <div className="md:w-1/2">
-                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                    <h1 className={`text-4xl md:text-5xl font-bold mb-4 ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}>
                       Peace of Mind for You,<br />Care for Your Loved Ones
                     </h1>
-                    <p className="text-lg text-gray-400 mb-6">
+                    <p className={`text-lg mb-6 ${useDarkBackground ? 'text-gray-400' : 'text-gray-700'}`}>
                       যত্ন : Jotno helps elderly users have their healthcare needs met, while keeping families connected and informed.
                     </p>
                     <div className="flex gap-4">
@@ -140,7 +140,7 @@ const Home = ({user, error}) => {
               </section>
 
               <section className="container mx-auto px-4 py-16">
-                <h2 className="text-3xl font-bold text-center text-white mb-12">How We Help</h2>
+                <h2 className={`text-3xl font-bold text-center mb-12 ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}>How We Help</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {features.map((feature) => {
                     if (!feature.visible) return null;
@@ -148,13 +148,13 @@ const Home = ({user, error}) => {
                     return (
                       <div
                         key={feature.id}
-                        className="bg-black/30 backdrop-blur-[40px] p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300"
+                        className={`${useDarkBackground ? 'bg-black/30' : 'bg-white/30'} backdrop-blur-[40px] p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300`}
                       >
                         <div className="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mb-4">
                           <IconComponent className="text-black w-6 h-6" />
                         </div>
-                        <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
-                        <p className="text-gray-400">{feature.description}</p>
+                        <h3 className={`text-xl font-semibold mb-2 ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}>{feature.title}</h3>
+                        <p className={useDarkBackground ? 'text-gray-400' : 'text-gray-700'}>{feature.description}</p>
                       </div>
                     );
                   })}
@@ -175,21 +175,21 @@ const Home = ({user, error}) => {
                 </div>
               </section>
 
-              <section className="container mx-auto px-4 py-16 bg-black/30 backdrop-blur-[40px] rounded-xl">
-                <h2 className="text-3xl font-bold text-center text-white mb-12">What Families Say</h2>
+              <section className={`container mx-auto px-4 py-16  ${useDarkBackground ? 'bg-black/30' : 'bg-white/30'} backdrop-blur-[40px] rounded-xl`}>
+                <h2 className={`text-3xl font-bold text-center mb-12 ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}>What Families Say</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
                   {testimonials.map((testimonial) => {
                     const IconComponent = testimonial.icon;
                     return (
-                    <div key={testimonial.id} className="bg-black/50 backdrop-blur-[40px] p-6 rounded-lg shadow">
-                      <p className="text-white italic mb-4">{testimonial.text}</p>
+                    <div key={testimonial.id} className={`${useDarkBackground ? 'bg-black/30' : 'bg-white/30'} backdrop-blur-[40px] p-6 rounded-lg shadow`}>
+                      <p className={`italic mb-4 ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}>{testimonial.text}</p>
                       <div className="flex items-center">
                         <div className="w-12 h-12 rounded-full mr-4 bg-pink-200 flex items-center justify-center">
                           <IconComponent className="w-6 h-6 text-black" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-white">{testimonial.author}</h4>
-                          <p className="text-gray-500 text-sm">{testimonial.role}</p>
+                          <h4 className={`font-semibold ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}>{testimonial.author}</h4>
+                          <p className={`text-sm ${useDarkBackground ? 'text-gray-500' : 'text-gray-600'}`}>{testimonial.role}</p>
                         </div>
                       </div>
                     </div>
@@ -200,7 +200,7 @@ const Home = ({user, error}) => {
 
               {/* CTA Section */}
               <section className="container mx-auto px-4 py-16">
-                <div className="bg-[rgb(211,46,149)]/60 text-white rounded-xl p-8 text-center">
+                <div className={`bg-[rgb(211,46,149)]/60 rounded-xl p-8 text-center ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}>
                   <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
                   <p className="text-lg mb-6 max-w-2xl mx-auto">
                     Join thousands of families who trust যত্ন : Jotno for their loved ones' care
