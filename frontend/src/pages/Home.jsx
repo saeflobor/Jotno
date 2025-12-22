@@ -1,10 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Bell, Users, AlertTriangle, Calendar, Activity, FileText, Heart, UserRound } from 'lucide-react';
+import { ChevronDown, ChevronUp, Bell, Users, AlertTriangle, Calendar, Activity, FileText, Heart, UserRound, Moon, Sun } from 'lucide-react';
 
 const Home = ({user, error}) => {
   const [showAllFeatures, setShowAllFeatures] = useState(false);
+  const [useDarkBackground, setUseDarkBackground] = useState(true);
 
   const features = [
     {
@@ -85,10 +86,25 @@ const Home = ({user, error}) => {
           <div className="relative min-h-screen overflow-hidden">
             <div
               className="absolute inset-0 bg-cover bg-center bg-no-repeat blur-md"
-              style={{ backgroundImage: 'url(/Smiling_Old_Couple_2.jpg)' }}
+              style={{ backgroundImage: `url(${useDarkBackground ? '/Smiling_Old_Couple_Black.jpg' : '/Smiling_Old_Couple_White.png'})` }}
             />
-            <div className="absolute inset-0 bg-black/70" aria-hidden="true" />
+            <div className={`absolute inset-0 ${useDarkBackground ? 'bg-black/70' : 'bg-white/30'}`} aria-hidden="true" />
             <div className="relative">
+              <button
+                onClick={() => setUseDarkBackground(!useDarkBackground)}
+                className={`fixed top-20 right-4 z-50 p-2 rounded-full transition duration-300 ${
+                  useDarkBackground
+                    ? 'bg-white/20 hover:bg-white/30 text-white'
+                    : 'bg-black/20 hover:bg-black/30 text-black'
+                }`}
+                title={useDarkBackground ? 'Switch to light background' : 'Switch to dark background'}
+              >
+                {useDarkBackground ? (
+                  <Sun className="w-6 h-6" />
+                ) : (
+                  <Moon className="w-6 h-6" />
+                )}
+              </button>
               <section className="container mx-auto px-4 py-16 md:py-24">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-16">
                   <div className="md:w-1/2">
@@ -115,7 +131,7 @@ const Home = ({user, error}) => {
                   </div>
                   <div className="md:w-1/2">
                     <img
-                      src="Smiling_Old_Couple_2.jpg"
+                      src={useDarkBackground ? "Smiling_Old_Couple_Black.jpg" : "Smiling_Old_Couple_White.png"}
                       alt="Happy elderly couple"
                       className="rounded-2xl w-full shadow-[0px_0px_40px_rgba(255,255,255,0.40)]"
                     />
