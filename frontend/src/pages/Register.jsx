@@ -6,8 +6,9 @@ const Register = ({ setUser }) => {
     const [formData, setFormData] = useState({
       username: '',
       email: '',
-            password: '',
-            role: 'patient'
+      password: '',
+      role: 'patient',
+      gender: 'male' // added gender default
     });
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -47,7 +48,7 @@ const Register = ({ setUser }) => {
                     </label>
                     <input className='w-full p-3 border border-gray-400 rounded-md focus:ring-2
                     focus:ring-pink-200 outline-none focus:border-pink-400 placeholder-white/50 text-white'
-                    type='username'
+                    type='text'
                     name='username'
                     value={formData.username}
                     onChange={handleChange}
@@ -58,7 +59,7 @@ const Register = ({ setUser }) => {
                 </div>
                 <div>
                     <label className='block text-white text-sm font-medium mb-1'>
-                            Role
+                        Role
                     </label>
                     <select
                         className='w-full p-3 border border-gray-400 rounded-md focus:ring-2 focus:ring-pink-200 outline-none focus:border-pink-400 text-white'
@@ -68,6 +69,20 @@ const Register = ({ setUser }) => {
                     >
                         <option value='doctor'>Doctor</option>
                         <option value='patient'>Patient</option>
+                    </select>
+                </div>
+                <div>
+                    <label className='block text-white text-sm font-medium mb-1'>
+                        Gender
+                    </label>
+                    <select
+                        className='w-full p-3 border border-gray-400 rounded-md focus:ring-2 focus:ring-pink-200 outline-none focus:border-pink-400 text-white'
+                        name='gender'
+                        value={formData.gender}
+                        onChange={handleChange}
+                    >
+                        <option value='male'>Male</option>
+                        <option value='female'>Female</option>
                     </select>
                 </div>
                 <div>
@@ -109,4 +124,4 @@ const Register = ({ setUser }) => {
   );
 };
 
-export default Register
+export default Register;
