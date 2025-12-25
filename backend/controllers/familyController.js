@@ -2,16 +2,21 @@ import User from "../models/User.js";
 
 // Add family member
 export const addFamilyMember = async (req, res) => {
-  const { memberEmail, relation } = req.body;
+  const { memberEmail, memberPhone, relation } = req.body;
   const userId = req.user?._id;
 
   if (!userId) return res.status(401).json({ message: "Unauthorized" });
-  if (!memberEmail || !relation) return res.status(400).json({ message: "All fields are required" });
+  if ((!memberEmail && !memberPhone) || !relation) return res.status(400).json({ message: "All fields are required" });
   if (!["father", "mother", "child", "sibling"].includes(relation)) return res.status(400).json({ message: "Invalid relation type" });
 
   try {
     const user = await User.findById(userId);
-    const member = await User.findOne({ email: memberEmail });
+    let member = null;
+    if (memberEmail) {
+      member = await User.findOne({ email: memberEmail });
+    } else if (memberPhone) {
+      member = await User.findOne({ phone: memberPhone });
+    }
 
     if (!user) return res.status(404).json({ message: "Current user not found" });
     if (!member) return res.status(404).json({ message: "Member user not found" });

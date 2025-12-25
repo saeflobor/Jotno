@@ -7,9 +7,9 @@ const router = express.Router();
 
 // Register route
 router.post('/register', async (req, res) => {
-    const { username, email, password, role, gender} = req.body;
+    const { username, email, phone, password, role, gender} = req.body;
     try {
-        if(!username || !email || !password || !role || !gender) {
+        if(!username || !email || !phone || !password || !role || !gender) {
             return res.status(400).json({ message: 'Please enter all fields' });
         }
 
@@ -17,17 +17,18 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'Role must be doctor or patient' });
         }
 
-        const userExists = await User.findOne({email});
+        const userExists = await User.findOne({ $or: [{ email }, { phone }] });
         if(userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const user = await User.create({ username, email, password, role, gender });
+        const user = await User.create({ username, email, phone, password, role, gender });
         const token = generateToken(user._id);
         res.status(201).json({
             _id: user._id,
             username: user.username,
             email: user.email,
+            phone: user.phone,
             role: user.role,
             gender: user.gender,
             token,
@@ -63,6 +64,7 @@ router.post('/login', async (req, res) => {
             _id: user._id,
             username: user.username,
             email: user.email,
+            phone: user.phone,
             role: user.role,
             gender: user.gender,
             token,
