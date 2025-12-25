@@ -13,7 +13,7 @@ const Navbar = ({ user, setUser }) => {
 
   return (
     <nav className='bg-black'>
-      <div className='bg-[rgb(211,46,149)]/40 backdrop-blur-md p-4'>
+      <div className='bg-[rgb(211,46,149)] backdrop-blur-md p-4'>
         <div className='container mx-auto relative flex justify-center items-center'>
           <p className='text-white absolute left-0'>Peace of Mind for You,<br />Care for Your Loved Ones</p>
           <Link to="/" className='text-white text-[30px] font-bold'>Jotno</Link>

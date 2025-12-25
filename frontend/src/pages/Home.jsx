@@ -1,9 +1,11 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Bell, Users, AlertTriangle, Calendar, Activity, FileText, Heart, UserRound, Moon, Sun } from 'lucide-react';
 
 const Home = ({user, error}) => {
+  console.log('User:', user); // Check the value of user
+
   const [showAllFeatures, setShowAllFeatures] = useState(false);
   const [useDarkBackground, setUseDarkBackground] = useState(false);
 
@@ -73,14 +75,7 @@ const Home = ({user, error}) => {
       <div>
         {error && <p className='text-red-500 mb-4 text-sm'>{error}</p>}
         {user ? (
-          <div  className='min-h-screen flex items-center justify-center bg-gray-100 p-4'>
-            <div className='bg-white p-8 rounded-lg shadow-md w-full max-w-lg text-center'>
-              <h2 className='text-2xl font-bold mb-4 text-black'>
-                Welcome, {user.username}
-              </h2>
-              <p className='text-black/70'>Email: {user.email}</p>
-            </div>
-          </div>
+          <Navigate to="/dashboard" replace />
         ) : ( 
           // No User Logged In
           <div className="relative min-h-screen overflow-hidden">
@@ -131,9 +126,9 @@ const Home = ({user, error}) => {
                   </div>
                   <div className="md:w-1/2">
                     <img
-                      src={useDarkBackground ? "Smiling_Old_Couple_Black.jpg" : "Smiling_Old_Couple_White.png"}
+                      src={"Smiling_Old_Couple_Black.jpg"}
                       alt="Happy elderly couple"
-                      className="rounded-2xl w-full shadow-[0px_0px_40px_rgba(255,255,255,0.40)]"
+                      className="rounded-2xl w-full shadow-[0px_0px_40px_rgba(211,46,149,1)]"
                     />
                   </div>
                 </div>
