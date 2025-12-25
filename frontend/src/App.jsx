@@ -46,7 +46,7 @@ function App() {
       <Navbar user={user} setUser={setUser} />
       <Routes>
         {/* Public landing page */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home user={user} error={error} />} />
 
         {/* Protected Dashboard page */}
         <Route 

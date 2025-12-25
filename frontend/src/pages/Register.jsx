@@ -33,9 +33,9 @@ const Register = ({ setUser }) => {
   return (
     <div
       className='min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat p-4'
-      style={{ backgroundImage: "url(/Smiling_Old_Couple_Black.jpg)" }}
+      style={{ backgroundImage: "url(/Smiling_Old_Couple_White.png)" }}
     > 
-        <div className='bg-black/40 backdrop-blur-[5px] p-8 rounded-lg shadow-md w-full max-w-xl text-center'>
+        <div className='bg-white/10 backdrop-blur-[10px] p-8 rounded-lg shadow-md w-full max-w-xl text-center'>
             <h2 className='text-2xl font-bold mb-6 text-center text-white'>
                 Register
             </h2>
@@ -46,7 +46,7 @@ const Register = ({ setUser }) => {
                     <label className='block text-white text-sm font-medium mb-1'>
                         Username
                     </label>
-                    <input className='w-full p-3 border border-gray-400 rounded-md focus:ring-2
+                    <input className='w-full p-3 border border-white rounded-md focus:ring-2
                     focus:ring-pink-200 outline-none focus:border-pink-400 placeholder-white/50 text-white'
                     type='text'
                     name='username'
@@ -62,7 +62,7 @@ const Register = ({ setUser }) => {
                         Role
                     </label>
                     <select
-                        className='w-full p-3 border border-gray-400 rounded-md focus:ring-2 focus:ring-pink-200 outline-none focus:border-pink-400 text-white'
+                        className='w-full p-3 border border-white rounded-md focus:ring-2 focus:ring-pink-200 outline-none focus:border-pink-400 text-white'
                         name='role'
                         value={formData.role}
                         onChange={handleChange}
@@ -76,7 +76,7 @@ const Register = ({ setUser }) => {
                         Gender
                     </label>
                     <select
-                        className='w-full p-3 border border-gray-400 rounded-md focus:ring-2 focus:ring-pink-200 outline-none focus:border-pink-400 text-white'
+                        className='w-full p-3 border border-white rounded-md focus:ring-2 focus:ring-pink-200 outline-none focus:border-pink-400 text-white'
                         name='gender'
                         value={formData.gender}
                         onChange={handleChange}
@@ -89,7 +89,7 @@ const Register = ({ setUser }) => {
                     <label className='block text-white text-sm font-medium mb-1'>
                         Email
                     </label>
-                    <input className='w-full p-3 border border-gray-400 rounded-md focus:ring-2
+                    <input className='w-full p-3 border border-white rounded-md focus:ring-2
                     focus:ring-pink-200 outline-none focus:border-pink-400 placeholder-white/50 text-white'
                     type='email'
                     name='email'
@@ -104,7 +104,7 @@ const Register = ({ setUser }) => {
                     <label className='block text-white text-sm font-medium mb-1'>
                         Password
                     </label>
-                    <input className='w-full p-3 border border-gray-400 rounded-md focus:ring-2
+                    <input className='w-full p-3 border border-white rounded-md focus:ring-2
                     focus:ring-pink-200 outline-none focus:border-pink-400 placeholder-white/50 text-white'
                     type='password'
                     name='password'
