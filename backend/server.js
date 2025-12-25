@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import familyRoutes from './routes/familyRoutes.js'; // <-- Import family routes
 import { connectDB } from './config/db.js';
+dotenv.config({ path: '../.env' });
 
 dotenv.config();
 

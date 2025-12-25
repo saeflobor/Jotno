@@ -31,7 +31,7 @@ const Login = ({ setUser }) => {
   return (
     <div
       className='min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat p-4'
-      style={{ backgroundImage: "url(/Smiling_Old_Couple_2.jpg)" }}
+      style={{ backgroundImage: "url(/Smiling_Old_Couple_Black.jpg)" }}
     > 
         <div className='bg-black/40 backdrop-blur-[5px] p-8 rounded-lg shadow-md w-full max-w-lg text-center'>
             <h2 className='text-2xl font-bold mb-6 text-center text-white'>
