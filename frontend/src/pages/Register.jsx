@@ -6,6 +6,7 @@ const Register = ({ setUser }) => {
     const [formData, setFormData] = useState({
       username: '',
       email: '',
+            phone: '',
       password: '',
       role: 'patient',
       gender: 'male' // added gender default
@@ -96,6 +97,21 @@ const Register = ({ setUser }) => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder='Enter email'
+                    autoComplete='off'
+                    required
+                    />
+                </div>
+                <div>
+                    <label className='block text-white text-sm font-medium mb-1'>
+                        Phone Number
+                    </label>
+                    <input className='w-full p-3 border border-white rounded-md focus:ring-2
+                    focus:ring-pink-200 outline-none focus:border-pink-400 placeholder-white/50 text-white'
+                    type='tel'
+                    name='phone'
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder='Enter phone number'
                     autoComplete='off'
                     required
                     />
