@@ -1,6 +1,8 @@
 import express from 'express';
 import User from '../models/User.js';
 import { protect } from '../middleware/auth.js';
+import {sendEmail} from '../controllers/emailverification.js';
+import axios from 'axios';
 import jwt from 'jsonwebtoken';
 
 const router = express.Router();
@@ -17,12 +19,21 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'Role must be doctor or patient' });
         }
 
+        
+        
         const userExists = await User.findOne({email});
         if(userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
+        const sendemail = await sendEmail(email);
+        if(!sendEmail.success) {           
+            console.error(`Failed to send verification email: ${email}`);
+            return res.status(400).json({ message: 'Email doesnot exist' });
+        }
+        console.log('Verification email sent');
         const user = await User.create({ username, email, password, role, gender });
+            
         const token = generateToken(user._id);
         res.status(201).json({
             _id: user._id,
@@ -78,14 +89,14 @@ router.post('/login', async (req, res) => {
 router.get("/me", protect, async (req, res) => {
     const user = await User.findById(req.user._id)
         .select("-password")
-        .populate("family.father family.mother family.siblings family.children");
+        .populate("family.father family.spouse family.mother family.siblings family.children");
     res.status(200).json(user);
 });
 
 
 // Generate JWT Token
 const generateToken = (id) => {
-    return jwt.sign({id}, process.env.JWT_SECRET, { expiresIn: '30d' });
+    return jwt.sign({id}, process.env.JWT_SECRET, { expiresIn: '1d' });
 }
 
 export default router;

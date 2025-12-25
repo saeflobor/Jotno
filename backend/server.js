@@ -1,13 +1,13 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
-import familyRoutes from './routes/familyRoutes.js'; // <-- Import family routes
-import { connectDB } from './config/db.js';
+import familyRoutes from './routes/familyRoutes.js';
+  import { connectDB } from './config/db.js';
 dotenv.config({ path: '../.env' });
 
 dotenv.config();
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 const app = express();
 
@@ -16,7 +16,9 @@ app.use(express.json());
 
 // Routes
 app.use("/api/users", authRoutes);
-app.use("/api/family", familyRoutes); // <-- Mount family routes
+app.use("/api/family", familyRoutes);
+
+ // <-- Mount family routes
 
 // Connect to MongoDB
 connectDB();
