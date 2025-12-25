@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import FamilyIntegration from './pages/FamilyIntegration';
 import NotFound from './components/NotFound';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -51,6 +52,12 @@ function App() {
         <Route 
           path="/dashboard" 
           element={user ? <Dashboard user={user} setUser={setUser} /> : <Navigate to="/login" />} 
+        />
+
+        {/* Protected Family Integration page */}
+        <Route 
+          path="/family-integration" 
+          element={user ? <FamilyIntegration user={user} setUser={setUser} /> : <Navigate to="/login" />} 
         />
 
         {/* Login & Register */}
