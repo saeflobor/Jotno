@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 
 const Dashboard = ({ user, setUser }) => {
   const family = user?.family || {};
   const navigate = useNavigate();
+  const [sendingSOS, setSendingSOS] = useState(false);
+  const [sosMessage, setSosMessage] = useState("");
 
   // FamilyIntegration handles add/remove actions and toast internally.
 
@@ -17,9 +20,42 @@ const Dashboard = ({ user, setUser }) => {
       .join("")
       .toUpperCase();
 
+  const sendSOS = async () => {
+    setSosMessage("");
+    setSendingSOS(true);
+    try {
+      await axios.post(
+        "/api/family/sos",
+        { message: "I need help" },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      setSosMessage("SOS sent to your family members.");
+    } catch (err) {
+      setSosMessage(err.response?.data?.message || "Failed to send SOS");
+    } finally {
+      setSendingSOS(false);
+      setTimeout(() => setSosMessage(""), 4000);
+    }
+  };
+
   return (
     <div className="min-h-screen py-8 px-6 bg-gray-50">
       <div className="max-w-6xl mx-auto">
+        <div className="flex justify-center mb-4">
+          <button
+            onClick={sendSOS}
+            disabled={sendingSOS}
+            className="px-6 py-3 rounded-full text-white font-semibold shadow-lg transition disabled:opacity-60"
+            style={{ background: "linear-gradient(90deg,#ff1f4b,#ff5f6d)", transform: "translateZ(0)" }}
+          >
+            {sendingSOS ? "Sending..." : "SOS"}
+          </button>
+        </div>
+        {sosMessage && (
+          <div className="mb-4 flex justify-center">
+            <div className="px-4 py-2 rounded-lg text-sm text-white bg-gray-800 shadow-md">{sosMessage}</div>
+          </div>
+        )}
         <div className="relative rounded-3xl overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(211,46,149,0.05), rgba(255,255,255,1))", border: "1px solid rgba(211,46,149,0.1)" }}>
           <div className="absolute -left-40 -top-28 w-80 h-80 rounded-full" style={{ background: "radial-gradient(circle at 30% 20%, rgba(211,46,149,0.08), transparent 30%)", filter: "blur(30px)" }} />
           <div className="absolute -right-28 -bottom-20 w-72 h-72 rounded-full" style={{ background: "radial-gradient(circle at 70% 80%, rgba(211,46,149,0.06), transparent 30%)", filter: "blur(28px)" }} />
