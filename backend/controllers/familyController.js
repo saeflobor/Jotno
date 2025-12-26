@@ -1,4 +1,18 @@
 import User from "../models/User.js";
+import nodemailer from "nodemailer";
+
+function createMailTransport() {
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
+    throw new Error("Email is not configured on the server");
+  }
+  return nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: Number(SMTP_PORT),
+    secure: Number(SMTP_PORT) === 465,
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
+}
 
 // Add family member
 export const addFamilyMember = async (req, res) => {
@@ -116,6 +130,49 @@ export const removeFamilyMember = async (req, res) => {
   } catch (err) {
     console.error("Remove family member error:", err);
     res.status(500).json({ message: err.message || "Server error" });
+  }
+};
+
+export const sendSosAlert = async (req, res) => {
+  const userId = req.user?._id;
+  const { message = "I need help" } = req.body || {};
+
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+  try {
+    const user = await User.findById(userId)
+      .select("username email family")
+      .populate("family.father family.mother family.siblings family.children", "email username");
+
+    if (!user) return res.status(404).json({ message: "Current user not found" });
+
+    const members = [];
+    if (user.family?.father) members.push(user.family.father);
+    if (user.family?.mother) members.push(user.family.mother);
+    if (Array.isArray(user.family?.siblings)) members.push(...user.family.siblings);
+    if (Array.isArray(user.family?.children)) members.push(...user.family.children);
+
+    const recipientEmails = [...new Set(members.map((m) => m?.email).filter(Boolean))].filter(
+      (email) => email !== user.email
+    );
+
+    if (recipientEmails.length === 0) {
+      return res.status(400).json({ message: "No family member emails found" });
+    }
+
+    const transporter = createMailTransport();
+
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || user.email,
+      to: recipientEmails,
+      subject: `SOS alert from ${user.username}`,
+      text: message,
+    });
+
+    return res.status(200).json({ message: "SOS email sent", sentTo: recipientEmails });
+  } catch (err) {
+    console.error("SOS alert error:", err);
+    return res.status(500).json({ message: err.message || "Failed to send SOS" });
   }
 };
 
