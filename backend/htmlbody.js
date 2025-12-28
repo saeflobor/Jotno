@@ -1,4 +1,4 @@
-const htmlContent = `
+export const htmlContent =(link)=>{return `
 <!DOCTYPE html>
 <html>
   <head>
@@ -39,11 +39,10 @@ const htmlContent = `
       <p>Hi there,</p>
       <p>Thank you for signing up. We are excited to have you on board.</p>
       <p>Click the button below to verify your email:</p>
-      <a href="https://example.com/verify" class="button">Verify Email</a>
+      <a href=${link} class="button">Verify Email</a>
       <p>If you did not sign up, ignore this email.</p>
       <p>Cheers,<br>The Team</p>
     </div>
   </body>
 </html>
-`;
-export default htmlContent;
+`;}

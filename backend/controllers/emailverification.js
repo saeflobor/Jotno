@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import htmlContent from '../htmlbody.js'
+import {htmlContent} from '../htmlbody.js'
 import dns from "dns/promises";
 import dotenv from 'dotenv'
 dotenv.config();
@@ -12,17 +12,16 @@ const transporter = nodemailer.createTransport({
  })
 
 
- const sendEmail = async (email) => {
+ const sendEmail = async (email,verifytoken) => {
     try {
-        const domain = email.split('@')[1];
-        await dns.resolveMx(domain);
         const to = email;
+        const link = `http://localhost:5173/verifyemail/${verifytoken}`;
         const mailOptions = {
             from: process.env.USER,
             to,
             subject: 'Email Verification',
             text: 'Please verify your email by clicking the link below.',
-            html: htmlContent,
+            html: htmlContent(link),
     };
 
     

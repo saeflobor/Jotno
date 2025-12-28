@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import FamilyIntegration from './pages/FamilyIntegration';
+import EmailVerification from './pages/EmailVerification';
 import NotFound from './components/NotFound';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -48,6 +49,9 @@ function App() {
         {/* Public landing page */}
         <Route path="/" element={<Home user={user} error={error} />} />
 
+        {/*Email Verification Page */}
+        <Route path="/verifyemail/:token" element={<EmailVerification setUser={setUser}/>} />
+
         {/* Protected Dashboard page */}
         <Route 
           path="/dashboard" 
@@ -67,7 +71,7 @@ function App() {
         />
         <Route 
           path="/register" 
-          element={user ? <Navigate to="/dashboard" /> : <Register setUser={setUser} />} 
+          element={user ? <Navigate to="/dashboard" /> : <Register/>} 
         />
 
         {/* 404 Not Found */}

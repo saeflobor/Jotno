@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const Register = ({ setUser }) => {
+const Register = () => {
     const [formData, setFormData] = useState({
       username: '',
       email: '',
@@ -21,10 +21,7 @@ const Register = ({ setUser }) => {
         e.preventDefault();
         try {
             const res = await axios.post('/api/users/register', formData);
-            localStorage.setItem("token", res.data.token);
             console.log(res.data);
-            setUser(res.data);
-            navigate('/');
         } catch (err) {
             setError(err.response?.data?.message || "Registration failed");
         }
