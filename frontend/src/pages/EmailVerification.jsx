@@ -14,8 +14,8 @@ export default function VerifyEmail({ setUser }) {
       try {
         const res = await axios.post('/api/users/verifyemail', { token });
 
-        // token_id == token (as you confirmed)
-        localStorage.setItem("token", res.data.token_id);
+        
+        localStorage.setItem("token", res.data.token);
 
         setUser(res.data.user);
 

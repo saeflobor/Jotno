@@ -10,7 +10,8 @@ router.post('/verifyemail',async (req,res) => {
         const {token} = req.body;
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findByIdAndUpdate(decoded.id, {verified: true});
-        return res.status(200).json({success: true, id:decoded.id, user});
+        const localStoragetoken = generateToken(user._id);
+        return res.status(200).json({success: true, user, token:localStoragetoken });
     } catch (error) {
         console.error('Jwt Decoding Error:', error);
         return res.status(401).json({success: false, message: 'User is not created' });
