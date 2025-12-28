@@ -23,7 +23,7 @@ router.post('/verifyemail',async (req,res) => {
 
 // Register route
 router.post('/register', async (req, res) => {
-    const { username, email, password, role, gender} = req.body;
+    const { username, email, phone, password, role, gender} = req.body;
     try {
         
         const domain = email.split('@')[1];
@@ -36,7 +36,8 @@ router.post('/register', async (req, res) => {
             password,
             role,
             verified: false,
-            gender
+            gender,
+            phone
         });
 
         const verifytoken = generateverifyToken(user._id);
@@ -87,6 +88,7 @@ router.post('/login', async (req, res) => {
             _id: user._id,
             username: user.username,
             email: user.email,
+            phone: user.phone,
             role: user.role,
             gender: user.gender,
             token,

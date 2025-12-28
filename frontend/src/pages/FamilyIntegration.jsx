@@ -31,6 +31,8 @@ const FamilyIntegration = ({ user, setUser }) => {
   const family = user?.family || {};
   const [relationKey, setRelationKey] = useState("father");
   const [memberEmail, setMemberEmail] = useState("");
+  const [memberPhone, setMemberPhone] = useState("");
+  const [identifierType, setIdentifierType] = useState("email");
   const [processing, setProcessing] = useState(false);
   const [toast, setToast] = useState({ type: "", text: "" });
 
@@ -46,15 +48,17 @@ const FamilyIntegration = ({ user, setUser }) => {
   }
 
   const handleAdd = async () => {
-    if (!memberEmail) return showToast("error", "Please enter an email");
+    if (identifierType === "email" && !memberEmail) return showToast("error", "Please enter an email");
+    if (identifierType === "phone" && !memberPhone) return showToast("error", "Please enter a phone number");
     setProcessing(true);
     try {
-      const res = await axiosInstance.post("/api/family/add", {
-        memberEmail,
-        relation: relationMap[relationKey],
-      });
+      const payload = { relation: relationMap[relationKey] };
+      if (identifierType === "email") payload.memberEmail = memberEmail;
+      if (identifierType === "phone") payload.memberPhone = memberPhone;
+      const res = await axiosInstance.post("/api/family/add", payload);
       setUser(res.data.user);
       setMemberEmail("");
+      setMemberPhone("");
       showToast("success", res.data.message || "Family updated");
     } catch (err) {
       console.error("add err", err?.response?.data || err);
@@ -96,25 +100,34 @@ const FamilyIntegration = ({ user, setUser }) => {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-lg font-bold text-gray-900">Add Family Member</div>
-              <div className="text-sm text-gray-600">Add by email. Relation will be applied bidirectionally.</div>
+              <div className="text-sm text-gray-600">Add by email or phone. Relation will be applied bidirectionally.</div>
             </div>
             <div className="flex gap-2">
               <Pill className="text-gray-700 bg-gray-100 border border-gray-200">Tip</Pill>
             </div>
           </div>
 
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
         <select value={relationKey} onChange={e => setRelationKey(e.target.value)} className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white">
           {RELATIONS.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
         </select>
 
-        <input type="email" placeholder="family@example.com" value={memberEmail} onChange={e => setMemberEmail(e.target.value)} className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 col-span-1 sm:col-span-1" />
+        <select value={identifierType} onChange={e => setIdentifierType(e.target.value)} className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white">
+          <option value="email">Email</option>
+          <option value="phone">Phone</option>
+        </select>
+
+        {identifierType === "email" ? (
+          <input type="email" placeholder="family@example.com" value={memberEmail} onChange={e => setMemberEmail(e.target.value)} className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 col-span-1 sm:col-span-1" />
+        ) : (
+          <input type="tel" placeholder="01XXXXXXXXX" value={memberPhone} onChange={e => setMemberPhone(e.target.value)} className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 col-span-1 sm:col-span-1" />
+        )}
 
         <div className="flex gap-2">
           <button onClick={handleAdd} disabled={processing} className="flex-1 py-3 rounded-lg font-semibold bg-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/80 text-white disabled:opacity-50">
             {processing ? "Processing..." : "Add Member"}
           </button>
-          <button onClick={() => { setMemberEmail(""); setRelationKey("father"); }} className="px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200">Reset</button>
+          <button onClick={() => { setMemberEmail(""); setMemberPhone(""); setRelationKey("father"); setIdentifierType("email"); }} className="px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200">Reset</button>
         </div>
       </div>
 

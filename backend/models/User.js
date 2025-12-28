@@ -22,7 +22,9 @@ const userSchema = new mongoose.Schema({
     gender: { type: String, enum: ["male", "female"],
               required: [true,'Gender is required']
             },
+            
     verified: { type: Boolean, default: false },
+    phone: { type: String, required: true, unique: true },
     family: {
         father: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
         spouse: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
