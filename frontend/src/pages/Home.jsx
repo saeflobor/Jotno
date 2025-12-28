@@ -80,8 +80,9 @@ const Home = ({user, error}) => {
           // No User Logged In
           <div className="relative min-h-screen overflow-hidden">
             <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat blur-md"
-              style={{ backgroundImage: `url(${useDarkBackground ? '/Smiling_Old_Couple_Black.jpg' : '/Smiling_Old_Couple_White.png'})` }}
+              className={`absolute inset-0 bg-cover bg-center bg-no-repeat blur-md ${
+              useDarkBackground ? 'bg-black' : 'bg-white'
+            }`}
             />
             <div className={`absolute inset-0 ${useDarkBackground ? 'bg-black/70' : 'bg-white/30'}`} aria-hidden="true" />
             <div className="relative">
