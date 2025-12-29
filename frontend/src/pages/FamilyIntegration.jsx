@@ -21,7 +21,9 @@ axiosInstance.interceptors.request.use((cfg) => {
 });
 
 const Pill = ({ children, className = "" }) => (
-  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${className}`}>
+  <div
+    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${className}`}
+  >
     {children}
   </div>
 );
@@ -48,8 +50,10 @@ const FamilyIntegration = ({ user, setUser }) => {
   }
 
   const handleAdd = async () => {
-    if (identifierType === "email" && !memberEmail) return showToast("error", "Please enter an email");
-    if (identifierType === "phone" && !memberPhone) return showToast("error", "Please enter a phone number");
+    if (identifierType === "email" && !memberEmail)
+      return showToast("error", "Please enter an email");
+    if (identifierType === "phone" && !memberPhone)
+      return showToast("error", "Please enter a phone number");
     setProcessing(true);
     try {
       const payload = { relation: relationMap[relationKey] };
@@ -91,103 +95,223 @@ const FamilyIntegration = ({ user, setUser }) => {
       <div className="max-w-6xl mx-auto">
         <div className="mb-4 flex items-center justify-between">
           <div className="text-sm text-gray-600">
-            Dashboard / <span className="text-gray-900 font-semibold">Family Integration</span>
+            Dashboard /{" "}
+            <span className="text-gray-900 font-semibold">
+              Family Integration
+            </span>
           </div>
-          <button onClick={() => navigate('/dashboard')} className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100">Back to Dashboard</button>
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
+          >
+            Back to Dashboard
+          </button>
         </div>
 
         <div className="mx-4 md:mx-6 p-5 rounded-2xl bg-white shadow-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-lg font-bold text-gray-900">Add Family Member</div>
-              <div className="text-sm text-gray-600">Add by email or phone. Relation will be applied bidirectionally.</div>
+              <div className="text-lg font-bold text-gray-900">
+                Add Family Member
+              </div>
+              <div className="text-sm text-gray-600">
+                Add by email or phone. Relation will be applied bidirectionally.
+              </div>
             </div>
             <div className="flex gap-2">
-              <Pill className="text-gray-700 bg-gray-100 border border-gray-200">Tip</Pill>
+              <Pill className="text-gray-700 bg-gray-100 border border-gray-200">
+                Tip
+              </Pill>
             </div>
           </div>
 
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
-        <select value={relationKey} onChange={e => setRelationKey(e.target.value)} className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white">
-          {RELATIONS.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
-        </select>
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
+            <select
+              value={relationKey}
+              onChange={(e) => setRelationKey(e.target.value)}
+              className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white"
+            >
+              {RELATIONS.map((r) => (
+                <option key={r.key} value={r.key}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
 
-        <select value={identifierType} onChange={e => setIdentifierType(e.target.value)} className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white">
-          <option value="email">Email</option>
-          <option value="phone">Phone</option>
-        </select>
+            <select
+              value={identifierType}
+              onChange={(e) => setIdentifierType(e.target.value)}
+              className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white"
+            >
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+            </select>
 
-        {identifierType === "email" ? (
-          <input type="email" placeholder="family@example.com" value={memberEmail} onChange={e => setMemberEmail(e.target.value)} className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 col-span-1 sm:col-span-1" />
-        ) : (
-          <input type="tel" placeholder="01XXXXXXXXX" value={memberPhone} onChange={e => setMemberPhone(e.target.value)} className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 col-span-1 sm:col-span-1" />
-        )}
+            {identifierType === "email" ? (
+              <input
+                type="email"
+                placeholder="family@example.com"
+                value={memberEmail}
+                onChange={(e) => setMemberEmail(e.target.value)}
+                className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 col-span-1 sm:col-span-1"
+              />
+            ) : (
+              <input
+                type="tel"
+                placeholder="01XXXXXXXXX"
+                value={memberPhone}
+                onChange={(e) => setMemberPhone(e.target.value)}
+                className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 col-span-1 sm:col-span-1"
+              />
+            )}
 
-        <div className="flex gap-2">
-          <button onClick={handleAdd} disabled={processing} className="flex-1 py-3 rounded-lg font-semibold bg-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/80 text-white disabled:opacity-50">
-            {processing ? "Processing..." : "Add Member"}
-          </button>
-          <button onClick={() => { setMemberEmail(""); setMemberPhone(""); setRelationKey("father"); setIdentifierType("email"); }} className="px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200">Reset</button>
-        </div>
-      </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleAdd}
+                disabled={processing}
+                className="flex-1 py-3 rounded-lg font-semibold bg-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/80 text-white disabled:opacity-50"
+              >
+                {processing ? "Processing..." : "Add Member"}
+              </button>
+              <button
+                onClick={() => {
+                  setMemberEmail("");
+                  setMemberPhone("");
+                  setRelationKey("father");
+                  setIdentifierType("email");
+                }}
+                className="px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
 
-      <AnimatePresence>
-        {toast.text && (
-          <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className={`mt-3 p-3 rounded-md ${toast.type === "success" ? "bg-green-50 text-green-700 border border-green-200" : toast.type === "error" ? "bg-red-50 text-red-700 border border-red-200" : "bg-blue-50 text-blue-700 border border-blue-200"}`}>
-            {toast.text}
+          <AnimatePresence>
+            {toast.text && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                className={`mt-3 p-3 rounded-md ${
+                  toast.type === "success"
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : toast.type === "error"
+                    ? "bg-red-50 text-red-700 border border-red-200"
+                    : "bg-blue-50 text-blue-700 border border-blue-200"
+                }`}
+              >
+                {toast.text}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <motion.div
+            layout
+            className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-min"
+          >
+            <div className="min-h-[180px]">
+              <div className="text-xs text-gray-600 font-semibold mb-2">
+                Father
+              </div>
+              <AnimatePresence>
+                {family.father ? (
+                  <UserCard
+                    key={family.father._id}
+                    user={family.father}
+                    onRemove={() => handleRemove(family.father._id, "father")}
+                  />
+                ) : (
+                  <motion.div
+                    layout
+                    key="no-father"
+                    className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 h-[180px] flex items-center justify-center"
+                  >
+                    No father
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="min-h-[180px]">
+              <div className="text-xs text-gray-600 font-semibold mb-2">
+                Mother
+              </div>
+              <AnimatePresence>
+                {family.mother ? (
+                  <UserCard
+                    key={family.mother._id}
+                    user={family.mother}
+                    onRemove={() => handleRemove(family.mother._id, "mother")}
+                  />
+                ) : (
+                  <motion.div
+                    layout
+                    key="no-mother"
+                    className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 h-[180px] flex items-center justify-center"
+                  >
+                    No mother
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="lg:col-span-1 min-h-[180px]">
+              <div className="text-xs text-gray-600 font-semibold mb-2">
+                Siblings
+              </div>
+              <div className="flex flex-col gap-3">
+                <AnimatePresence>
+                  {Array.isArray(family.siblings) &&
+                  family.siblings.length > 0 ? (
+                    family.siblings.map((s) => (
+                      <UserCard
+                        key={s._id}
+                        user={s}
+                        onRemove={() => handleRemove(s._id, "sibling")}
+                      />
+                    ))
+                  ) : (
+                    <motion.div
+                      layout
+                      key="no-siblings"
+                      className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 h-[180px] flex items-center justify-center"
+                    >
+                      No siblings
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+
+            <div className="lg:col-span-3 min-h-[180px]">
+              <div className="text-xs text-gray-600 font-semibold mb-2">
+                Children
+              </div>
+              <div className="flex flex-wrap gap-4">
+                <AnimatePresence>
+                  {Array.isArray(family.children) &&
+                  family.children.length > 0 ? (
+                    family.children.map((c) => (
+                      <UserCard
+                        key={c._id}
+                        user={c}
+                        onRemove={() => handleRemove(c._id, "child")}
+                      />
+                    ))
+                  ) : (
+                    <motion.div
+                      layout
+                      key="no-children"
+                      className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 w-full h-[180px] flex items-center justify-center"
+                    >
+                      No children
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.div layout className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-min">
-        <div className="min-h-[180px]">
-          <div className="text-xs text-gray-600 font-semibold mb-2">Father</div>
-          <AnimatePresence>
-            {family.father ? (
-              <UserCard key={family.father._id} user={family.father} onRemove={() => handleRemove(family.father._id, "father")} />
-            ) : (
-              <motion.div layout key="no-father" className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 h-[180px] flex items-center justify-center">No father</motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <div className="min-h-[180px]">
-          <div className="text-xs text-gray-600 font-semibold mb-2">Mother</div>
-          <AnimatePresence>
-            {family.mother ? (
-              <UserCard key={family.mother._id} user={family.mother} onRemove={() => handleRemove(family.mother._id, "mother")} />
-            ) : (
-              <motion.div layout key="no-mother" className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 h-[180px] flex items-center justify-center">No mother</motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <div className="lg:col-span-1 min-h-[180px]">
-          <div className="text-xs text-gray-600 font-semibold mb-2">Siblings</div>
-          <div className="flex flex-col gap-3">
-            <AnimatePresence>
-              {Array.isArray(family.siblings) && family.siblings.length > 0 ? family.siblings.map(s => (
-                <UserCard key={s._id} user={s} onRemove={() => handleRemove(s._id, "sibling")} />
-              )) : (
-                <motion.div layout key="no-siblings" className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 h-[180px] flex items-center justify-center">No siblings</motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        <div className="lg:col-span-3 min-h-[180px]">
-          <div className="text-xs text-gray-600 font-semibold mb-2">Children</div>
-          <div className="flex flex-wrap gap-4">
-            <AnimatePresence>
-              {Array.isArray(family.children) && family.children.length > 0 ? family.children.map(c => (
-                <UserCard key={c._id} user={c} onRemove={() => handleRemove(c._id, "child")} />
-              )) : (
-                <motion.div layout key="no-children" className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 w-full h-[180px] flex items-center justify-center">No children</motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-      </motion.div>
         </div>
       </div>
     </div>

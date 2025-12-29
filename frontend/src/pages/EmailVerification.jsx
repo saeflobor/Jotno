@@ -12,9 +12,8 @@ export default function VerifyEmail({ setUser }) {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        const res = await axios.post('/api/users/verifyemail', { token });
+        const res = await axios.post("/api/users/verifyemail", { token });
 
-        
         localStorage.setItem("token", res.data.token);
 
         setUser(res.data.user);
@@ -38,9 +37,7 @@ export default function VerifyEmail({ setUser }) {
 
       {loading && <p>Verifying your email...</p>}
 
-      {!loading && message && (
-        <p style={{ color: "red" }}>{message}</p>
-      )}
+      {!loading && message && <p style={{ color: "red" }}>{message}</p>}
     </div>
   );
 }
