@@ -1,11 +1,11 @@
-import express from "express";
 import User from "../models/User.js";
 import { protect } from "../middleware/auth.js";
-import { sendEmail } from "../controllers/emailverification.js";
+import { sendEmail } from "../utils/emailverification.js";
+import AppError from "../utils/AppError.js";
 import jwt from "jsonwebtoken";
+import { generateToken, generateverifyToken } from "../utils/generatetokens.js";
 
-const router = express.Router();
-router.post("/verifyemail", async (req, res) => {
+const verifyemail = async (req, res) => {
   try {
     const { token } = req.body;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -20,10 +20,10 @@ router.post("/verifyemail", async (req, res) => {
       .status(401)
       .json({ success: false, message: "User is not created" });
   }
-});
+};
 
 // Register route
-router.post("/register", async (req, res) => {
+const register = async (req, res, next) => {
   const { username, email, phone, password, role, gender } = req.body;
   try {
     const domain = email.split("@")[1];
@@ -32,7 +32,7 @@ router.post("/register", async (req, res) => {
       domain !== "yahoo.com" &&
       domain !== "outlook.com"
     ) {
-      return res.status(400).json({ message: "Email domain is not supported" });
+      return next(new AppError("Email doesnot support in the dns", 400));
     }
     const user = await User.create({
       username,
@@ -47,51 +47,41 @@ router.post("/register", async (req, res) => {
     const verifytoken = generateverifyToken(user._id);
     const sendemail = await sendEmail(email, verifytoken);
     if (!sendemail.success) {
-      console.error(`Failed to send verification email: ${email}`);
-      return res.status(400).json({ message: "Email doesnot exist" });
+      
+      return next(new AppError("Email not sent, please try again", 500));
     }
     console.log("Verification email sent");
     return res
       .status(200)
       .json({ message: "Registration successful, please verify your email" });
   } catch (err) {
-    console.error("Register error:", err);
-    if (err.code === 11000 || err?.cause?.code === 11000) {
-      return res.status(400).json({ message: "User already exists" });
-    } else
-      return res
-        .status(500)
-        .json({ message: "Server error", error: err.message });
+    return next(err);
   }
-});
+};
 
 // Login route
-router.post("/login", async (req, res) => {
+const Login = async (req, res, next) => {
   const { email, password, role } = req.body;
   try {
     if (!email || !password || !role) {
-      return res.status(400).json({ message: "Please enter all fields" });
+      return next(new AppError("Please provide email, password and role", 400));
     }
 
     if (!["doctor", "patient"].includes(role)) {
-      return res
-        .status(400)
-        .json({ message: "Role must be doctor or patient" });
+      return next(new AppError("Invalid role provided", 400));
     }
 
     const user = await User.findOne({ email });
     if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return next(new AppError("Invalid email or password", 401));
     }
 
     if (user.role !== role) {
-      return res.status(401).json({ message: "Role mismatch" });
+      return next(new AppError("Role does not match", 401));
     }
 
     if (user.verified === false) {
-      return res
-        .status(401)
-        .json({ message: "Please verify your email to login" });
+      return next(new AppError("Please verify your email to login", 401));
     }
     const token = generateToken(user._id);
     res.status(200).json({
@@ -104,29 +94,19 @@ router.post("/login", async (req, res) => {
       token,
     });
   } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    return next(err);
   }
-});
+};
 
 // Me route
 // In auth.js, modify /me route
-router.get("/me", protect, async (req, res) => {
+const UserDetails = async (req, res) => {
   const user = await User.findById(req.user._id)
     .select("-password")
     .populate(
       "family.father family.spouse family.mother family.siblings family.children"
     );
   res.status(200).json(user);
-});
-
-// Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" });
 };
 
-const generateverifyToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "600s" });
-};
-
-export default router;
+export { register, Login, UserDetails, verifyemail };

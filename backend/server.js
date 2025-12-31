@@ -1,7 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
-import authRoutes from "./routes/auth.js";
+import authRoutes from "./routes/authroutes.js";
 import familyRoutes from "./routes/familyRoutes.js";
+import errorHandler from "./middleware/errorhandler.js";
 import { connectDB } from "./config/db.js";
 
 dotenv.config();
@@ -16,6 +17,7 @@ app.use(express.json());
 // Routes
 app.use("/api/users", authRoutes);
 app.use("/api/family", familyRoutes);
+app.use(errorHandler);
 
 // <-- Mount family routes
 

@@ -7,8 +7,7 @@ import { useNavigate } from "react-router-dom";
 const RELATIONS = [
   { key: "father", label: "Father", api: "father" },
   { key: "mother", label: "Mother", api: "mother" },
-  { key: "brother", label: "Brother", api: "sibling" },
-  { key: "sister", label: "Sister", api: "sibling" },
+  { key: "spouse", label: "Spouse", api: "spouse" }, // Added spouse
   { key: "son", label: "Son", api: "child" },
   { key: "daughter", label: "Daughter", api: "child" },
 ];
@@ -251,6 +250,30 @@ const FamilyIntegration = ({ user, setUser }) => {
                     className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 h-[180px] flex items-center justify-center"
                   >
                     No mother
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Spouse Section */}
+            <div className="min-h-[180px]">
+              <div className="text-xs text-gray-600 font-semibold mb-2">
+                Spouse
+              </div>
+              <AnimatePresence>
+                {family.spouse ? (
+                  <UserCard
+                    key={family.spouse._id}
+                    user={family.spouse}
+                    onRemove={() => handleRemove(family.spouse._id, "spouse")}
+                  />
+                ) : (
+                  <motion.div
+                    layout
+                    key="no-spouse"
+                    className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 h-[180px] flex items-center justify-center"
+                  >
+                    No spouse
                   </motion.div>
                 )}
               </AnimatePresence>
