@@ -5,7 +5,7 @@ import AppError from "../utils/AppError.js";
 import jwt from "jsonwebtoken";
 import { generateToken, generateverifyToken } from "../utils/generatetokens.js";
 
-const verifyemail = async (req, res) => {
+const verifyemail = async (req, res, next) => {
   try {
     const { token } = req.body;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -15,10 +15,8 @@ const verifyemail = async (req, res) => {
       .status(200)
       .json({ success: true, user, token: localStoragetoken });
   } catch (error) {
-    console.error("Jwt Decoding Error:", error);
-    return res
-      .status(401)
-      .json({ success: false, message: "User is not created" });
+    
+    return next(new AppError("Invalid or expired token", 400));
   }
 };
 
@@ -34,7 +32,9 @@ const register = async (req, res, next) => {
     ) {
       return next(new AppError("Email doesnot support in the dns", 400));
     }
-    const user = await User.create({
+    const check_user = await User.findOne({ email }); 
+    if(!check_user){
+      const user = await User.create({
       username,
       email,
       password,
@@ -54,6 +54,15 @@ const register = async (req, res, next) => {
     return res
       .status(200)
       .json({ message: "Registration successful, please verify your email" });
+    }
+    
+    else if(check_user.verified===false){
+      return next(new AppError("Please verify your email for successful registration", 401));
+    }
+    else {
+      return next(new AppError("Email already exists", 400));
+    }
+
   } catch (err) {
     return next(err);
   }

@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "Email is required"],
-      unique: [true, "Email already exists"],
+      unique: [true, "A user with this email already exists"],
       validate: {
         validator: (v) => {
           return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v);
@@ -29,7 +29,15 @@ const userSchema = new mongoose.Schema(
     },
 
     verified: { type: Boolean, default: false },
-    phone: { type: String, required: true, unique: true },
+    phone: { type: String, required: true, 
+      unique:[true,"A user with this phone exists"],
+      validate: {
+        validator: (v) => {
+           return /^(017|018|019|015|016|013)\d{8}$/.test(v);
+        },
+        message: (props) => `${props.value} is not a valid phone number!`,
+      }, 
+    },
     family: {
       father: {
         type: mongoose.Schema.Types.ObjectId,
