@@ -1,10 +1,23 @@
-import React from 'react'
-import { Link, Navigate } from 'react-router-dom'
-import { useState } from 'react';
-import { ChevronDown, ChevronUp, Bell, Users, AlertTriangle, Calendar, Activity, FileText, Heart, UserRound, Moon, Sun } from 'lucide-react';
+import React from "react";
+import { Link, Navigate } from "react-router-dom";
+import { useState } from "react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Bell,
+  Users,
+  AlertTriangle,
+  Calendar,
+  Activity,
+  FileText,
+  Heart,
+  UserRound,
+  Moon,
+  Sun,
+} from "lucide-react";
 
-const Home = ({user, error}) => {
-  console.log('User:', user); // Check the value of user
+const Home = ({ user, error }) => {
+  console.log("User:", user); // Check the value of user
 
   const [showAllFeatures, setShowAllFeatures] = useState(false);
   const [useDarkBackground, setUseDarkBackground] = useState(false);
@@ -13,62 +26,68 @@ const Home = ({user, error}) => {
     {
       id: 1,
       icon: Bell,
-      title: 'Medication Reminders',
-      description: 'Timely alerts via notifications or SMS. Family can track if reminders were acknowledged.',
-      visible: true
+      title: "Medication Reminders",
+      description:
+        "Timely alerts via notifications or SMS. Family can track if reminders were acknowledged.",
+      visible: true,
     },
     {
       id: 2,
       icon: Users,
-      title: 'Family Supervision',
-      description: 'Monitor medication adherence, access records (with permission), view health summaries.',
-      visible: true
+      title: "Family Supervision",
+      description:
+        "Monitor medication adherence, access records (with permission), view health summaries.",
+      visible: true,
     },
     {
       id: 3,
       icon: AlertTriangle,
-      title: 'Emergency SOS',
-      description: 'One-tap SOS button notifies family instantly with message and optional location.',
-      visible: true
+      title: "Emergency SOS",
+      description:
+        "One-tap SOS button notifies family instantly with message and optional location.",
+      visible: true,
     },
     {
       id: 4,
       icon: Calendar,
-      title: 'Appointment Tracking',
-      description: 'Never miss a doctor\'s appointment with our smart scheduling system.',
-      visible: showAllFeatures
+      title: "Appointment Tracking",
+      description:
+        "Never miss a doctor's appointment with our smart scheduling system.",
+      visible: showAllFeatures,
     },
     {
       id: 5,
       icon: Activity,
-      title: 'Health Monitoring',
-      description: 'Track vital signs and health metrics with easy-to-use tools.',
-      visible: showAllFeatures
+      title: "Health Monitoring",
+      description:
+        "Track vital signs and health metrics with easy-to-use tools.",
+      visible: showAllFeatures,
     },
     {
       id: 6,
       icon: FileText,
-      title: 'Medical Records',
-      description: 'Secure digital storage for all your important medical documents.',
-      visible: showAllFeatures
-    }
+      title: "Medical Records",
+      description:
+        "Secure digital storage for all your important medical documents.",
+      visible: showAllFeatures,
+    },
   ];
 
   const testimonials = [
     {
       id: 1,
-      text: 'Since using যত্ন, my father never misses his medication. The peace of mind is priceless.',
-      author: 'Rahman M. Jr.',
-      role: 'Son of Rahman M. Sr.',
-      icon: UserRound
+      text: "Since using যত্ন, my father never misses his medication. The peace of mind is priceless.",
+      author: "Rahman M. Jr.",
+      role: "Son of Rahman M. Sr.",
+      icon: UserRound,
     },
     {
       id: 2,
-      text: 'The SOS feature saved my grandmother when she fell. Help arrived within minutes!',
-      author: 'Farhana K.',
-      role: 'Granddaughter of Rahima K.',
-      icon: UserRound
-    }
+      text: "The SOS feature saved my grandmother when she fell. Help arrived within minutes!",
+      author: "Farhana K.",
+      role: "Granddaughter of Rahima K.",
+      icon: UserRound,
+    },
   ];
 
   return (
@@ -161,7 +180,11 @@ const Home = ({user, error}) => {
                     onClick={() => setShowAllFeatures(!showAllFeatures)}
                     className="bg-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/50 text-white px-6 py-3 rounded-lg font-medium transition duration-300 flex items-center gap-2"
                   >
-                    <span>{showAllFeatures ? 'Show Fewer Features' : 'View All Features'}</span>
+                    <span>
+                      {showAllFeatures
+                        ? "Show Fewer Features"
+                        : "View All Features"}
+                    </span>
                     {showAllFeatures ? (
                       <ChevronUp className="w-5 h-5" />
                     ) : (
@@ -171,24 +194,59 @@ const Home = ({user, error}) => {
                 </div>
               </section>
 
-              <section className={`container mx-auto px-4 py-16  ${useDarkBackground ? 'bg-black/30' : 'bg-white/30'} backdrop-blur-[40px] rounded-xl`}>
-                <h2 className={`text-3xl font-bold text-center mb-12 ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}>What Families Say</h2>
+              <section
+                className={`container mx-auto px-4 py-16  ${
+                  useDarkBackground ? "bg-black/30" : "bg-white/30"
+                } backdrop-blur-[40px] rounded-xl`}
+              >
+                <h2
+                  className={`text-3xl font-bold text-center mb-12 ${
+                    useDarkBackground ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  What Families Say
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
                   {testimonials.map((testimonial) => {
                     const IconComponent = testimonial.icon;
                     return (
-                    <div key={testimonial.id} className={`${useDarkBackground ? 'bg-black/30' : 'bg-white/30'} backdrop-blur-[40px] p-6 rounded-lg shadow`}>
-                      <p className={`italic mb-4 ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}>{testimonial.text}</p>
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 rounded-full mr-4 bg-pink-200 flex items-center justify-center">
-                          <IconComponent className="w-6 h-6 text-black" />
-                        </div>
-                        <div>
-                          <h4 className={`font-semibold ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}>{testimonial.author}</h4>
-                          <p className={`text-sm ${useDarkBackground ? 'text-gray-500' : 'text-gray-600'}`}>{testimonial.role}</p>
+                      <div
+                        key={testimonial.id}
+                        className={`${
+                          useDarkBackground ? "bg-black/30" : "bg-white/30"
+                        } backdrop-blur-[40px] p-6 rounded-lg shadow`}
+                      >
+                        <p
+                          className={`italic mb-4 ${
+                            useDarkBackground ? "text-white" : "text-gray-900"
+                          }`}
+                        >
+                          {testimonial.text}
+                        </p>
+                        <div className="flex items-center">
+                          <div className="w-12 h-12 rounded-full mr-4 bg-pink-200 flex items-center justify-center">
+                            <IconComponent className="w-6 h-6 text-black" />
+                          </div>
+                          <div>
+                            <h4
+                              className={`font-semibold ${
+                                useDarkBackground ? "text-white" : "text-gray-900"
+                              }`}
+                            >
+                              {testimonial.author}
+                            </h4>
+                            <p
+                              className={`text-sm ${
+                                useDarkBackground
+                                  ? "text-gray-500"
+                                  : "text-gray-600"
+                              }`}
+                            >
+                              {testimonial.role}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
                     );
                   })}
                 </div>
@@ -196,10 +254,17 @@ const Home = ({user, error}) => {
 
               {/* CTA Section */}
               <section className="container mx-auto px-4 py-16">
-                <div className={`bg-[rgb(211,46,149)]/60 rounded-xl p-8 text-center ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}>
-                  <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
+                <div
+                  className={`bg-[rgb(211,46,149)]/60 rounded-xl p-8 text-center ${
+                    useDarkBackground ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  <h2 className="text-3xl font-bold mb-4">
+                    Ready to Get Started?
+                  </h2>
                   <p className="text-lg mb-6 max-w-2xl mx-auto">
-                    Join thousands of families who trust যত্ন : Jotno for their loved ones' care
+                    Join thousands of families who trust যত্ন : Jotno for their
+                    loved ones' care
                   </p>
                   <Link
                     to="/register"
@@ -210,10 +275,10 @@ const Home = ({user, error}) => {
                 </div>
               </section>
             </div>
-          </div>
-        )}
-      </div>
-  )
-}
+            </div>
+          )}
+        </div>
+      );
+    };
 
-export default Home
+export default Home;

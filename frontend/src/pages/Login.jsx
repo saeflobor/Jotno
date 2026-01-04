@@ -1,32 +1,32 @@
-import React, { useState } from 'react'
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Login = ({ setUser }) => {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        role: 'patient'
-    });
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    role: "patient",
+  });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-    const handleChange = (e) => {
-        setFormData({...formData, [e.target.name]: e.target.value});
-    };
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await axios.post('/api/users/login', formData);
-            localStorage.setItem("token", res.data.token);
-            console.log(res.data);
-            setUser(res.data);
-            navigate('/dashboard');
-        } catch (err) {
-            setError(err.response?.data?.message || "Login failed");
-        }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post("/api/users/login", formData);
+      localStorage.setItem("token", res.data.token);
+      console.log(res.data);
+      setUser(res.data);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    }
+  };
 
   return (
     <div
@@ -95,4 +95,4 @@ const Login = ({ setUser }) => {
   );
 };
 
-export default Login
+export default Login;
