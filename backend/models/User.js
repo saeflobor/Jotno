@@ -58,6 +58,9 @@ const userSchema = new mongoose.Schema(
         { type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] },
       ],
     },
+    medicalReports: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "MedicalReport", default: [] },
+    ],
   },
   { timestamps: true }
 );
