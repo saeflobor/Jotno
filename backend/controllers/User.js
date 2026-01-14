@@ -28,9 +28,10 @@ const register = async (req, res, next) => {
     if (
       domain !== "gmail.com" &&
       domain !== "yahoo.com" &&
-      domain !== "outlook.com"
+      domain !== "outlook.com" &&
+      domain !== "iut-dhaka.edu"
     ) {
-      return next(new AppError("Email doesnot support in the dns", 400));
+      return next(new AppError("Email not supported in the DNS", 400));
     }
     const check_user = await User.findOne({ email }); 
     if(!check_user){
@@ -47,7 +48,7 @@ const register = async (req, res, next) => {
     const verifytoken = generateverifyToken(user._id);
     const sendemail = await sendEmail(email, verifytoken);
     if (!sendemail.success) {
-      
+      console.error("Email send error:", sendemail.error);
       return next(new AppError("Email not sent, please try again", 500));
     }
     console.log("Verification email sent");
@@ -57,7 +58,17 @@ const register = async (req, res, next) => {
     }
     
     else if(check_user.verified===false){
-      return next(new AppError("Please verify your email for successful registration", 401));
+      // User exists but not verified, resend verification email
+      const verifytoken = generateverifyToken(check_user._id);
+      const sendemail = await sendEmail(email, verifytoken);
+      if (!sendemail.success) {
+        console.error("Email send error:", sendemail.error);
+        return next(new AppError("Email not sent, please try again", 500));
+      }
+      console.log("Verification email resent");
+      return res
+        .status(200)
+        .json({ message: "Verification email sent, please check your inbox" });
     }
     else {
       return next(new AppError("Email already exists", 400));
