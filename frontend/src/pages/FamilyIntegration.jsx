@@ -279,34 +279,6 @@ const FamilyIntegration = ({ user, setUser }) => {
               </AnimatePresence>
             </div>
 
-            <div className="lg:col-span-1 min-h-[180px]">
-              <div className="text-xs text-gray-600 font-semibold mb-2">
-                Siblings
-              </div>
-              <div className="flex flex-col gap-3">
-                <AnimatePresence>
-                  {Array.isArray(family.siblings) &&
-                  family.siblings.length > 0 ? (
-                    family.siblings.map((s) => (
-                      <UserCard
-                        key={s._id}
-                        user={s}
-                        onRemove={() => handleRemove(s._id, "sibling")}
-                      />
-                    ))
-                  ) : (
-                    <motion.div
-                      layout
-                      key="no-siblings"
-                      className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 h-[180px] flex items-center justify-center"
-                    >
-                      No siblings
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-
             <div className="lg:col-span-3 min-h-[180px]">
               <div className="text-xs text-gray-600 font-semibold mb-2">
                 Children

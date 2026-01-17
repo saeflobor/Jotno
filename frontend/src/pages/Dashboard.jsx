@@ -204,7 +204,7 @@ const Dashboard = ({ user, setUser }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <button
                     className="p-6 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 text-left hover:bg-gray-100 transition"
-                    onClick={() => alert("Coming soon!")}
+                    onClick={() => navigate("/profile-activity")}
                   >
                     <div className="text-sm text-gray-600 mb-1">Overview</div>
                     <div className="text-gray-900 font-semibold">
