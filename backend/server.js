@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import authRoutes from "./routes/authroutes.js";
 import familyRoutes from "./routes/familyRoutes.js";
+import medicalReportRoutes from "./routes/medicalReportRoutes.js";
 import errorHandler from "./middleware/errorhandler.js";
 import { connectDB } from "./config/db.js";
 
@@ -22,6 +23,7 @@ app.use(express.json());
 // Routes
 app.use("/api/users", authRoutes);
 app.use("/api/family", familyRoutes);
+app.use("/api/medical-report", medicalReportRoutes);
 app.use(errorHandler);
 
 // <-- Mount family routes

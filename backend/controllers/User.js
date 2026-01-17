@@ -15,7 +15,6 @@ const verifyemail = async (req, res, next) => {
       .status(200)
       .json({ success: true, user, token: localStoragetoken });
   } catch (error) {
-    
     return next(new AppError("Invalid or expired token", 400));
   }
 };
@@ -33,47 +32,37 @@ const register = async (req, res, next) => {
     ) {
       return next(new AppError("Email not supported in the DNS", 400));
     }
-    const check_user = await User.findOne({ email }); 
-    if(!check_user){
+    const check_user = await User.findOne({ email });
+    if (!check_user) {
       const user = await User.create({
-      username,
-      email,
-      password,
-      role,
-      verified: false,
-      gender,
-      phone,
-    });
+        username,
+        email,
+        password,
+        role,
+        verified: false,
+        gender,
+        phone,
+      });
 
-    const verifytoken = generateverifyToken(user._id);
-    const sendemail = await sendEmail(email, verifytoken);
-    if (!sendemail.success) {
-      console.error("Email send error:", sendemail.error);
-      return next(new AppError("Email not sent, please try again", 500));
-    }
-    console.log("Verification email sent");
-    return res
-      .status(200)
-      .json({ message: "Registration successful, please verify your email" });
-    }
-    
-    else if(check_user.verified===false){
-      // User exists but not verified, resend verification email
-      const verifytoken = generateverifyToken(check_user._id);
+      const verifytoken = generateverifyToken(user._id);
       const sendemail = await sendEmail(email, verifytoken);
       if (!sendemail.success) {
-        console.error("Email send error:", sendemail.error);
         return next(new AppError("Email not sent, please try again", 500));
       }
-      console.log("Verification email resent");
+      console.log("Verification email sent");
       return res
         .status(200)
-        .json({ message: "Verification email sent, please check your inbox" });
-    }
-    else {
+        .json({ message: "Registration successful, please verify your email" });
+    } else if (check_user.verified === false) {
+      return next(
+        new AppError(
+          "Please verify your email for successful registration",
+          401
+        )
+      );
+    } else {
       return next(new AppError("Email already exists", 400));
     }
-
   } catch (err) {
     return next(err);
   }
@@ -120,13 +109,15 @@ const Login = async (req, res, next) => {
 
 // Me route
 // In auth.js, modify /me route
-const UserDetails = async (req, res) => {
-  const user = await User.findById(req.user._id)
-    .select("-password")
-    .populate(
-      "family.father family.spouse family.mother family.siblings family.children"
-    );
-  res.status(200).json(user);
+const UserDetails = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id)
+      .select("-password")
+      .populate("family.father family.spouse family.mother family.children");
+    res.status(200).json(user);
+  } catch (err) {
+    return next(err);
+  }
 };
 
 export { register, Login, UserDetails, verifyemail };

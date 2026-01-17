@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import FamilyIntegration from "./pages/FamilyIntegration";
 import EmailVerification from "./pages/EmailVerification";
 import NotFound from "./components/NotFound";
+import ProfileActivity from "./pages/ProfileActivity";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -66,6 +67,16 @@ function App() {
           element={
             user ? (
               <Dashboard user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/profile-activity"
+          element={
+            user ? (
+              <ProfileActivity user={user} setUser={setUser} />
             ) : (
               <Navigate to="/login" />
             )
