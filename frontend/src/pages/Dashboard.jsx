@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FiFileText, FiUsers } from "react-icons/fi";
-import { MdMedication } from "react-icons/md";
+import { MdMedication, MdAccountCircle } from "react-icons/md";
 
 const Dashboard = ({ user, setUser }) => {
   const navigate = useNavigate();
@@ -76,9 +76,8 @@ const Dashboard = ({ user, setUser }) => {
         <div
           className="relative rounded-3xl overflow-hidden mt-40"
           style={{
-            background:
-              "linear-gradient(135deg, rgba(211,46,149,0.05), rgba(255,255,255,1))",
-            border: "1px solid rgba(211,46,149,0.1)",
+            // background: "linear-gradient(135deg, rgba(211,46,149,0.1), rgba(255,255,255,1))",
+            // border: "1px solid rgba(211,46,149,0.1)",
           }}
         >
           {/* <div
@@ -103,25 +102,17 @@ const Dashboard = ({ user, setUser }) => {
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="md:col-span-1 bg-white rounded-2xl p-5 shadow-lg border border-gray-200"
+              className="md:col-span-1 bg-white rounded-2xl p-5"
+              style={{
+                boxShadow: "8px 8px 20px rgba(211, 46, 149, 0.3)"
+              }}
             >
               <div className="flex items-center gap-4">
                 <div
                   style={{ width: 72, height: 72 }}
                   className="rounded-full flex items-center justify-center"
                 >
-                  <div
-                    style={{
-                      width: 64,
-                      height: 64,
-                      borderRadius: 999,
-                      background:
-                        "linear-gradient(135deg,var(--accent-1),var(--accent-2))",
-                    }}
-                    className="flex items-center justify-center text-white font-extrabold text-xl"
-                  >
-                    {avatarInitials(user.username)}
-                  </div>
+                  <MdAccountCircle className="text-6xl text-[rgb(211,46,149)]" />
                 </div>
                 <div>
                   <div className="text-gray-900 text-xl font-bold">
@@ -135,36 +126,36 @@ const Dashboard = ({ user, setUser }) => {
                 <div
                   className="p-3 rounded-lg"
                   style={{
-                    background:
-                      "linear-gradient(180deg, rgba(249,250,251,1), rgba(243,244,246,1))",
-                    border: "1px solid rgba(229,231,235,1)",
+                    // background:
+                    //   // "linear-gradient(180deg, rgba(249,250,251,1), rgba(243,244,246,1))",
+                    // border: "1px solid rgba(229,231,235,1)",
                   }}
                 >
-                  <div className="text-xs text-gray-600">Role</div>
-                  <div className="font-semibold text-gray-900">{user.role}</div>
+                  <div className="text-s text-gray-600 text-center">Role</div>
+                  <div className="font-semibold text-gray-900 text-center">{user.role}</div>
                 </div>
                 <div
                   className="p-3 rounded-lg"
                   style={{
-                    background:
-                      "linear-gradient(180deg, rgba(249,250,251,1), rgba(243,244,246,1))",
-                    border: "1px solid rgba(229,231,235,1)",
+                    // background:
+                    //   "linear-gradient(180deg, rgba(249,250,251,1), rgba(243,244,246,1))",
+                    // border: "1px solid rgba(229,231,235,1)",
                   }}
                 >
-                  <div className="text-xs text-gray-600">Gender</div>
-                  <div className="font-semibold text-gray-900">
+                  <div className="text-s text-gray-600 text-center">Gender</div>
+                  <div className="font-semibold text-gray-900 text-center">
                     {user.gender}
                   </div>
                 </div>
                 <div
-                  className="p-3 rounded-lg col-span-2 flex items-center justify-between"
+                  className="rounded-lg col-span-2 flex items-center justify-center"
                   style={{
-                    background: "rgba(249,250,251,1)",
-                    border: "1px solid rgba(229,231,235,1)",
+                    // background: "rgba(249,250,251,1)",
+                    // // border: "1px solid rgba(229,231,235,1)",
                   }}
                 >
-                  <div className="text-xs text-gray-600">Family size</div>
-                  <div className="font-semibold text-gray-900">
+                  <div className="text-s text-black p-3">Family size</div>
+                  <div className="font-semibold text-black p-3">
                     {(Array.isArray(family.siblings)
                       ? family.siblings.length
                       : 0) +
@@ -185,7 +176,7 @@ const Dashboard = ({ user, setUser }) => {
                   }}
                   className="flex-1 py-2 rounded-lg font-semibold"
                   style={{
-                    background: "linear-gradient(90deg,#ff7a7a,#ff3d3d)",
+                    background: "linear-gradient(90deg,#ff1f4b,#ff5f6d)",
                     color: "#fff",
                   }}
                 >
