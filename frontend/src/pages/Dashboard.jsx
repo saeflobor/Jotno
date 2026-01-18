@@ -7,6 +7,9 @@ import { MdMedication, MdAccountCircle } from "react-icons/md";
 
 const Dashboard = ({ user, setUser }) => {
   const navigate = useNavigate();
+  const [hoverFamily, setHoverFamily] = useState(false);
+  const [hoverMedical, setHoverMedical] = useState(false);
+  const [hoverMeds, setHoverMeds] = useState(false);
   
   if (!user) {
     return (
@@ -214,8 +217,15 @@ const Dashboard = ({ user, setUser }) => {
                   <div className="flex flex-col items-center">
                     <FiFileText className="text-[rgb(211,46,149)] text-4xl mb-4" />
                     <button
-                      className="bg-purple-500 p-6 rounded-4xl border border-gray-200 bg-gray-50 text-gray-900 text-center text-xl hover:bg-gray-100 transition w-full h-full"
+                      className="bg-purple-500 p-6 rounded-4xl text-center text-xl transition w-full h-full"
                       onClick={() => navigate("/profile-activity")}
+                      onMouseEnter={() => setHoverMedical(true)}
+                      onMouseLeave={() => setHoverMedical(false)}
+                      style={{
+                        opacity: hoverMedical ? 0.8 : 1,
+                        transform: hoverMedical ? "scale(0.90)" : "scale(1)",
+                        transitionDuration: "200ms",
+                      }}
                     >
                       <div className="text-white font-semibold p-5">
                         Medical Record Management
@@ -225,8 +235,15 @@ const Dashboard = ({ user, setUser }) => {
                   <div className="flex flex-col items-center">
                     <FiUsers className="text-[rgb(211,46,149)] text-4xl mb-4" />
                     <button
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 p-6 rounded-4xl border border-gray-200 bg-gray-50 text-gray-900 text-center text-xl hover:bg-gray-100 transition w-full h-full"
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 p-6 rounded-4xl text-center text-xl transition w-full h-full"
                       onClick={() => navigate("/family-integration")}
+                      onMouseEnter={() => setHoverFamily(true)}
+                      onMouseLeave={() => setHoverFamily(false)}
+                      style={{
+                        opacity: hoverFamily ? 0.8 : 1,
+                        transform: hoverFamily ? "scale(0.90)" : "scale(1)",
+                        transitionDuration: "200ms",
+                      }}
                     >
                       <div className="text-white font-semibold p-5">
                         Family Management
@@ -236,8 +253,15 @@ const Dashboard = ({ user, setUser }) => {
                   <div className="flex flex-col items-center">
                     <MdMedication className="text-[rgb(211,46,149)] text-4xl mb-4" />
                     <button
-                      className="bg-pink-500 p-6 rounded-4xl border border-gray-200 bg-gray-50 text-gray-900 text-center text-xl  hover:bg-gray-300 transition w-full h-full"
+                      className="bg-pink-500 p-6 rounded-4xl text-center text-xl transition w-full h-full"
                       onClick={() => alert("Coming soon!")}
+                      onMouseEnter={() => setHoverMeds(true)}
+                      onMouseLeave={() => setHoverMeds(false)}
+                      style={{
+                        opacity: hoverMeds ? 0.8 : 1,
+                        // transform: hoverMeds ? "scale(0.90)" : "scale(1)",
+                        transitionDuration: "200ms",
+                      }}
                     >
                       <div className="text-white font-semibold p-5">
                         Lookup Meds
