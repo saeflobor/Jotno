@@ -26,6 +26,7 @@ const ProfileActivity = ({ user, setUser }) => {
   const [medicationForm, setMedicationForm] = useState({
     medicationName: "",
     dosage: "",
+    duration: "",
     frequency: "once-daily",
   });
   const [healthError, setHealthError] = useState("");
@@ -313,7 +314,7 @@ const ProfileActivity = ({ user, setUser }) => {
   };
 
   const handleAddMedication = async () => {
-    if (!medicationForm.medicationName.trim() || !medicationForm.dosage.trim()) {
+    if (!medicationForm.medicationName.trim() || !medicationForm.dosage.trim() || !medicationForm.duration.trim()) {
       setHealthError("Please fill all medication fields");
       return;
     }
@@ -333,6 +334,7 @@ const ProfileActivity = ({ user, setUser }) => {
         setMedicationForm({
           medicationName: "",
           dosage: "",
+          duration: "",
           frequency: "once-daily",
         });
         setTimeout(() => setHealthSuccess(""), 3000);
@@ -980,6 +982,24 @@ const ProfileActivity = ({ user, setUser }) => {
                     <option value="as-needed">As Needed</option>
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Duration
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g., 30 (for testing now its in minutes)"
+                  value={medicationForm.duration}
+                  onChange={(e) =>
+                    setMedicationForm({
+                      ...medicationForm,
+                      duration: e.target.value,
+                    })
+                  }
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 placeholder-gray-400"
+                />
               </div>
 
               <div className="flex gap-3 pt-3">

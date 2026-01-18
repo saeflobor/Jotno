@@ -85,16 +85,24 @@ export const addMedication = async (req, res, next) => {
     const userId = req.user?._id;
     if (!userId) return next(new AppError("Unauthorized", 401));
 
-    const { medicationName, dosage, frequency } = req.body;
+    const { medicationName, dosage, frequency, duration } = req.body;
 
-    if (!medicationName || !dosage || !frequency) {
+    if (!medicationName || !dosage || !frequency || !duration) {
       return next(new AppError("All fields are required", 400));
     }
 
+    const durationNum = parseInt(duration);
+    if (isNaN(durationNum) || durationNum <= 0) {
+      return next(new AppError("Duration must be a positive number", 400));
+    }
+
+    const expiryDate = new Date(Date.now() + durationNum*60*1000); // days to milliseconds
     const medication = await Medication.create({
       medicationName,
       dosage,
       frequency,
+      duration,
+      expiryDate,
       owner: userId,
     });
 
