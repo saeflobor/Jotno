@@ -93,11 +93,7 @@ const Home = ({ user, error }) => {
   return (
       <div>
         {error && <p className='text-red-500 mb-4 text-sm'>{error}</p>}
-        {user ? (
-          <Navigate to="/dashboard" replace />
-        ) : ( 
-          // No User Logged In
-          <div className="relative min-h-screen overflow-hidden">
+        <div className="relative min-h-screen overflow-hidden">
             <div
               className={`absolute inset-0 bg-cover bg-center bg-no-repeat blur-md ${
               useDarkBackground ? 'bg-black' : 'bg-white'
@@ -276,7 +272,6 @@ const Home = ({ user, error }) => {
               </section>
             </div>
             </div>
-          )}
         </div>
       );
     };

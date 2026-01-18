@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom';
+import { GoHomeFill } from 'react-icons/go';
 
 const Navbar = ({ user, setUser }) => {
 
@@ -18,8 +19,22 @@ const Navbar = ({ user, setUser }) => {
     <nav className='bg-black'>
       <div className='bg-[rgb(211,46,149)] backdrop-blur-md p-4'>
         <div className='container mx-auto relative flex justify-center items-center'>
-          <p className='text-white absolute left-0'>Peace of Mind for You,<br />Care for Your Loved Ones</p>
-          <Link to="/" className='text-white text-[30px] font-bold'>Jotno</Link>
+          <div className='absolute left-0 flex items-center gap-3'>
+            <Link to="/" className='mr-10 text-white hover:opacity-80 transition'>
+              <GoHomeFill className='text-3xl' />
+            </Link>
+            <p className='text-white'>Peace of Mind for You,<br />Care for Your Loved Ones</p>
+          </div>
+          <Link to="/" className='text-white text-[30px] font-bold'>
+            <button onClick={(e) => {
+              if (user) {
+                e.preventDefault();
+                window.location.href = '/dashboard';
+              }
+            }}>
+              Jotno
+            </button>
+          </Link>
           <div className='absolute right-0'>
             {user ? (
               <button onClick={handleLogout}
