@@ -186,101 +186,102 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xl font-semibold text-gray-700 mb-2">
                 Email
               </label>
               <input
                 type="email"
                 name="email"
-                value={formData.email}
+                // value={formData.email}
                 onChange={handleChange}
-                // placeholder={user?.email || "Enter your email"}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50"
+                placeholder={user?.email || "Enter your email"}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
               />
-              <p className="text-xs text-gray-500 mt-1">Current: {user?.email}</p>
+              <p className="text-xs text-gray-700 mt-3">Current: {user?.email}</p>
             </div>
 
             {/* Phone */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xl font-semibold text-gray-700 mb-2">
                 Phone Number
               </label>
               <input
                 type="tel"
                 name="phone"
-                value={formData.phone}
+                // value={formData.phone}
                 onChange={handleChange}
-                placeholder="017XXXXXXXX"
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black"
+                placeholder={user?.phone || "Enter your phone number"}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
               />
-              <p className="text-xs text-gray-500 mt-1">Current: {user?.phone}</p>
+              <p className="text-xs text-gray-700 mt-3">Current: {user?.phone}</p>
             </div>
 
             {/* Username */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xl font-semibold text-gray-700 mb-2">
                 Username
               </label>
               <input
                 type="text"
                 name="username"
-                value={formData.username}
+                // value={formData.username}
                 onChange={handleChange}
                 placeholder={user?.username || "Enter your username"}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
               />
-              <p className="text-xs text-gray-500 mt-1">Current: {user?.username}</p>
+              <p className="text-xs text-gray-700 mt-3">Current: {user?.username}</p>
             </div>
 
             {/* Gender */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xl font-semibold text-gray-700 mb-2">
                 Gender
               </label>
               <select
                 name="gender"
-                value={formData.gender}
+                // value={formData.gender}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition bg-white"
+                placeholder={user?.gender || "Select gender"}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition text-black/50"
               >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
+                <option value="male">male</option>
+                <option value="female">female</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">Current: {user?.gender}</p>
+              <p className="text-xs text-gray-700 mt-3">Current: {user?.gender}</p>
             </div>
 
             {/* Password */}
             <div className="pt-4 border-t border-gray-200">
               <p className="text-sm text-gray-600 mb-4">
-                <span className="font-semibold">Password Change (Optional)</span> - Leave blank to keep current password
+                <span className="font-semibold">Password Change (Optional)</span> - Leave blank to keep password unchanged
               </p>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-xl font-semibold text-gray-700 mb-2">
                     New Password
                   </label>
                   <input
                     type="password"
                     name="password"
-                    value={formData.password}
+                    // value={formData.password}
                     onChange={handleChange}
                     placeholder="Enter new password (min 6 characters)"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-xl font-semibold text-gray-700 mb-2">
                     Confirm Password
                   </label>
                   <input
                     type="password"
                     name="confirmPassword"
-                    value={formData.confirmPassword}
+                    // value={formData.confirmPassword}
                     onChange={handleChange}
                     placeholder="Confirm new password"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
                   />
                 </div>
               </div>
@@ -318,8 +319,8 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           transition={{ delay: 0.2 }}
           className="mt-8 p-4 rounded-lg bg-blue-50 border border-blue-200"
         >
-          <p className="text-sm text-blue-700">
-            <span className="font-semibold">Note:</span> Your role cannot be changed. If you need assistance, please contact an administrator.
+          <p className="text-sm text-blue-700 text-center">
+            <span className="font-semibold">Note:</span> Your role cannot be changed.
           </p>
         </motion.div>
       </div>
