@@ -3,13 +3,16 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FiFileText, FiUsers } from "react-icons/fi";
-import { MdMedication, MdAccountCircle } from "react-icons/md";
+import { MdMedication, MdAccountCircle, MdSettings } from "react-icons/md";
 
 const Dashboard = ({ user, setUser }) => {
   const navigate = useNavigate();
   const [hoverFamily, setHoverFamily] = useState(false);
   const [hoverMedical, setHoverMedical] = useState(false);
   const [hoverMeds, setHoverMeds] = useState(false);
+  const [hoverSOS, setHoverSOS] = useState(false);
+  const [hoverSignOut, setHoverSignOut] = useState(false);
+  const [hoverSettings, setHoverSettings] = useState(false);
   
   if (!user) {
     return (
@@ -61,22 +64,17 @@ const Dashboard = ({ user, setUser }) => {
             onClick={sendSOS}
             disabled={sendingSOS}
             className="px-6 py-3 rounded-full text-white font-semibold shadow-lg transition disabled:opacity-60"
+            onMouseEnter={() => setHoverSOS(true)}
+            onMouseLeave={() => setHoverSOS(false)}
             style={{
               background: "linear-gradient(90deg,#ff1f4b,#ff5f6d)",
               transform: "translateZ(0)",
+              opacity: hoverSOS ? 0.8 : 1,
+              scale: hoverSOS ? 0.90 : 1,
+              transitionDuration: "200ms",
             }}
           >
             {sendingSOS ? "Sending..." : "SOS"}
-          </button>
-          <button
-            onClick={() => navigate("/profile-update")}
-            className="px-6 py-3 rounded-full text-white font-semibold shadow-lg transition hover:shadow-xl"
-            style={{
-              background: "linear-gradient(90deg,#8b5cf6,#ec4899)",
-              transform: "translateZ(0)",
-            }}
-          >
-            Update Profile Info
           </button>
         </div>
         {sosMessage && (
@@ -187,21 +185,33 @@ const Dashboard = ({ user, setUser }) => {
                     localStorage.removeItem("token");
                     setUser(null);
                   }}
-                  className="flex-1 py-2 rounded-lg font-semibold"
+                  className="flex-1 py-2 rounded-lg font-semibold transition"
+                  onMouseEnter={() => setHoverSignOut(true)}
+                  onMouseLeave={() => setHoverSignOut(false)}
                   style={{
                     background: "linear-gradient(90deg,#ff1f4b,#ff5f6d)",
                     color: "#fff",
+                    opacity: hoverSignOut ? 0.8 : 1,
+                    transform: hoverSignOut ? "scale(0.90)" : "scale(1)",
+                    transitionDuration: "200ms",
                   }}
                 >
                   Sign out
                 </button>
                 <button
-                  onClick={() => {
-                    alert("Coming soon!");
+                  onClick={() => navigate("/profile-update")}
+                  className="p-2 rounded-lg transition"
+                  title="Update Profile"
+                  onMouseEnter={() => setHoverSettings(true)}
+                  onMouseLeave={() => setHoverSettings(false)}
+                  style={{
+                    backgroundColor: hoverSettings ? "pink" : "transparent",
+                    opacity: hoverSettings ? 0.9 : 1,
+                    transform: hoverSettings ? "scale(0.90)" : "scale(1)",
+                    transitionDuration: "200ms",
                   }}
-                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
-                  Share
+                  <MdSettings className="text-4xl text-[rgb(211,46,149)]" />
                 </button>
               </div>
             </motion.div>
