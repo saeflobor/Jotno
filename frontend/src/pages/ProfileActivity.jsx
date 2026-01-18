@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Pill, X } from "lucide-react";
+import { Pill, X, Activity, FileText, Clock, Search, Filter } from "lucide-react";
 
 const ProfileActivity = ({ user, setUser }) => {
   // ============ EXISTING MEDICAL REPORT STATE ============
@@ -26,11 +26,23 @@ const ProfileActivity = ({ user, setUser }) => {
   const [medicationForm, setMedicationForm] = useState({
     medicationName: "",
     dosage: "",
+    duration: "",
     frequency: "once-daily",
   });
   const [healthError, setHealthError] = useState("");
   const [healthSuccess, setHealthSuccess] = useState("");
   const [processingHealth, setProcessingHealth] = useState(false);
+
+  // ============ NEW PHASE 2 STATE ============
+  const [healthSummary, setHealthSummary] = useState(null);
+  const [activities, setActivities] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [uploadFormData, setUploadFormData] = useState({
+    category: "Other",
+    reportDate: "",
+    notes: "",
+  });
 
   // ============ EXISTING MEDICAL REPORT useEffect ============
   useEffect(() => {
@@ -75,6 +87,18 @@ const ProfileActivity = ({ user, setUser }) => {
             medicationsRes.data.medications || medicationsRes.data || []
           );
         }
+
+        // Fetch health summary
+        const summaryRes = await axios.get("/api/health/summary", { headers });
+        if (summaryRes?.data?.summary) {
+          setHealthSummary(summaryRes.data.summary);
+        }
+
+        // Fetch activities
+        const activitiesRes = await axios.get("/api/activities", { headers });
+        if (activitiesRes?.data?.activities) {
+          setActivities(activitiesRes.data.activities);
+        }
       } catch (err) {
         // ignore
       }
@@ -109,6 +133,9 @@ const ProfileActivity = ({ user, setUser }) => {
       const formData = new FormData();
       // backend expects field name 'file'
       formData.append("file", file);
+      formData.append("category", uploadFormData.category);
+      formData.append("reportDate", uploadFormData.reportDate);
+      formData.append("notes", uploadFormData.notes);
 
       const token = localStorage.getItem("token");
       const res = await axios.post("/api/medical-report", formData, {
@@ -142,8 +169,26 @@ const ProfileActivity = ({ user, setUser }) => {
         );
       }
 
+      // Refresh health summary
+      const token2 = localStorage.getItem("token");
+      const summaryRes = await axios.get("/api/health/summary", {
+        headers: { Authorization: `Bearer ${token2}` },
+      });
+      if (summaryRes?.data?.summary) {
+        setHealthSummary(summaryRes.data.summary);
+      }
+
+      // Refresh activities
+      const activitiesRes = await axios.get("/api/activities", {
+        headers: { Authorization: `Bearer ${token2}` },
+      });
+      if (activitiesRes?.data?.activities) {
+        setActivities(activitiesRes.data.activities);
+      }
+
       setSuccess("File uploaded successfully");
       setFile(null);
+      setUploadFormData({ category: "Other", reportDate: "", notes: "" });
       // give time for progress bar to reach 100%
       setTimeout(() => setUploadProgress(0), 400);
     } catch (err) {
@@ -175,6 +220,21 @@ const ProfileActivity = ({ user, setUser }) => {
               }
             : prev
         );
+      }
+
+      // Refresh health summary and activities
+      const summaryRes = await axios.get("/api/health/summary", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (summaryRes?.data?.summary) {
+        setHealthSummary(summaryRes.data.summary);
+      }
+
+      const activitiesRes = await axios.get("/api/activities", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (activitiesRes?.data?.activities) {
+        setActivities(activitiesRes.data.activities);
       }
 
       setSuccess("Document deleted");
@@ -285,6 +345,22 @@ const ProfileActivity = ({ user, setUser }) => {
         setHealthSuccess("Chronic condition added");
         setShowConditionModal(false);
         setConditionForm({ conditionName: "", severityLevel: "mild" });
+
+        // Refresh health summary and activities
+        const summaryRes = await axios.get("/api/health/summary", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (summaryRes?.data?.summary) {
+          setHealthSummary(summaryRes.data.summary);
+        }
+
+        const activitiesRes = await axios.get("/api/activities", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (activitiesRes?.data?.activities) {
+          setActivities(activitiesRes.data.activities);
+        }
+
         setTimeout(() => setHealthSuccess(""), 3000);
       }
     } catch (err) {
@@ -306,6 +382,22 @@ const ProfileActivity = ({ user, setUser }) => {
 
       setChronicConditions((p) => p.filter((c) => c._id !== id));
       setHealthSuccess("Condition deleted");
+
+      // Refresh health summary and activities
+      const summaryRes = await axios.get("/api/health/summary", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (summaryRes?.data?.summary) {
+        setHealthSummary(summaryRes.data.summary);
+      }
+
+      const activitiesRes = await axios.get("/api/activities", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (activitiesRes?.data?.activities) {
+        setActivities(activitiesRes.data.activities);
+      }
+
       setTimeout(() => setHealthSuccess(""), 3000);
     } catch (err) {
       setHealthError(err?.response?.data?.message || "Failed to delete");
@@ -313,7 +405,7 @@ const ProfileActivity = ({ user, setUser }) => {
   };
 
   const handleAddMedication = async () => {
-    if (!medicationForm.medicationName.trim() || !medicationForm.dosage.trim()) {
+    if (!medicationForm.medicationName.trim() || !medicationForm.dosage.trim() || !medicationForm.duration.trim()) {
       setHealthError("Please fill all medication fields");
       return;
     }
@@ -333,8 +425,25 @@ const ProfileActivity = ({ user, setUser }) => {
         setMedicationForm({
           medicationName: "",
           dosage: "",
+          duration: "",
           frequency: "once-daily",
         });
+
+        // Refresh health summary and activities
+        const summaryRes = await axios.get("/api/health/summary", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (summaryRes?.data?.summary) {
+          setHealthSummary(summaryRes.data.summary);
+        }
+
+        const activitiesRes = await axios.get("/api/activities", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (activitiesRes?.data?.activities) {
+          setActivities(activitiesRes.data.activities);
+        }
+
         setTimeout(() => setHealthSuccess(""), 3000);
       }
     } catch (err) {
@@ -356,6 +465,22 @@ const ProfileActivity = ({ user, setUser }) => {
 
       setMedications((p) => p.filter((m) => m._id !== id));
       setHealthSuccess("Medication deleted");
+
+      // Refresh health summary and activities
+      const summaryRes = await axios.get("/api/health/summary", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (summaryRes?.data?.summary) {
+        setHealthSummary(summaryRes.data.summary);
+      }
+
+      const activitiesRes = await axios.get("/api/activities", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (activitiesRes?.data?.activities) {
+        setActivities(activitiesRes.data.activities);
+      }
+
       setTimeout(() => setHealthSuccess(""), 3000);
     } catch (err) {
       setHealthError(err?.response?.data?.message || "Failed to delete");
@@ -390,9 +515,110 @@ const ProfileActivity = ({ user, setUser }) => {
     }
   };
 
+  // Filter and search reports
+  const filteredReports = reports.filter((report) => {
+    const matchesSearch = searchQuery
+      ? (report.notes?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          report.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          report.url?.toLowerCase().includes(searchQuery.toLowerCase()))
+      : true;
+
+    const matchesCategory =
+      categoryFilter === "All" || report.category === categoryFilter;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  const categories = [
+    "All",
+    "Lab Results",
+    "Prescription",
+    "X-Ray",
+    "CT Scan",
+    "MRI",
+    "Ultrasound",
+    "Blood Test",
+    "Doctor's Note",
+    "Insurance",
+    "Other",
+  ];
+
+  const getActivityIcon = (action) => {
+    switch (action) {
+      case "uploaded_report":
+        return <FileText className="w-4 h-4" />;
+      case "deleted_report":
+        return <X className="w-4 h-4" />;
+      case "added_condition":
+      case "added_medication":
+        return <Pill className="w-4 h-4" />;
+      default:
+        return <Activity className="w-4 h-4" />;
+    }
+  };
+
+  const getActivityColor = (action) => {
+    if (action.includes("added") || action.includes("uploaded")) {
+      return "text-green-600 bg-green-50";
+    }
+    if (action.includes("deleted") || action.includes("removed")) {
+      return "text-red-600 bg-red-50";
+    }
+    return "text-blue-600 bg-blue-50";
+  };
+
+  const formatTimeAgo = (date) => {
+    const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+    if (seconds < 60) return "Just now";
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    const weeks = Math.floor(days / 7);
+    if (weeks < 4) return `${weeks}w ago`;
+    return new Date(date).toLocaleDateString();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-4">
       <div className="max-w-7xl mx-auto">
+        {/* ============ NEW: HEALTH SUMMARY DASHBOARD ============ */}
+        {healthSummary && (
+          <div className="mb-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-lg p-8 text-white">
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <Activity className="w-6 h-6" />
+              Health Summary
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                <div className="text-3xl font-bold">{healthSummary.chronicConditionsCount}</div>
+                <div className="text-sm text-white/80 mt-1">Chronic Conditions</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                <div className="text-3xl font-bold">{healthSummary.medicationsCount}</div>
+                <div className="text-sm text-white/80 mt-1">Medications</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                <div className="text-3xl font-bold">{healthSummary.medicalReportsCount}</div>
+                <div className="text-sm text-white/80 mt-1">Medical Reports</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                <div className="text-sm text-white/80 mb-1">Last Report</div>
+                <div className="text-lg font-semibold">
+                  {healthSummary.lastReportDate
+                    ? new Date(healthSummary.lastReportDate).toLocaleDateString()
+                    : "None"}
+                </div>
+                {healthSummary.lastReportCategory && (
+                  <div className="text-xs text-white/70 mt-1">{healthSummary.lastReportCategory}</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ============ NEW: CHRONIC CONDITIONS & MEDICATIONS SECTION ============ */}
         <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Chronic Conditions Card */}
@@ -523,6 +749,34 @@ const ProfileActivity = ({ user, setUser }) => {
           </div>
         )}
 
+        {/* ============ NEW: ACTIVITY TIMELINE ============ */}
+        {activities.length > 0 && (
+          <div className="mb-8 bg-white rounded-2xl shadow-md p-6 border border-gray-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                <Clock className="w-5 h-5 text-blue-600" />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
+            </div>
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {activities.slice(0, 10).map((activity) => (
+                <div
+                  key={activity._id}
+                  className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+                >
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getActivityColor(activity.action)}`}>
+                    {getActivityIcon(activity.action)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-gray-900">{activity.description}</div>
+                    <div className="text-xs text-gray-500 mt-1">{formatTimeAgo(activity.createdAt)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ============ EXISTING MEDICAL REPORTS SECTION (UNCHANGED) ============ */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Upload Card */}
@@ -533,6 +787,61 @@ const ProfileActivity = ({ user, setUser }) => {
             </h2>
             <div className="text-xs text-gray-500">
               Manage your medical documents
+            </div>
+          </div>
+
+          {/* NEW: Category, Date, Notes fields */}
+          <div className="mb-4 space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Category
+              </label>
+              <select
+                value={uploadFormData.category}
+                onChange={(e) =>
+                  setUploadFormData({ ...uploadFormData, category: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm"
+              >
+                <option value="Lab Results">Lab Results</option>
+                <option value="Prescription">Prescription</option>
+                <option value="X-Ray">X-Ray</option>
+                <option value="CT Scan">CT Scan</option>
+                <option value="MRI">MRI</option>
+                <option value="Ultrasound">Ultrasound</option>
+                <option value="Blood Test">Blood Test</option>
+                <option value="Doctor's Note">Doctor's Note</option>
+                <option value="Insurance">Insurance</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Report Date (Optional)
+              </label>
+              <input
+                type="date"
+                value={uploadFormData.reportDate}
+                onChange={(e) =>
+                  setUploadFormData({ ...uploadFormData, reportDate: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Notes (Optional)
+              </label>
+              <textarea
+                value={uploadFormData.notes}
+                onChange={(e) =>
+                  setUploadFormData({ ...uploadFormData, notes: e.target.value })
+                }
+                placeholder="Add any notes about this report..."
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm resize-none"
+                rows="2"
+                maxLength="500"
+              />
             </div>
           </div>
 
@@ -628,11 +937,39 @@ const ProfileActivity = ({ user, setUser }) => {
               Your Documents
             </h3>
             <div className="text-xs text-gray-500">
-              {reports.length} file{reports.length !== 1 ? "s" : ""}
+              {filteredReports.length} file{filteredReports.length !== 1 ? "s" : ""}
             </div>
           </div>
 
-          {reports.length === 0 ? (
+          {/* NEW: Search and Filter */}
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search reports..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm"
+              />
+            </div>
+            <div className="relative">
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm appearance-none bg-white"
+              >
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat === "All" ? "All Categories" : cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {filteredReports.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -649,12 +986,14 @@ const ProfileActivity = ({ user, setUser }) => {
                 />
               </svg>
               <div className="text-sm text-gray-500">
-                No documents uploaded yet. Upload to see them here.
+                {searchQuery || categoryFilter !== "All"
+                  ? "No matching documents found."
+                  : "No documents uploaded yet. Upload to see them here."}
               </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {reports.map((r) => {
+              {filteredReports.map((r) => {
                 const name = r.url.split("/").pop();
                 const isImage = /\.(jpg|jpeg|png)$/i.test(name);
                 const id = r._id || r.id || r.url;
@@ -691,11 +1030,25 @@ const ProfileActivity = ({ user, setUser }) => {
                         <div className="text-sm font-medium text-gray-900 truncate">
                           {name}
                         </div>
+                        {/* NEW: Show category */}
+                        {r.category && (
+                          <div className="mt-1">
+                            <span className="inline-block px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 rounded">
+                              {r.category}
+                            </span>
+                          </div>
+                        )}
                         <div className="text-xs text-gray-400 mt-1">
-                          {new Date(
-                            r.createdAt || r.created_at || Date.now()
-                          ).toLocaleDateString()}
+                          {r.reportDate
+                            ? new Date(r.reportDate).toLocaleDateString()
+                            : new Date(r.createdAt || r.created_at || Date.now()).toLocaleDateString()}
                         </div>
+                        {/* NEW: Show notes preview */}
+                        {r.notes && (
+                          <div className="text-xs text-gray-500 mt-1 truncate">
+                            {r.notes}
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center space-x-2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -734,8 +1087,8 @@ const ProfileActivity = ({ user, setUser }) => {
         </div>
       </div>
 
-        {/* ============ EXISTING PREVIEW MODAL (UNCHANGED) ============ */}
-        {selectedReport && (
+{/* ============ ENHANCED PREVIEW MODAL ============ */}
+      {selectedReport && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
           onClick={closePreview}
@@ -746,18 +1099,48 @@ const ProfileActivity = ({ user, setUser }) => {
             className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-4 flex justify-between items-start border-b">
-              <div className="text-sm font-medium text-gray-900 truncate">
-                {selectedReport.url.split("/").pop()}
+            <div className="p-4 border-b">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex-1">
+                  <div className="text-lg font-semibold text-gray-900 mb-2">
+                    {selectedReport.url.split("/").pop()}
+                  </div>
+                  {selectedReport.category && (
+                    <span className="inline-block px-3 py-1 text-sm font-medium bg-purple-100 text-purple-700 rounded-full">
+                      {selectedReport.category}
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={closePreview}
+                  className="text-gray-500 hover:text-gray-700 p-2"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <div className="flex items-center space-x-2">
+              {(selectedReport.reportDate || selectedReport.notes) && (
+                <div className="mt-3 space-y-2 text-sm">
+                  {selectedReport.reportDate && (
+                    <div className="text-gray-600">
+                      <span className="font-medium">Date:</span>{" "}
+                      {new Date(selectedReport.reportDate).toLocaleDateString()}
+                    </div>
+                  )}
+                  {selectedReport.notes && (
+                    <div className="text-gray-600">
+                      <span className="font-medium">Notes:</span> {selectedReport.notes}
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="flex items-center space-x-3 mt-3">
                 <a
                   href={selectedReport.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-sm text-pink-500"
+                  className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 text-sm font-medium"
                 >
-                  Open
+                  Open in New Tab
                 </a>
                 <button
                   onClick={() =>
@@ -767,33 +1150,27 @@ const ProfileActivity = ({ user, setUser }) => {
                         selectedReport.url
                     )
                   }
-                  className="text-sm text-red-500"
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm font-medium"
                 >
                   Delete
-                </button>
-                <button
-                  onClick={closePreview}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Close
                 </button>
               </div>
             </div>
 
-            <div className="p-4 flex items-center justify-center">
+            <div className="p-4 flex items-center justify-center bg-gray-50">
               {/\.(jpg|jpeg|png)$/i.test(
                 selectedReport.url.split("/").pop()
               ) ? (
                 <img
                   src={selectedReport.url}
                   alt={selectedReport.url.split("/").pop()}
-                  className="max-h-[70vh] object-contain"
+                  className="max-h-[70vh] object-contain rounded-lg"
                 />
               ) : (
                 <iframe
                   src={selectedReport.url}
                   title="document preview"
-                  className="w-full h-[70vh]"
+                  className="w-full h-[70vh] rounded-lg"
                 />
               )}
             </div>
@@ -980,6 +1357,24 @@ const ProfileActivity = ({ user, setUser }) => {
                     <option value="as-needed">As Needed</option>
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Duration
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g., 30 (for testing now its in minutes)"
+                  value={medicationForm.duration}
+                  onChange={(e) =>
+                    setMedicationForm({
+                      ...medicationForm,
+                      duration: e.target.value,
+                    })
+                  }
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 placeholder-gray-400"
+                />
               </div>
 
               <div className="flex gap-3 pt-3">

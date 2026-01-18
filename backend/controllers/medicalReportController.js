@@ -4,6 +4,7 @@ import { v2 as cloudinary } from "cloudinary";
 import MedicalReport from "../models/MedicalReport.js";
 import User from "../models/User.js";
 import AppError from "../utils/AppError.js";
+import { logActivity } from "../utils/activityLogger.js";
 
 // Configure Cloudinary (expects env vars: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET)
 if (
@@ -50,6 +51,7 @@ export const uploadMedicalReport = async (req, res, next) => {
     if (!req.file) return next(new AppError("No file uploaded", 400));
 
     const { mimetype, buffer, originalname } = req.file;
+    const { category, reportDate, notes, tags } = req.body;
 
     // Choose resource_type for Cloudinary (pdf -> raw, images -> image)
     const resource_type = mimetype === "application/pdf" ? "raw" : "image";
@@ -75,12 +77,24 @@ export const uploadMedicalReport = async (req, res, next) => {
       public_id: result.public_id,
       resourceType: resource_type,
       owner: req.user._id,
+      category: category || "Other",
+      reportDate: reportDate || null,
+      notes: notes || "",
+      tags: tags ? (Array.isArray(tags) ? tags : JSON.parse(tags)) : [],
     });
 
     // Add reference to user's medicalReports array
     await User.findByIdAndUpdate(req.user._id, {
       $addToSet: { medicalReports: medicalReport._id },
     });
+
+    // Log activity
+    await logActivity(
+      req.user._id,
+      "uploaded_report",
+      `Uploaded medical report: ${category || "Other"}`,
+      { reportId: medicalReport._id, category: category || "Other" }
+    );
 
     return res.status(201).json({ success: true, medicalReport });
   } catch (err) {
@@ -118,6 +132,14 @@ export const deleteMedicalReport = async (req, res, next) => {
     await User.findByIdAndUpdate(userId, {
       $pull: { medicalReports: report._id },
     });
+
+    // Log activity
+    await logActivity(
+      userId,
+      "deleted_report",
+      `Deleted medical report: ${report.category || "Other"}`,
+      { reportId: report._id, category: report.category || "Other" }
+    );
 
     return res.status(200).json({ success: true, id: report._id });
   } catch (err) {

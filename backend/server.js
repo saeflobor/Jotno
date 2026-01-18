@@ -4,6 +4,7 @@ import authRoutes from "./routes/authroutes.js";
 import familyRoutes from "./routes/familyRoutes.js";
 import medicalReportRoutes from "./routes/medicalReportRoutes.js";
 import healthRoutes from "./routes/healthRoutes.js";
+import activityRoutes from "./routes/activityRoutes.js";
 import errorHandler from "./middleware/errorhandler.js";
 import { connectDB } from "./config/db.js";
 
@@ -21,6 +22,7 @@ app.use("/api/users", authRoutes);
 app.use("/api/family", familyRoutes);
 app.use("/api/medical-report", medicalReportRoutes);
 app.use("/api/health", healthRoutes);
+app.use("/api/activities", activityRoutes);
 app.use(errorHandler);
 
 // <-- Mount family routes

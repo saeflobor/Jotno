@@ -22,6 +22,16 @@ const medicationSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    duration: {
+      type: Number,
+      required: [true, "Duration is required"],
+    },
+    expiryDate: {
+      type: Date,
+      required: [true, "Expiry date is required"],
+      immutable: true,
+      index: { expires: 0 }
+    },
   },
   { timestamps: true }
 );
