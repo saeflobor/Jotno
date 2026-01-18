@@ -13,6 +13,7 @@ import FamilyIntegration from "./pages/FamilyIntegration";
 import EmailVerification from "./pages/EmailVerification";
 import NotFound from "./components/NotFound";
 import ProfileActivity from "./pages/ProfileActivity";
+import ProfileUpdatePage from "./pages/ProfileUpdatePage";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -89,6 +90,18 @@ function App() {
           element={
             user ? (
               <FamilyIntegration user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        {/* Protected Profile Update page */}
+        <Route
+          path="/profile-update"
+          element={
+            user ? (
+              <ProfileUpdatePage user={user} setUser={setUser} />
             ) : (
               <Navigate to="/login" />
             )

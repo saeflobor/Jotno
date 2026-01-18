@@ -53,7 +53,7 @@ const Dashboard = ({ user, setUser }) => {
   return (
     <div className="min-h-screen py-8 px-6 bg-gray-50">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center gap-4 mb-4">
           <button
             onClick={sendSOS}
             disabled={sendingSOS}
@@ -64,6 +64,16 @@ const Dashboard = ({ user, setUser }) => {
             }}
           >
             {sendingSOS ? "Sending..." : "SOS"}
+          </button>
+          <button
+            onClick={() => navigate("/profile-update")}
+            className="px-6 py-3 rounded-full text-white font-semibold shadow-lg transition hover:shadow-xl"
+            style={{
+              background: "linear-gradient(90deg,#8b5cf6,#ec4899)",
+              transform: "translateZ(0)",
+            }}
+          >
+            Update Profile Info
           </button>
         </div>
         {sosMessage && (
