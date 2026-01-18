@@ -22,6 +22,36 @@ const medicalReportSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    // New fields for Phase 2 (all optional for backward compatibility)
+    category: {
+      type: String,
+      enum: [
+        "Lab Results",
+        "Prescription",
+        "X-Ray",
+        "CT Scan",
+        "MRI",
+        "Ultrasound",
+        "Blood Test",
+        "Doctor's Note",
+        "Insurance",
+        "Other",
+      ],
+      default: "Other",
+    },
+    reportDate: {
+      type: Date,
+      default: null,
+    },
+    notes: {
+      type: String,
+      default: "",
+      maxlength: 500,
+    },
+    tags: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );
