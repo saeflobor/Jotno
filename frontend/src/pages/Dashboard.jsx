@@ -182,8 +182,11 @@ const Dashboard = ({ user, setUser }) => {
               <div className="mt-4 flex gap-3">
                 <button
                   onClick={() => {
-                    localStorage.removeItem("token");
-                    setUser(null);
+                    const confirmed = window.confirm("Are you sure you want to sign out?");
+                    if (confirmed) {
+                      localStorage.removeItem("token");
+                      setUser(null);
+                    }
                   }}
                   className="flex-1 py-2 rounded-lg font-semibold transition"
                   onMouseEnter={() => setHoverSignOut(true)}

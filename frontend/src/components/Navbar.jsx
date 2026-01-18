@@ -6,9 +6,12 @@ const Navbar = ({ user, setUser }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-    navigate('/');
+    const confirmed = window.confirm("Are you sure you want to logout?");
+    if (confirmed) {
+      localStorage.removeItem("token");
+      setUser(null);
+      navigate('/');
+    }
   }
 
   return (
