@@ -2,10 +2,21 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FiFileText, FiUsers } from "react-icons/fi";
+import { MdMedication } from "react-icons/md";
 
 const Dashboard = ({ user, setUser }) => {
-  const family = user?.family || {};
   const navigate = useNavigate();
+  
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-xl text-gray-900">Loading user data...</div>
+      </div>
+    );
+  }
+  
+  const family = user?.family || {};
   const [sendingSOS, setSendingSOS] = useState(false);
   const [sosMessage, setSosMessage] = useState("");
 
@@ -63,29 +74,29 @@ const Dashboard = ({ user, setUser }) => {
           </div>
         )}
         <div
-          className="relative rounded-3xl overflow-hidden"
+          className="relative rounded-3xl overflow-hidden mt-40"
           style={{
             background:
               "linear-gradient(135deg, rgba(211,46,149,0.05), rgba(255,255,255,1))",
             border: "1px solid rgba(211,46,149,0.1)",
           }}
         >
-          <div
+          {/* <div
             className="absolute -left-40 -top-28 w-80 h-80 rounded-full"
             style={{
               background:
                 "radial-gradient(circle at 30% 20%, rgba(211,46,149,0.08), transparent 30%)",
               filter: "blur(30px)",
             }}
-          />
-          <div
+          /> */}
+          {/* <div
             className="absolute -right-28 -bottom-20 w-72 h-72 rounded-full"
             style={{
               background:
                 "radial-gradient(circle at 70% 80%, rgba(211,46,149,0.06), transparent 30%)",
               filter: "blur(28px)",
             }}
-          />
+          /> */}
 
           <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Profile summary */}
@@ -195,42 +206,43 @@ const Dashboard = ({ user, setUser }) => {
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="md:col-span-2 p-5 rounded-2xl bg-white shadow-lg border border-gray-200"
+              className="md:col-span-2 p-5 rounded-2xl"
             >
               <>
-                <div className="text-lg font-bold text-gray-900 mb-4">
-                  Choose an action
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <button
-                    className="p-6 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 text-left hover:bg-gray-100 transition"
-                    onClick={() => navigate("/profile-activity")}
-                  >
-                    <div className="text-sm text-gray-600 mb-1">Overview</div>
-                    <div className="text-gray-900 font-semibold">
-                      Profile & Activity
-                    </div>
-                  </button>
-                  <button
-                    className="p-6 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 text-left hover:bg-gray-100 transition"
-                    onClick={() => navigate("/family-integration")}
-                  >
-                    <div className="text-sm text-gray-600 mb-1">
-                      Integration
-                    </div>
-                    <div className="text-gray-900 font-semibold">
-                      Family Integration
-                    </div>
-                  </button>
-                  <button
-                    className="p-6 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 text-left hover:bg-gray-100 transition"
-                    onClick={() => alert("Coming soon!")}
-                  >
-                    <div className="text-sm text-gray-600 mb-1">Settings</div>
-                    <div className="text-gray-900 font-semibold">
-                      Preferences
-                    </div>
-                  </button>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-stretch">
+                  <div className="flex flex-col items-center">
+                    <FiFileText className="text-[rgb(211,46,149)] text-4xl mb-4" />
+                    <button
+                      className="bg-purple-500 p-6 rounded-4xl border border-gray-200 bg-gray-50 text-gray-900 text-center text-xl hover:bg-gray-100 transition w-full h-full"
+                      onClick={() => navigate("/profile-activity")}
+                    >
+                      <div className="text-white font-semibold p-5">
+                        Medical Record Management
+                      </div>
+                    </button>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <FiUsers className="text-[rgb(211,46,149)] text-4xl mb-4" />
+                    <button
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 p-6 rounded-4xl border border-gray-200 bg-gray-50 text-gray-900 text-center text-xl hover:bg-gray-100 transition w-full h-full"
+                      onClick={() => navigate("/family-integration")}
+                    >
+                      <div className="text-white font-semibold p-5">
+                        Family Management
+                      </div>
+                    </button>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <MdMedication className="text-[rgb(211,46,149)] text-4xl mb-4" />
+                    <button
+                      className="bg-pink-500 p-6 rounded-4xl border border-gray-200 bg-gray-50 text-gray-900 text-center text-xl  hover:bg-gray-300 transition w-full h-full"
+                      onClick={() => alert("Coming soon!")}
+                    >
+                      <div className="text-white font-semibold p-5">
+                        Lookup Meds
+                      </div>
+                    </button>
+                  </div>
                 </div>
               </>
             </motion.div>
