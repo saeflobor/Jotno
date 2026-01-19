@@ -35,13 +35,13 @@ export const htmlContent =(link)=>{return `
   </head>
   <body>
     <div class="container">
-      <h1>Welcome to Our Service!</h1>
-      <p>Hi there,</p>
+      <h1>Assalamualaikum Wa-Rahmatullah</h1>
+      <h2>Welcome to Jotno!</h2>
       <p>Thank you for signing up. We are excited to have you on board.</p>
       <p>Click the button below to verify your email:</p>
       <a href=${link} class="button">Verify Email</a>
       <p>If you did not sign up, ignore this email.</p>
-      <p>Cheers,<br>The Team</p>
+      <p>Regards,<br>Team Jotno</p>
     </div>
   </body>
 </html>

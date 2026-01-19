@@ -6,19 +6,6 @@ import User from "../models/User.js";
 import AppError from "../utils/AppError.js";
 import { logActivity } from "../utils/activityLogger.js";
 
-// Configure Cloudinary (expects env vars: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET)
-if (
-  process.env.CLOUDINARY_CLOUD_NAME &&
-  process.env.CLOUDINARY_API_KEY &&
-  process.env.CLOUDINARY_API_SECRET
-) {
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
-}
-
 // Multer memory storage so file buffer is available for upload
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {

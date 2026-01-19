@@ -1,5 +1,22 @@
-import express from "express";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+import { v2 as cloudinary } from "cloudinary";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables FIRST
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+
+// Configure Cloudinary immediately after dotenv loads
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+import express from "express";
 import authRoutes from "./routes/authroutes.js";
 import familyRoutes from "./routes/familyRoutes.js";
 import medicalReportRoutes from "./routes/medicalReportRoutes.js";
@@ -8,7 +25,6 @@ import activityRoutes from "./routes/activityRoutes.js";
 import errorHandler from "./middleware/errorhandler.js";
 import { connectDB } from "./config/db.js";
 
-dotenv.config();
 
 const PORT = process.env.PORT || 5001;
 

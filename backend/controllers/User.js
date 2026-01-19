@@ -27,9 +27,10 @@ const register = async (req, res, next) => {
     if (
       domain !== "gmail.com" &&
       domain !== "yahoo.com" &&
-      domain !== "outlook.com"
+      domain !== "outlook.com" &&
+      domain !== "iut-dhaka.edu"
     ) {
-      return next(new AppError("Email doesnot support in the dns", 400));
+      return next(new AppError("Email not supported in the DNS", 400));
     }
     const check_user = await User.findOne({ email });
     if (!check_user) {
@@ -119,4 +120,74 @@ const UserDetails = async (req, res, next) => {
   }
 };
 
-export { register, Login, UserDetails, verifyemail };
+// Update Profile route
+const updateProfile = async (req, res, next) => {
+  try {
+    const { email, phone, username, password, gender } = req.body;
+    const userId = req.user._id;
+
+    // Find the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(new AppError("User not found", 404));
+    }
+
+    // Check if email is being changed and if it's already taken
+    if (email && email !== user.email) {
+      const existingEmail = await User.findOne({ email });
+      if (existingEmail) {
+        return next(new AppError("Email already exists", 400));
+      }
+      user.email = email;
+    }
+
+    // Check if phone is being changed and if it's already taken
+    if (phone && phone !== user.phone) {
+      // Validate phone format
+      if (!/^(017|018|019|015|016|013)\d{8}$/.test(phone)) {
+        return next(new AppError("Invalid phone number format", 400));
+      }
+      const existingPhone = await User.findOne({ phone });
+      if (existingPhone) {
+        return next(new AppError("Phone number already exists", 400));
+      }
+      user.phone = phone;
+    }
+
+    // Update username
+    if (username) {
+      user.username = username;
+    }
+
+    // Update gender
+    if (gender) {
+      if (!["male", "female"].includes(gender)) {
+        return next(new AppError("Invalid gender. Must be 'male' or 'female'", 400));
+      }
+      user.gender = gender;
+    }
+
+    // Update password if provided
+    if (password) {
+      user.password = password; // Password will be hashed by the pre-save hook
+    }
+
+    // Save the updated user
+    await user.save();
+
+    // Return updated user without password
+    const updatedUser = await User.findById(userId)
+      .select("-password")
+      .populate("family.father family.spouse family.mother family.children");
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export { register, Login, UserDetails, verifyemail, updateProfile };
