@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Pill, X, Activity, FileText, Clock, Search, Filter } from "lucide-react";
+import { Pill, X, Activity, FileText, Clock, Search, Filter, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ProfileActivity = ({ user, setUser }) => {
+  const navigate = useNavigate();
+
   // ============ EXISTING MEDICAL REPORT STATE ============
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
@@ -584,6 +587,17 @@ const ProfileActivity = ({ user, setUser }) => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-4">
       <div className="max-w-7xl mx-auto">
+        {/* ============ BACK TO DASHBOARD BUTTON ============ */}
+        <div className="mb-6 flex items-center">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </button>
+        </div>
+
         {/* ============ NEW: HEALTH SUMMARY DASHBOARD ============ */}
         {healthSummary && (
           <div className="mb-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-lg p-8 text-white">
