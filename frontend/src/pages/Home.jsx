@@ -103,7 +103,7 @@ const Home = ({ user, error }) => {
             <div className="relative">
               <button
                 onClick={() => setUseDarkBackground(!useDarkBackground)}
-                className={`fixed top-5 right-4 z-50 p-2 rounded-full transition duration-300 ${
+                className={`fixed top-5 right-4 z-50 p-2 rounded-full transition duration-300 transform hover:scale-90 hover:opacity-80 ${
                   useDarkBackground
                     ? 'bg-black/50 hover:bg-white/50 text-white'
                     : 'bg-black/50 hover:bg-black/10 text-white'
@@ -128,13 +128,13 @@ const Home = ({ user, error }) => {
                     <div className="flex gap-4">
                       <Link
                         to="/register"
-                        className="bg-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/50 text-white px-6 py-3 rounded-lg font-medium transition duration-300"
+                        className="bg-[rgb(211,46,149)] hover: text-white px-6 py-3 rounded-lg font-medium transition duration-300 transform hover:scale-90 hover:opacity-90"
                       >
                         Get Started
                       </Link>
                       <Link
                         to="/login"
-                        className="border-2 border-[rgb(211,46,149)] text-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/30 px-6 py-3 rounded-lg font-medium transition duration-300"
+                        className="border-2 border-[rgb(211,46,149)] text-[rgb(211,46,149)] hover: px-6 py-3 rounded-lg font-medium transition duration-300 transform hover:scale-90 hover:opacity-90"
                       >
                         Login
                       </Link>
@@ -144,7 +144,7 @@ const Home = ({ user, error }) => {
                     <img
                       src={"Smiling_Old_Couple_Black.jpg"}
                       alt="Happy elderly couple"
-                      className="rounded-2xl w-full shadow-[0px_0px_40px_rgba(211,46,149,1)]"
+                      className="rounded-2xl w-full shadow-[20px_20px_40px_rgba(211,46,149,1)]"
                     />
                   </div>
                 </div>
@@ -174,7 +174,7 @@ const Home = ({ user, error }) => {
                 <div className="flex justify-center mt-8">
                   <button
                     onClick={() => setShowAllFeatures(!showAllFeatures)}
-                    className="bg-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/50 text-white px-6 py-3 rounded-lg font-medium transition duration-300 flex items-center gap-2"
+                    className="bg-[rgb(211,46,149)] hover: text-white px-6 py-3 rounded-lg font-medium transition duration-300 transform hover:scale-90 hover:opacity-90 flex items-center gap-2"
                   >
                     <span>
                       {showAllFeatures
@@ -264,7 +264,7 @@ const Home = ({ user, error }) => {
                   </p>
                   <Link
                     to="/register"
-                    className="inline-block bg-white text-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/20 px-8 py-3 rounded-lg font-medium transition duration-300"
+                    className="inline-block bg-white text-[rgb(211,46,149)] hover: px-8 py-3 rounded-lg font-medium transition duration-300 transform hover:scale-90 hover:opacity-90"
                   >
                     Sign Up Free
                   </Link>

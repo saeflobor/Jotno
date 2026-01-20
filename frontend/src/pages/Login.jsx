@@ -19,9 +19,15 @@ const Login = ({ setUser }) => {
     e.preventDefault();
     try {
       const res = await axios.post("/api/users/login", formData);
-      localStorage.setItem("token", res.data.token);
-      console.log(res.data);
-      setUser(res.data);
+      const token = res.data.token;
+      localStorage.setItem("token", token);
+
+      // Immediately refetch full profile (including family) so dashboard renders correct counts without a page refresh.
+      const profileRes = await axios.get("/api/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setUser(profileRes.data);
       navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");

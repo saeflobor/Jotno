@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FiFileText, FiUsers } from "react-icons/fi";
-import { MdMedication, MdAccountCircle, MdSettings } from "react-icons/md";
+import { FiFileText } from "react-icons/fi";
+import { MdAccountCircle, MdSettings } from "react-icons/md";
+import { PiPillBold } from "react-icons/pi";
+import { PiUsersBold } from "react-icons/pi";
 
 const Dashboard = ({ user, setUser }) => {
   const navigate = useNavigate();
@@ -188,13 +190,13 @@ const Dashboard = ({ user, setUser }) => {
                       setUser(null);
                     }
                   }}
-                  className="flex-1 py-2 rounded-lg font-semibold transition"
+                  className="flex-1 py-2 rounded-4xl font-semibold transition"
                   onMouseEnter={() => setHoverSignOut(true)}
                   onMouseLeave={() => setHoverSignOut(false)}
                   style={{
                     background: "linear-gradient(90deg,#ff1f4b,#ff5f6d)",
                     color: "#fff",
-                    opacity: hoverSignOut ? 0.8 : 1,
+                    opacity: hoverSignOut ? 0.9 : 1,
                     transform: hoverSignOut ? "scale(0.90)" : "scale(1)",
                     transitionDuration: "200ms",
                   }}
@@ -203,18 +205,24 @@ const Dashboard = ({ user, setUser }) => {
                 </button>
                 <button
                   onClick={() => navigate("/profile-update")}
-                  className="p-2 rounded-lg transition"
+                  className="p-2 rounded-4xl transition"
                   title="Update Profile"
                   onMouseEnter={() => setHoverSettings(true)}
                   onMouseLeave={() => setHoverSettings(false)}
                   style={{
-                    backgroundColor: hoverSettings ? "pink" : "transparent",
+                    backgroundColor: hoverSettings ? "rgb(211,46,149)" : "transparent",
                     opacity: hoverSettings ? 0.9 : 1,
-                    transform: hoverSettings ? "scale(0.90)" : "scale(1)",
+                    transform: hoverSettings ? "scale(0.80)" : "scale(1)",
                     transitionDuration: "200ms",
                   }}
                 >
-                  <MdSettings className="text-4xl text-[rgb(211,46,149)]" />
+                  <MdSettings 
+                    className="text-4xl transition" 
+                    style={{
+                      color: hoverSettings ? "#ffffff" : "rgb(211,46,149)",
+                      transitionDuration: "200ms",
+                    }}
+                  />
                 </button>
               </div>
             </motion.div>
@@ -246,7 +254,7 @@ const Dashboard = ({ user, setUser }) => {
                     </button>
                   </div>
                   <div className="flex flex-col items-center">
-                    <FiUsers className="text-[rgb(211,46,149)] text-4xl mb-4" />
+                    <PiUsersBold className="text-[rgb(211,46,149)] text-4xl mb-4" />
                     <button
                       className="bg-gradient-to-r from-purple-500 to-pink-500 p-6 rounded-4xl text-center text-xl transition w-full h-full"
                       onClick={() => navigate("/family-integration")}
@@ -264,7 +272,7 @@ const Dashboard = ({ user, setUser }) => {
                     </button>
                   </div>
                   <div className="flex flex-col items-center">
-                    <MdMedication className="text-[rgb(211,46,149)] text-4xl mb-4" />
+                    <PiPillBold className="text-[rgb(211,46,149)] text-4xl mb-4" />
                     <button
                       className="bg-pink-500 p-6 rounded-4xl text-center text-xl transition w-full h-full"
                       onClick={() => alert("Coming soon!")}
