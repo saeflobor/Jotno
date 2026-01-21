@@ -32,13 +32,13 @@ const Navbar = ({ user, setUser }) => {
                 window.location.href = '/dashboard';
               }
             }}>
-              Jotno
+              যত্ন : Jotno
             </button>
           </Link>
           <div className='absolute right-0'>
             {user ? (
               <button onClick={handleLogout}
-              className='text-white bg-red-500 px-4 py-2 rounded hover:bg-red-600'>
+                className='text-white bg-red-500 px-4 py-2 rounded hover:bg-red-600'>
                 Logout
               </button>
             ) : (
