@@ -49,7 +49,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     if (formData.phone) {
       const phoneRegex = /^(017|018|019|015|016|013)\d{8}$/;
       if (!phoneRegex.test(formData.phone)) {
-        setErrorMessage("Phone must be a valid Bangladeshi number (10 digits starting with 01)");
+        setErrorMessage("Phone must be a valid Bangladeshi number (11 digits starting with 01)");
         return false;
       }
     }
