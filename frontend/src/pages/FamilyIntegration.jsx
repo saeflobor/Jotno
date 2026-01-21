@@ -62,16 +62,22 @@ const FamilyIntegration = ({ user, setUser }) => {
   };
 
   const handleSendRequest = async () => {
-    if (identifierType === "email" && !memberEmail) {
+    const trimmedEmail = memberEmail.trim();
+    const trimmedPhone = memberPhone.trim();
+
+    if (identifierType === "email" && !trimmedEmail) {
       return showToast("error", "Please enter an email");
     }
-    if (identifierType === "phone" && !memberPhone) {
+    if (identifierType === "phone" && !trimmedPhone) {
       return showToast("error", "Please enter a phone number");
     }
 
     const payload = { relation: relationMap[relationKey] };
-    if (identifierType === "email") payload.memberEmail = memberEmail;
-    if (identifierType === "phone") payload.memberPhone = memberPhone;
+    if (identifierType === "email" && trimmedEmail) {
+      payload.memberEmail = trimmedEmail;
+    } else if (identifierType === "phone" && trimmedPhone) {
+      payload.memberPhone = trimmedPhone;
+    }
 
     const result = await sendRequest(payload);
     showToast(result.success ? "success" : "error", result.message);

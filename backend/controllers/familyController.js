@@ -26,7 +26,7 @@ export const addFamilyMember = async (req, res, next) => {
   const userId = req.user?._id;
 
   if (!userId) return next(new AppError("Unauthorized", 401));
-  if ((!memberEmail && !memberPhone) || !relation)
+  if (memberEmail && memberPhone && relation)
     return next(new AppError("All fields are required", 400));
 
   if (!["father", "mother", "child", "spouse"].includes(relation))

@@ -1,5 +1,5 @@
 // src/components/UserCard.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
@@ -49,9 +49,13 @@ const UserCard = ({ user, onRemove }) => {
     }
   };
 
+  // Fetch health data on component mount
+  useEffect(() => {
+    fetchHealthData();
+  }, [user._id]);
+
   const handleViewDetails = () => {
     setShowHealthModal(true);
-    fetchHealthData();
   };
 
   return (
