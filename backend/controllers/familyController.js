@@ -26,7 +26,7 @@ export const addFamilyMember = async (req, res, next) => {
   const userId = req.user?._id;
 
   if (!userId) return next(new AppError("Unauthorized", 401));
-  if (memberEmail && memberPhone && relation)
+  if (!(memberEmail && memberPhone && relation))
     return next(new AppError("All fields are required", 400));
 
   if (!["father", "mother", "child", "spouse"].includes(relation))
@@ -168,7 +168,7 @@ export const removeFamilyMember = async (req, res) => {
 };
 
 // SOS alert function (unchanged)
-export const sendSosAlert = async (req, res) => {
+export const sendSosAlert = async (req, res, next) => {
   const userId = req.user?._id;
   const { message = "I need help" } = req.body || {};
 
@@ -204,7 +204,7 @@ export const sendSosAlert = async (req, res) => {
     const transporter = createMailTransport();
 
     await transporter.sendMail({
-      from: process.env.SMTP_FROM || user.email,
+      from: process.env.SMTP_USER,
       to: recipientEmails,
       subject: `SOS alert from ${user.username}`,
       text: message,
@@ -214,6 +214,7 @@ export const sendSosAlert = async (req, res) => {
       .status(200)
       .json({ message: "SOS email sent", sentTo: recipientEmails });
   } catch (err) {
+    console.error("SOS Alert Error:", err);
     return next(new AppError("SOS email sending failed", 500));
   }
 };
@@ -340,6 +341,13 @@ export const sendFamilyRequest = async (req, res, next) => {
     if (!receiver) return next(new AppError("User not found", 404));
     if (receiver._id.toString() === userId.toString())
       return next(new AppError("Cannot send request to yourself", 400));
+
+    // Check if receiver is already a family member
+    // Fetch sender (current user) to check family relations
+    const sender = await User.findById(userId);
+    if (isFamilyMember(sender, receiver._id)) {
+      return next(new AppError("User is already a family member", 400));
+    }
 
     // Check if request already exists
     const existingRequest = await FamilyRequest.findOne({

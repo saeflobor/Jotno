@@ -65,10 +65,10 @@ const FamilyIntegration = ({ user, setUser }) => {
     const trimmedEmail = memberEmail.trim();
     const trimmedPhone = memberPhone.trim();
 
-    if (identifierType === "email" && !trimmedEmail) {
+    if (!trimmedEmail) {
       return showToast("error", "Please enter an email");
     }
-    if (identifierType === "phone" && !trimmedPhone) {
+    if (!trimmedPhone) {
       return showToast("error", "Please enter a phone number");
     }
 
