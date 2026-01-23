@@ -50,7 +50,7 @@ const Login = ({ setUser }) => {
         transition={{ duration: 8, repeat: Infinity, delay: 1 }}
       />
 
-      <div className='relative z-10 w-full max-w-lg'>
+      <div className='relative z-10 w-full max-w-lg -mt-40'>
         {/* Back button */}
         <motion.button
           onClick={() => navigate("/")}
@@ -62,7 +62,7 @@ const Login = ({ setUser }) => {
           className='flex items-center gap-2 mb-6 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold'
         >
           <MdArrowBack className='text-xl' />
-          Back
+          Back to Home
         </motion.button>
 
         {/* Main form container */}
