@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
       unique:[true,"A user with this phone exists"],
       validate: {
         validator: (v) => {
-           return /^(017|018|019|015|016|013)\d{8}$/.test(v);
+           return /^\+88(013|014|015|016|017|018|019)\d{8}$/.test(v);
         },
         message: (props) => `${props.value} is not a valid phone number!`,
       }, 

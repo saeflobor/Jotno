@@ -17,8 +17,6 @@ const Register = () => {
   const navigate = useNavigate();
   const [success, setSuccess] = useState("");
   
-  const validOperatorCodes = ["013", "014", "015", "016", "017", "018", "019"];
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     
@@ -46,24 +44,6 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validate phone number
-    const phoneLength = formData.phone.length;
-    
-    // Check total length
-    if (phoneLength !== 14) {
-      setError("Phone number should be 11 digits (excluding +88)");
-      setSuccess("");
-      return;
-    }
-    
-    // Check operator code (characters 3-5)
-    const operatorCode = formData.phone.slice(3, 6);
-    if (!validOperatorCodes.includes(operatorCode)) {
-      setError(`\"+88${operatorCode}\" is an invalid operator code (BD codes only)`);
-      setSuccess("");
-      return;
-    }
     
     try {
       const res = await axios.post("/api/users/register", formData);
