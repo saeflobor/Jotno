@@ -32,6 +32,10 @@ const medicationSchema = new mongoose.Schema(
       immutable: true,
       index: { expires: 0 }
     },
+    times: {
+      type: [String],
+      default: []
+    }
   },
   { timestamps: true }
 );

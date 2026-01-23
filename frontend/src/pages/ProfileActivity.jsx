@@ -31,6 +31,7 @@ const ProfileActivity = ({ user, setUser }) => {
     dosage: "",
     duration: "",
     frequency: "once-daily",
+    times: [""],
   });
   const [healthError, setHealthError] = useState("");
   const [healthSuccess, setHealthSuccess] = useState("");
@@ -430,6 +431,7 @@ const ProfileActivity = ({ user, setUser }) => {
           dosage: "",
           duration: "",
           frequency: "once-daily",
+          times: [""],
         });
 
         // Refresh health summary and activities
@@ -736,6 +738,11 @@ const ProfileActivity = ({ user, setUser }) => {
                       <div className="text-xs text-gray-600 mt-1">
                         {medication.dosage} •{" "}
                         {getFrequencyLabel(medication.frequency)}
+                        {medication.times && medication.times.length > 0 && (
+                          <span className="ml-1">
+                            • {medication.times.join(", ")}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <button
@@ -1357,12 +1364,24 @@ const ProfileActivity = ({ user, setUser }) => {
                   </label>
                   <select
                     value={medicationForm.frequency}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const newFreq = e.target.value;
+                      let count = 0;
+                      if (newFreq === "once-daily") count = 1;
+                      else if (newFreq === "twice-daily") count = 2;
+                      else if (newFreq === "three-times-daily") count = 3;
+                      
+                      // Resize times array while preserving existing values where possible
+                      const currentTimes = [...(medicationForm.times || [])];
+                      while (currentTimes.length < count) currentTimes.push("");
+                      const newTimes = currentTimes.slice(0, count);
+
                       setMedicationForm({
                         ...medicationForm,
-                        frequency: e.target.value,
-                      })
-                    }
+                        frequency: newFreq,
+                        times: newTimes,
+                      });
+                    }}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 bg-white"
                   >
                     <option value="once-daily">Once Daily</option>
@@ -1372,6 +1391,32 @@ const ProfileActivity = ({ user, setUser }) => {
                   </select>
                 </div>
               </div>
+
+              {medicationForm.times && medicationForm.times.length > 0 && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Schedule Times
+                  </label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {medicationForm.times.map((time, idx) => (
+                      <input
+                        key={idx}
+                        type="time"
+                        value={time}
+                        onChange={(e) => {
+                          const newTimes = [...medicationForm.times];
+                          newTimes[idx] = e.target.value;
+                          setMedicationForm({
+                            ...medicationForm,
+                            times: newTimes,
+                          });
+                        }}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
