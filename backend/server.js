@@ -23,7 +23,9 @@ import medicalReportRoutes from "./routes/medicalReportRoutes.js";
 import healthRoutes from "./routes/healthRoutes.js";
 import activityRoutes from "./routes/activityRoutes.js";
 import errorHandler from "./middleware/errorhandler.js";
+import medicineRoutes from "./routes/Medicines.js";
 import { connectDB } from "./config/db.js";
+import { startScheduler } from "./utils/scheduler.js";
 
 
 const PORT = process.env.PORT || 5001;
@@ -39,12 +41,16 @@ app.use("/api/family", familyRoutes);
 app.use("/api/medical-report", medicalReportRoutes);
 app.use("/api/health", healthRoutes);
 app.use("/api/activities", activityRoutes);
+app.use("/api", medicineRoutes); // <-- Mount medicine routes here
 app.use(errorHandler);
 
 // <-- Mount family routes
 
 // Connect to MongoDB
 connectDB();
+
+// Start the scheduler
+startScheduler();
 
 // Start server
 app.listen(PORT, () => {

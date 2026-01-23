@@ -3,6 +3,7 @@ import Medication from "../models/Medication.js";
 import MedicalReport from "../models/MedicalReport.js";
 import AppError from "../utils/AppError.js";
 import { logActivity } from "../utils/activityLogger.js";
+import { sendEmail } from "../utils/sendEmail.js";
 
 // Get health summary (counts and stats)
 export const getHealthSummary = async (req, res, next) => {
@@ -131,7 +132,7 @@ export const addMedication = async (req, res, next) => {
     const userId = req.user?._id;
     if (!userId) return next(new AppError("Unauthorized", 401));
 
-    const { medicationName, dosage, frequency, duration } = req.body;
+    const { medicationName, dosage, frequency, duration, times, notificationType } = req.body;
 
     if (!medicationName || !dosage || !frequency || !duration) {
       return next(new AppError("All fields are required", 400));
@@ -149,6 +150,8 @@ export const addMedication = async (req, res, next) => {
       frequency,
       duration,
       expiryDate,
+      times,
+      notificationType,
       owner: userId,
     });
 
@@ -193,5 +196,112 @@ export const deleteMedication = async (req, res, next) => {
     return res.status(200).json({ success: true, id: medication._id });
   } catch (err) {
     return next(err);
+  }
+};
+
+// Check medication reminders (generic helper, can be called by cron or route)
+export const checkMedicationReminders = async (req, res, next) => {
+  try {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const currentTime = `${hours}:${minutes}`;
+
+    console.log(`Checking reminders for time: ${currentTime}`);
+
+    // Find medications that have this time in their schedule
+    // Populate owner and their family members nested
+    const medications = await Medication.find({ times: currentTime }).populate({
+      path: "owner",
+      populate: {
+        path: "family.father family.mother family.spouse family.children"
+      }
+    });
+
+    if (medications.length === 0) {
+      if (res) return res.status(200).json({ success: true, checkedTime: currentTime, sentCount: 0 });
+      return 0;
+    }
+
+    console.log(`Found ${medications.length} reminders to send.`);
+
+    // Helper function to send a single email wrapper
+    const sendReminderEmail = async (med) => {
+      if (!med.owner || !med.owner.email) return null;
+
+      // Determine recipients
+      const recipients = [med.owner.email];
+      
+      if (med.notificationType === 'family' && med.owner.family) {
+        const family = med.owner.family;
+        if (family.father && family.father.email) recipients.push(family.father.email);
+        if (family.mother && family.mother.email) recipients.push(family.mother.email);
+        if (family.spouse && family.spouse.email) recipients.push(family.spouse.email);
+        if (Array.isArray(family.children)) {
+          family.children.forEach(child => {
+            if (child && child.email) recipients.push(child.email);
+          });
+        }
+      }
+
+      // Unique emails only
+      const uniqueRecipients = [...new Set(recipients)];
+
+      const mailOptions = {
+        to: uniqueRecipients, // Nodemailer accepts array
+        subject: `Medication Reminder: ${med.medicationName}`,
+        text: `It's time to take your medication: ${med.medicationName} (${med.dosage}).`,
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+            <h2 style="color: #e91e63;">Medication Reminder</h2>
+            <p>Hello ${med.owner.username || "User"} ${med.notificationType === 'family' ? "& Family" : ""},</p>
+            <p>This is a reminder to take the medication:</p>
+            <div style="background: #fdf2f8; padding: 15px; border-left: 4px solid #db2777; margin: 20px 0;">
+              <h3 style="margin: 0; color: #db2777;">${med.medicationName}</h3>
+              <p style="margin: 5px 0 0;">Dosage: <strong>${med.dosage}</strong></p>
+            </div>
+            <p>Stay healthy!</p>
+            <p style="font-size: 12px; color: #888;">Jotno Health App</p>
+          </div>
+        `
+      };
+
+      try {
+        await sendEmail(mailOptions);
+        console.log(`Sent email to ${uniqueRecipients.join(", ")} for ${med.medicationName}`);
+        return true;
+      } catch (e) {
+        console.error(`Failed to send email to ${uniqueRecipients.join(", ")}:`, e.message);
+        return false;
+      }
+    };
+
+    // Process in batches (chunks) to avoid overwhelming SMTP or memory
+    const BATCH_SIZE = 20; 
+    let sentCount = 0;
+
+    for (let i = 0; i < medications.length; i += BATCH_SIZE) {
+      const batch = medications.slice(i, i + BATCH_SIZE);
+      // Run the batch in parallel
+      const results = await Promise.allSettled(batch.map(med => sendReminderEmail(med)));
+      
+      // Count successes
+      const batchSuccess = results.filter(r => r.status === 'fulfilled' && r.value === true).length;
+      sentCount += batchSuccess;
+      
+      // Optional: small delay between batches if needed to respect rate limits
+      // await new Promise(r => setTimeout(r, 100)); 
+    }
+
+    console.log(`Sent ${sentCount}/${medications.length} emails for time ${currentTime}`);
+
+    if (res) {
+      return res.status(200).json({ success: true, checkedTime: currentTime, sentCount });
+    } else {
+        return sentCount;
+    }
+  } catch (err) {
+    console.error("Error in checkMedicationReminders:", err);
+    if (res && next) return next(err);
   }
 };

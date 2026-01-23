@@ -32,6 +32,15 @@ const medicationSchema = new mongoose.Schema(
       immutable: true,
       index: { expires: 0 }
     },
+    times: {
+      type: [String],
+      default: []
+    },
+    notificationType: {
+      type: String,
+      enum: ["me", "family"],
+      default: "me",
+    }
   },
   { timestamps: true }
 );

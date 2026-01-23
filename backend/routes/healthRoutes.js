@@ -8,6 +8,7 @@ import {
   getMedications,
   addMedication,
   deleteMedication,
+  checkMedicationReminders,
 } from "../controllers/healthController.js";
 
 const router = express.Router();
@@ -24,5 +25,8 @@ router.delete("/chronic-conditions/:id", protect, deleteChronicCondition);
 router.get("/medications", protect, getMedications);
 router.post("/medications", protect, addMedication);
 router.delete("/medications/:id", protect, deleteMedication);
+
+// Manual trigger for medication reminders (optional, useful for testing)
+router.get("/reminders/check", checkMedicationReminders);
 
 export default router;
