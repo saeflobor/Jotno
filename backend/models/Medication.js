@@ -35,6 +35,11 @@ const medicationSchema = new mongoose.Schema(
     times: {
       type: [String],
       default: []
+    },
+    notificationType: {
+      type: String,
+      enum: ["me", "family"],
+      default: "me",
     }
   },
   { timestamps: true }
