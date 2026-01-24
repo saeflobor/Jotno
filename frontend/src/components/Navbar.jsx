@@ -17,7 +17,7 @@ const Navbar = ({ user, setUser }) => {
   }
 
   return (
-    <nav className='bg-black'>
+    <nav className='bg-white'>
       <motion.div 
         className='bg-[rgb(211,46,149)] backdrop-blur-md p-4'
         initial={{ opacity: 0, y: -20 }}
@@ -75,7 +75,7 @@ const Navbar = ({ user, setUser }) => {
             {user ? (
               <motion.button 
                 onClick={handleLogout}
-                className='text-white bg-red-500 px-4 py-2 rounded hover:bg-red-600'
+                className='text-white bg-red-500 px-4 py-2 rounded-4xl hover:bg-red-600'
                 whileHover={{ scale: 1.05, boxShadow: "0px 8px 20px rgba(255, 0, 0, 0.3)" }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
