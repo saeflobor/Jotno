@@ -119,6 +119,9 @@ const Home = ({ user, error }) => {
           aria-hidden="true"
         />
         <div className="relative">
+          <div className={`absolute top-6 left-6 z-30 text-sm ${useDarkBackground ? "text-white" : "text-gray-800"}`}>
+            Home / <span className="font-semibold">Home</span>
+          </div>
           <motion.button
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}

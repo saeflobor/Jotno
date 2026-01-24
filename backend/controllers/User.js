@@ -55,8 +55,8 @@ const register = async (req, res, next) => {
     } else if (check_user.verified === false) {
       return next(
         new AppError(
-          "Please verify your email for successful registration",
-          401
+          "This email is already registered. Please check your email for verification link",
+          400
         )
       );
     } else {
@@ -133,9 +133,9 @@ const updateProfile = async (req, res, next) => {
 
     // Check if phone is being changed and if it's already taken
     if (phone && phone !== user.phone) {
-      // Validate phone format
-      if (!/^(017|018|019|015|016|013)\d{8}$/.test(phone)) {
-        return next(new AppError("Invalid phone number format", 400));
+      // Validate phone format - must include +88 prefix
+      if (!/^\+88(013|014|015|016|017|018|019)\d{8}$/.test(phone)) {
+        return next(new AppError("Invalid phone number format. Use format: +8801XXXXXXXXX", 400));
       }
       const existingPhone = await User.findOne({ phone });
       if (existingPhone) {
@@ -162,8 +162,8 @@ const updateProfile = async (req, res, next) => {
       user.password = password; // Password will be hashed by the pre-save hook
     }
 
-    // Save the updated user
-    await user.save();
+    // Save the updated user - only validate modified fields to avoid issues with existing data
+    await user.save({ validateModifiedOnly: true });
 
     // Return updated user without password
     const updatedUser = await User.findById(userId)

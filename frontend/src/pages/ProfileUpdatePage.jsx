@@ -12,7 +12,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
   
   const [formData, setFormData] = useState({
     email: user?.email || "",
-    phone: user?.phone || "",
+    phone: "+88",
     username: user?.username || "",
     password: "",
     confirmPassword: "",
@@ -21,6 +21,26 @@ const ProfileUpdatePage = ({ user, setUser }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Special handling for phone input
+    if (name === "phone") {
+      if (!value.startsWith("+88")) {
+        setFormData((prev) => ({ ...prev, [name]: "+88" }));
+        return;
+      }
+      
+      // Only allow digits after +88
+      const afterPrefix = value.slice(3);
+      if (!/^\d*$/.test(afterPrefix)) {
+        return;
+      }
+      
+      // Limit to 14 characters total (+88 + 11 digits)
+      if (value.length > 14) {
+        return;
+      }
+    }
+    
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -47,9 +67,9 @@ const ProfileUpdatePage = ({ user, setUser }) => {
 
     // Phone validation
     if (formData.phone) {
-      const phoneRegex = /^(017|018|019|015|016|013)\d{8}$/;
+      const phoneRegex = /^\+88(013|014|015|016|017|018|019)\d{8}$/;
       if (!phoneRegex.test(formData.phone)) {
-        setErrorMessage("Phone must be a valid Bangladeshi number (11 digits starting with 01)");
+        setErrorMessage("Phone must be a valid Bangladeshi number (format: +8801XXXXXXXXX)");
         return false;
       }
     }
@@ -144,6 +164,10 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           Back to Dashboard
         </motion.button>
 
+        <div className="mb-4 text-sm text-gray-600">
+          Dashboard / <span className="text-gray-900 font-semibold">Update Profile</span>
+        </div>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -208,9 +232,9 @@ const ProfileUpdatePage = ({ user, setUser }) => {
               <input
                 type="tel"
                 name="phone"
-                // value={formData.phone}
+                value={formData.phone}
                 onChange={handleChange}
-                placeholder={user?.phone || "Enter your phone number"}
+                placeholder="+8801xxxxxxxxx"
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
               />
               <p className="text-xs text-gray-700 mt-3">Current: {user?.phone}</p>
@@ -292,7 +316,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 py-3 rounded-lg font-semibold text-white transition disabled:opacity-60"
+                className="flex-1 py-3 rounded-4xl font-semibold text-white transition disabled:opacity-60"
                 style={{
                   background: isLoading
                     ? "rgba(211, 46, 149, 0.5)"
@@ -304,7 +328,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
               <button
                 type="button"
                 onClick={() => navigate("/dashboard")}
-                className="flex-1 py-3 rounded-lg font-semibold border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition"
+                className="flex-1 py-3 rounded-4xl font-semibold border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition"
               >
                 Cancel
               </button>

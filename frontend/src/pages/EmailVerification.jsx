@@ -33,6 +33,9 @@ export default function VerifyEmail({ setUser }) {
 
   return (
     <div style={{ textAlign: "center", marginTop: "100px" }}>
+      <div style={{ marginBottom: "12px", color: "#4b5563", fontSize: "14px" }}>
+        Home / <span style={{ color: "#111827", fontWeight: 600 }}>Email Verification</span>
+      </div>
       <h2>Email Verification</h2>
 
       {loading && <p>Verifying your email...</p>}

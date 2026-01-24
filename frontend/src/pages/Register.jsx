@@ -69,6 +69,9 @@ const Register = () => {
       />
 
       <div className='relative z-10 w-full max-w-lg -mt-20'>
+        <div className="mb-4 text-sm text-gray-600">
+          Home / <span className="text-gray-900 font-semibold">Register</span>
+        </div>
         {/* Back button */}
         <motion.button
           onClick={() => navigate("/")}

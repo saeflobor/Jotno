@@ -123,7 +123,7 @@ const FamilyIntegration = ({ user, setUser }) => {
           <div className="text-sm text-gray-600">
             Dashboard /{" "}
             <span className="text-gray-900 font-semibold">
-              Family Integration
+              Family Management
             </span>
           </div>
           <div className="flex gap-2">

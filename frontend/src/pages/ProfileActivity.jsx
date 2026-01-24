@@ -600,6 +600,10 @@ const ProfileActivity = ({ user, setUser }) => {
           </button>
         </div>
 
+        <div className="mb-6 text-sm text-gray-600">
+          Dashboard / <span className="font-semibold text-gray-900">Medical Records</span>
+        </div>
+
         {/* ============ NEW: HEALTH SUMMARY DASHBOARD ============ */}
         {healthSummary && (
           <div className="mb-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-lg p-8 text-white">

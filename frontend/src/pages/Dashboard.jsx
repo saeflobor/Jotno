@@ -77,6 +77,12 @@ const Dashboard = ({ user, setUser }) => {
         transition={{ duration: 8, repeat: Infinity, delay: 1 }}
       />
 
+              <div className="px-6 pt-6">
+                <div className="text-sm text-gray-600">
+                  Dashboard / <span className="font-semibold text-gray-900">Dashboard</span>
+                </div>
+              </div>
+
       <div className="relative z-10 flex-1 flex flex-col">
         {/* Top Right Profile */}
         <div className="flex justify-end items-center p-6 pr-8">
