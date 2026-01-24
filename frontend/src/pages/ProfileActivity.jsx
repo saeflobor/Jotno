@@ -589,19 +589,18 @@ const ProfileActivity = ({ user, setUser }) => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-4">
       <div className="max-w-7xl mx-auto">
-        {/* ============ BACK TO DASHBOARD BUTTON ============ */}
-        <div className="mb-6 flex items-center">
+        {/* ============ HEADER ROW ============ */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Dashboard / <span className="font-semibold text-gray-900">Medical Records</span>
+          </div>
           <button
             onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </button>
-        </div>
-
-        <div className="mb-6 text-sm text-gray-600">
-          Dashboard / <span className="font-semibold text-gray-900">Medical Records</span>
         </div>
 
         {/* ============ NEW: HEALTH SUMMARY DASHBOARD ============ */}

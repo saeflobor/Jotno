@@ -140,8 +140,9 @@ const FamilyIntegration = ({ user, setUser }) => {
             </button>
             <button
               onClick={() => navigate("/dashboard")}
-              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
+              className="flex items-center gap-2 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold"
             >
+              <span className="text-lg">←</span>
               Back to Dashboard
             </button>
           </div>
