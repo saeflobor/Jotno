@@ -21,7 +21,7 @@ const verifyemail = async (req, res, next) => {
 
 // Register route
 const register = async (req, res, next) => {
-  const { username, email, phone, password, role, gender } = req.body;
+  const { username, email, phone, password, gender } = req.body;
   try {
     const domain = email.split("@")[1];
     if (
@@ -38,7 +38,6 @@ const register = async (req, res, next) => {
         username,
         email,
         password,
-        role,
         verified: false,
         gender,
         phone,
@@ -70,23 +69,15 @@ const register = async (req, res, next) => {
 
 // Login route
 const Login = async (req, res, next) => {
-  const { email, password, role } = req.body;
+  const { email, password } = req.body;
   try {
-    if (!email || !password || !role) {
-      return next(new AppError("Please provide email, password and role", 400));
-    }
-
-    if (!["doctor", "patient"].includes(role)) {
-      return next(new AppError("Invalid role provided", 400));
+    if (!email || !password) {
+      return next(new AppError("Please provide email and password", 400));
     }
 
     const user = await User.findOne({ email });
     if (!user || !(await user.matchPassword(password))) {
       return next(new AppError("Invalid email or password", 401));
-    }
-
-    if (user.role !== role) {
-      return next(new AppError("Role does not match", 401));
     }
 
     if (user.verified === false) {
@@ -98,7 +89,6 @@ const Login = async (req, res, next) => {
       username: user.username,
       email: user.email,
       phone: user.phone,
-      role: user.role,
       gender: user.gender,
       token,
     });

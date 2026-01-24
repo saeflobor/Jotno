@@ -115,12 +115,7 @@ const UserCard = ({ user, onRemove }) => {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div className="py-2 px-3 rounded-lg bg-gray-50 border border-gray-200">
-              <div className="text-xs text-gray-600">Role</div>
-              <div className="mt-1 font-medium text-gray-900">{user.role}</div>
-            </div>
-
+          <div className="mt-4 grid grid-cols-1 gap-3 text-sm">
             <div className="py-2 px-3 rounded-lg bg-gray-50 border border-gray-200">
               <div className="text-xs text-gray-600">Gender</div>
               <div className="mt-1 font-medium text-gray-900">{user.gender}</div>

@@ -16,12 +16,6 @@ const userSchema = new mongoose.Schema(
       },
     },
     password: { type: String, required: [true, "password is required"] },
-    role: {
-      type: String,
-      enum: ["doctor", "patient"],
-      default: "patient",
-      required: [true, "Role is required"],
-    },
     gender: {
       type: String,
       enum: ["male", "female"],

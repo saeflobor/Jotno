@@ -8,7 +8,6 @@ const Login = ({ setUser }) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "patient",
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -101,50 +100,28 @@ const Login = ({ setUser }) => {
           )}
 
           <form onSubmit={handleSubmit} className='space-y-6'>
-            {/* Email and Role row */}
-            <div className='grid grid-cols-2 gap-4'>
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <label className='block text-gray-700 text-sm font-semibold mb-2'>
-                  Email
-                </label>
-                <motion.input 
-                  className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition placeholder-gray-400 text-gray-900 bg-white/60 backdrop-blur-sm'
-                  type='email'
-                  name='email'
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder='Enter email'
-                  autoComplete='off'
-                  required
-                  whileFocus={{ scale: 1.02, boxShadow: "0px 8px 20px rgba(211, 46, 149, 0.2)" }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                />
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <label className='block text-gray-700 text-sm font-semibold mb-2'>
-                  Role
-                </label>
-                <motion.select
-                  className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition text-gray-900 bg-white/60 backdrop-blur-sm appearance-none cursor-pointer'
-                  name='role'
-                  value={formData.role}
-                  onChange={handleChange}
-                  whileFocus={{ scale: 1.02, boxShadow: "0px 8px 20px rgba(211, 46, 149, 0.2)" }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <option value='patient'>Patient</option>
-                  <option value='doctor'>Doctor</option>
-                </motion.select>
-              </motion.div>
-            </div>
+            {/* Email */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <label className='block text-gray-700 text-sm font-semibold mb-2'>
+                Email
+              </label>
+              <motion.input 
+                className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition placeholder-gray-400 text-gray-900 bg-white/60 backdrop-blur-sm'
+                type='email'
+                name='email'
+                value={formData.email}
+                onChange={handleChange}
+                placeholder='Enter email'
+                autoComplete='off'
+                required
+                whileFocus={{ scale: 1.02, boxShadow: "0px 8px 20px rgba(211, 46, 149, 0.2)" }}
+                transition={{ type: "spring", stiffness: 300 }}
+              />
+            </motion.div>
 
             {/* Password */}
             <motion.div

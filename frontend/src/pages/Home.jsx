@@ -88,14 +88,14 @@ const Home = ({ user, error }) => {
       id: 1,
       text: "Since using যত্ন, my father never misses his medication. The peace of mind is priceless.",
       author: "Rahman M. Jr.",
-      role: "Son of Rahman M. Sr.",
+      relationship: "Son of Rahman M. Sr.",
       icon: UserRound,
     },
     {
       id: 2,
       text: "The SOS feature saved my grandmother when she fell. Help arrived within minutes!",
       author: "Farhana K.",
-      role: "Granddaughter of Rahima K.",
+      relationship: "Granddaughter of Rahima K.",
       icon: UserRound,
     },
   ];
@@ -427,7 +427,7 @@ const Home = ({ user, error }) => {
                               : "text-gray-700"
                             }`}
                         >
-                          {testimonial.role}
+                          {testimonial.relationship}
                         </p>
                       </div>
                     </motion.div>

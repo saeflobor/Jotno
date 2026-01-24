@@ -10,7 +10,6 @@ const Register = () => {
     email: "",
     phone: "+88",
     password: "",
-    role: "patient",
     gender: "male", // added gender default
   });
   const [error, setError] = useState("");
@@ -131,50 +130,28 @@ const Register = () => {
           )}
 
         <form onSubmit={handleSubmit} className='space-y-6'>
-          {/* Username and Role row */}
-          <div className='grid grid-cols-2 gap-4'>
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <label className='block text-gray-700 text-sm font-semibold mb-2'>
-                Username
-              </label>
-              <motion.input 
-                className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition placeholder-gray-400 text-gray-900 bg-white/60 backdrop-blur-sm'
-                type='text'
-                name='username'
-                value={formData.username}
-                onChange={handleChange}
-                placeholder='Enter username'
-                autoComplete='off'
-                required
-                whileFocus={{ scale: 1.02, boxShadow: "0px 8px 20px rgba(211, 46, 149, 0.2)" }}
-                transition={{ type: "spring", stiffness: 300 }}
-              />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <label className='block text-gray-700 text-sm font-semibold mb-2'>
-                Role
-              </label>
-              <motion.select
-                className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition text-gray-900 bg-white/60 backdrop-blur-sm appearance-none cursor-pointer'
-                name='role'
-                value={formData.role}
-                onChange={handleChange}
-                whileFocus={{ scale: 1.02, boxShadow: "0px 8px 20px rgba(211, 46, 149, 0.2)" }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <option value='patient'>Patient</option>
-                <option value='doctor'>Doctor</option>
-              </motion.select>
-            </motion.div>
-          </div>
+          {/* Username */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <label className='block text-gray-700 text-sm font-semibold mb-2'>
+              Username
+            </label>
+            <motion.input 
+              className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition placeholder-gray-400 text-gray-900 bg-white/60 backdrop-blur-sm'
+              type='text'
+              name='username'
+              value={formData.username}
+              onChange={handleChange}
+              placeholder='Enter username'
+              autoComplete='off'
+              required
+              whileFocus={{ scale: 1.02, boxShadow: "0px 8px 20px rgba(211, 46, 149, 0.2)" }}
+              transition={{ type: "spring", stiffness: 300 }}
+            />
+          </motion.div>
 
           {/* Email and Gender row */}
           <div className='grid grid-cols-2 gap-4'>

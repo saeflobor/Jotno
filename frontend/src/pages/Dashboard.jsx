@@ -124,10 +124,6 @@ const Dashboard = ({ user, setUser }) => {
 
               <div className="space-y-3 mb-6">
                 <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Role</p>
-                  <p className="text-sm font-semibold text-gray-900">{user.role}</p>
-                </div>
-                <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
                   <p className="text-xs font-medium text-gray-500 uppercase mb-1">Gender</p>
                   <p className="text-sm font-semibold text-gray-900">{user.gender}</p>
                 </div>

@@ -320,7 +320,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           className="mt-8 p-4 rounded-lg bg-blue-50 border border-blue-200"
         >
           <p className="text-sm text-blue-700 text-center">
-            <span className="font-semibold">Note:</span> Your role cannot be changed.
+            <span className="font-semibold">Note:</span> Please keep your profile information up to date.
           </p>
         </motion.div>
       </div>
