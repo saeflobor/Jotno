@@ -32,4 +32,7 @@ router.get("/", protect, async (req, res, next) => {
 // DELETE /api/medical-report/:id -> delete a report
 router.delete("/:id", protect, medicalReportController.deleteMedicalReport);
 
+// PATCH /api/medical-report/:id/privacy -> toggle privacy
+router.patch("/:id/privacy", protect, medicalReportController.toggleReportPrivacy);
+
 export default router;

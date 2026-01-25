@@ -307,8 +307,11 @@ export const getFamilyMemberReports = async (req, res, next) => {
       return next(new AppError("Access denied: Not a family member", 403));
     }
 
-    // Fetch medical reports for the family member
-    const reports = await MedicalReport.find({ owner: memberId }).sort({
+    // Fetch medical reports for the family member (only public ones)
+    const reports = await MedicalReport.find({ 
+      owner: memberId, 
+      isPrivate: false 
+    }).sort({
       createdAt: -1,
     });
 

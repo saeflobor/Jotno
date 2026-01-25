@@ -22,6 +22,7 @@ const activityLogSchema = new mongoose.Schema(
         "removed_family_member",
         "updated_profile",
         "sent_sos",
+        "updated_report_privacy",
       ],
     },
     description: {

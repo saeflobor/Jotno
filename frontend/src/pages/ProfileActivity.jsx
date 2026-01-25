@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { Pill, X, Activity, FileText, Clock, Search, Filter, ArrowLeft } from "lucide-react";
+import { Pill, X, Activity, FileText, Clock, Search, Filter, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AddMedicationModal from "../components/AddMedicationModal";
 import AddConditionModal from "../components/AddConditionModal";
@@ -247,6 +247,27 @@ const ProfileActivity = ({ user, setUser }) => {
       setError(err?.response?.data?.message || "Delete failed");
     } finally {
       setDeletingIds((p) => p.filter((x) => x !== id));
+    }
+  };
+
+  const handleTogglePrivacy = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.patch(`/api/medical-report/${id}/privacy`, {}, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      
+      if (res.data.success) {
+        setReports((p) =>
+          p.map((r) =>
+            (r._id || r.id || r.url) === id ? { ...r, isPrivate: res.data.isPrivate } : r
+          )
+        );
+        setSuccess(`Report is now ${res.data.isPrivate ? "Private" : "Public"}`);
+        setTimeout(() => setSuccess(""), 3000);
+      }
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to toggle privacy");
     }
   };
 
@@ -1028,13 +1049,24 @@ const ProfileActivity = ({ user, setUser }) => {
                       </div>
 
                       {/* Descriptive Content with Large Text */}
-                      <div className="flex-1 min-w-0">
-                        <h4 
-                          className="text-lg font-bold text-gray-900 truncate cursor-pointer hover:text-pink-600 transition-colors"
-                          onClick={() => openPreview(r)}
-                        >
-                          {name}
-                        </h4>
+                        <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <h4 
+                            className="text-lg font-bold text-gray-900 truncate cursor-pointer hover:text-pink-600 transition-colors"
+                            onClick={() => openPreview(r)}
+                          >
+                            {name}
+                          </h4>
+                          <button
+                            onClick={() => handleTogglePrivacy(id)}
+                            className={`p-2 rounded-full transition-colors ${
+                              r.isPrivate ? "bg-red-50 text-red-600 hover:bg-red-100" : "bg-green-50 text-green-600 hover:bg-green-100"
+                            }`}
+                            title={r.isPrivate ? "Only you can see this" : "Family can see this"}
+                          >
+                            {r.isPrivate ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          </button>
+                        </div>
                         
                         <div className="flex flex-wrap items-center gap-3 mt-2">
                           {r.category && (

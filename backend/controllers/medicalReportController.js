@@ -38,7 +38,7 @@ export const uploadMedicalReport = async (req, res, next) => {
     if (!req.file) return next(new AppError("No file uploaded", 400));
 
     const { mimetype, buffer, originalname } = req.file;
-    const { category, reportDate, notes, tags } = req.body;
+    const { category, reportDate, notes, tags, isPrivate } = req.body;
 
     // Choose resource_type for Cloudinary (pdf and images -> image, others -> raw)
     // Cloudinary supports PDF under 'image' resource type, which serves it with correct MIME type for browser viewing
@@ -71,6 +71,7 @@ export const uploadMedicalReport = async (req, res, next) => {
       reportDate: reportDate || null,
       notes: notes || "",
       tags: tags ? (Array.isArray(tags) ? tags : JSON.parse(tags)) : [],
+      isPrivate: isPrivate === "true" || isPrivate === true,
     });
 
     
@@ -83,6 +84,33 @@ export const uploadMedicalReport = async (req, res, next) => {
     );
 
     return res.status(201).json({ success: true, medicalReport });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// Toggle privacy status
+export const toggleReportPrivacy = async (req, res, next) => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) return next(new AppError("Unauthorized", 401));
+
+    const { id } = req.params;
+    const report = await MedicalReport.findOne({ _id: id, owner: userId });
+    if (!report) return next(new AppError("Medical report not found", 404));
+
+    report.isPrivate = !report.isPrivate;
+    await report.save();
+
+    // Log activity
+    await logActivity(
+      userId,
+      "updated_report_privacy",
+      `Updated report privacy to ${report.isPrivate ? "Private" : "Public"}`,
+      { reportId: report._id, isPrivate: report.isPrivate }
+    );
+
+    return res.status(200).json({ success: true, isPrivate: report.isPrivate, medicalReport: report });
   } catch (err) {
     return next(err);
   }
@@ -128,4 +156,9 @@ export const deleteMedicalReport = async (req, res, next) => {
   }
 };
 
-export default { uploadMiddleware, uploadMedicalReport, deleteMedicalReport };
+export default {
+  uploadMiddleware,
+  uploadMedicalReport,
+  deleteMedicalReport,
+  toggleReportPrivacy,
+};
