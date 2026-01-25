@@ -185,17 +185,26 @@ const ProfileActivity = ({ user, setUser }) => {
 
       const newReports = res?.data?.medicalReports ||
         res?.data?.report || [res?.data];
+      const uploadedCount = files.length;
+
+      // Clear files immediately after successful upload
+      setFiles([]);
+      setUploadFormData({ category: "Other", reportDate: "", notes: "" });
+
       if (newReports && Array.isArray(newReports)) {
         setReports((p) => [...newReports, ...p]);
       }
 
-      // Also update parent `user` state to include new report id so `user.medicalReports` is not empty
-      if (newReport && setUser) {
+      // Also update parent `user` state to include new report ids
+      if (newReports && Array.isArray(newReports) && setUser) {
         setUser((prev) =>
           prev
             ? {
                 ...prev,
-                medicalReports: [newReport._id, ...(prev.medicalReports || [])],
+                medicalReports: [
+                  ...newReports.map((r) => r._id),
+                  ...(prev.medicalReports || []),
+                ],
               }
             : prev,
         );
@@ -218,13 +227,16 @@ const ProfileActivity = ({ user, setUser }) => {
         setActivities(activitiesRes.data.activities);
       }
 
-      setSuccess(`${files.length} file(s) uploaded successfully`);
-      setFiles([]);
-      setUploadFormData({ category: "Other", reportDate: "", notes: "" });
+      setSuccess(`${uploadedCount} file(s) uploaded successfully`);
+      // Auto-dismiss success message after 4 seconds
+      setTimeout(() => setSuccess(""), 4000);
       // give time for progress bar to reach 100%
       setTimeout(() => setUploadProgress(0), 400);
     } catch (err) {
-      setError(err?.response?.data?.message || "Upload failed");
+      const errorMsg = err?.response?.data?.message || "Upload failed";
+      setError(errorMsg);
+      // Auto-dismiss error message after 5 seconds
+      setTimeout(() => setError(""), 5000);
     } finally {
       setUploading(false);
     }
@@ -999,9 +1011,19 @@ const ProfileActivity = ({ user, setUser }) => {
               <div className="mt-3 w-full">
                 {renderPreview()}
 
-                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                {error && (
+                  <div className="mt-3 p-3 bg-red-50 border-l-4 border-red-500 rounded">
+                    <p className="text-red-700 text-base font-semibold">
+                      {error}
+                    </p>
+                  </div>
+                )}
                 {success && (
-                  <p className="text-green-600 text-sm mt-2">{success}</p>
+                  <div className="mt-3 p-3 bg-green-50 border-l-4 border-green-500 rounded">
+                    <p className="text-green-700 text-base font-semibold">
+                      ✓ {success}
+                    </p>
+                  </div>
                 )}
 
                 <button
