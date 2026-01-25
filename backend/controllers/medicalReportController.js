@@ -40,8 +40,9 @@ export const uploadMedicalReport = async (req, res, next) => {
     const { mimetype, buffer, originalname } = req.file;
     const { category, reportDate, notes, tags } = req.body;
 
-    // Choose resource_type for Cloudinary (pdf -> raw, images -> image)
-    const resource_type = mimetype === "application/pdf" ? "raw" : "image";
+    // Choose resource_type for Cloudinary (pdf and images -> image, others -> raw)
+    // Cloudinary supports PDF under 'image' resource type, which serves it with correct MIME type for browser viewing
+    const resource_type = (mimetype === "application/pdf" || mimetype.startsWith("image/")) ? "image" : "raw";
 
     // Use a folder to group uploads
     const folder =
@@ -59,8 +60,10 @@ export const uploadMedicalReport = async (req, res, next) => {
       return next(new AppError("Failed to upload file to Cloudinary", 500));
     }
 
+    const url = result.secure_url;
+
     const medicalReport = await MedicalReport.create({
-      url: result.secure_url,
+      url,
       public_id: result.public_id,
       resourceType: resource_type,
       owner: req.user._id,

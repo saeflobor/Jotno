@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
 import { Pill, X, Activity, FileText, Clock, Search, Filter, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AddMedicationModal from "../components/AddMedicationModal";
@@ -987,94 +988,122 @@ const ProfileActivity = ({ user, setUser }) => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filteredReports.map((r) => {
                 const name = r.url.split("/").pop();
                 const isImage = /\.(jpg|jpeg|png)$/i.test(name);
                 const id = r._id || r.id || r.url;
                 const deleting = deletingIds.includes(id);
+                
+                // Helper to create a download URL for Cloudinary
+                const downloadUrl = r.url.includes("/upload/") 
+                  ? r.url.replace("/upload/", "/upload/fl_attachment/")
+                  : r.url;
+
                 return (
-                  <div
+                  <motion.div
+                    layout
                     key={id}
-                    className="group relative block p-3 rounded-lg border border-gray-100 hover:shadow-lg transition-shadow bg-white"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white rounded-2xl border-2 border-gray-100 p-5 shadow-sm hover:shadow-md transition-all space-y-4"
                   >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-14 h-14 rounded-md overflow-hidden bg-gray-50 flex items-center justify-center">
+                    <div className="flex items-center space-x-5">
+                      {/* Large Thumbnail/Icon for visibility */}
+                      <div 
+                        className="w-20 h-20 rounded-xl overflow-hidden bg-gray-50 border-2 border-gray-100 flex items-center justify-center cursor-pointer hover:border-pink-300 transition-colors"
+                        onClick={() => openPreview(r)}
+                      >
                         {isImage ? (
                           <img
                             src={r.url}
                             alt={name}
-                            className="w-full h-full object-cover cursor-pointer"
-                            onClick={() => openPreview(r)}
+                            className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="flex items-center justify-center w-full h-full text-pink-600">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-6 w-6"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6z" />
-                            </svg>
+                          <div className="text-pink-600">
+                            <FileText className="w-10 h-10" />
                           </div>
                         )}
                       </div>
 
+                      {/* Descriptive Content with Large Text */}
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900 truncate">
+                        <h4 
+                          className="text-lg font-bold text-gray-900 truncate cursor-pointer hover:text-pink-600 transition-colors"
+                          onClick={() => openPreview(r)}
+                        >
                           {name}
-                        </div>
-                        {/* NEW: Show category */}
-                        {r.category && (
-                          <div className="mt-1">
-                            <span className="inline-block px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 rounded">
+                        </h4>
+                        
+                        <div className="flex flex-wrap items-center gap-3 mt-2">
+                          {r.category && (
+                            <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-pink-100 text-pink-700 border border-pink-200">
                               {r.category}
                             </span>
-                          </div>
-                        )}
-                        <div className="text-xs text-gray-400 mt-1">
-                          {r.reportDate
-                            ? new Date(r.reportDate).toLocaleDateString()
-                            : new Date(r.createdAt || r.created_at || Date.now()).toLocaleDateString()}
+                          )}
+                          <span className="flex items-center text-sm text-gray-500">
+                            <Clock className="w-4 h-4 mr-1.5" />
+                            {r.reportDate
+                              ? new Date(r.reportDate).toLocaleDateString()
+                              : new Date(r.createdAt || r.created_at || Date.now()).toLocaleDateString()}
+                          </span>
                         </div>
-                        {/* NEW: Show notes preview */}
-                        {r.notes && (
-                          <div className="text-xs text-gray-500 mt-1 truncate">
-                            {r.notes}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex items-center space-x-2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => openPreview(r)}
-                          className="text-pink-500 text-sm"
-                        >
-                          View
-                        </button>
-                        <a
-                          href={r.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-pink-500 text-sm"
-                        >
-                          Open
-                        </a>
-                        <button
-                          onClick={() => handleRemove(id)}
-                          disabled={deleting}
-                          className={`text-sm ${
-                            deleting
-                              ? "text-gray-400"
-                              : "text-red-500 hover:text-red-600"
-                          }`}
-                        >
-                          {deleting ? "Deleting..." : "Delete"}
-                        </button>
                       </div>
                     </div>
-                  </div>
+
+                    {/* Always Visible Actions with Clear Labels */}
+                    <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gray-100">
+                      <button
+                        onClick={() => openPreview(r)}
+                        className="flex flex-col items-center justify-center p-3 text-gray-700 hover:text-pink-600 hover:bg-pink-50 rounded-xl border border-gray-100 transition-all font-semibold text-sm"
+                      >
+                        <Search className="w-6 h-6 mb-1" />
+                        <span>View</span>
+                      </button>
+                      
+                      <a
+                        href={downloadUrl}
+                        download={name}
+                        className="flex flex-col items-center justify-center p-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl border border-gray-100 transition-all font-semibold text-sm"
+                      >
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          className="w-6 h-6 mb-1" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="2.5" 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round"
+                        >
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        <span>Save</span>
+                      </a>
+
+                      <button
+                        onClick={() => handleRemove(id)}
+                        disabled={deleting}
+                        className="flex flex-col items-center justify-center p-3 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-xl border border-gray-100 transition-all font-semibold text-sm disabled:opacity-50"
+                      >
+                        {deleting ? (
+                          <div className="w-6 h-6 border-3 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <X className="w-6 h-6 mb-1" />
+                        )}
+                        <span>Delete</span>
+                      </button>
+                    </div>
+
+                    {r.notes && (
+                      <p className="p-3 bg-gray-50 rounded-lg text-sm text-gray-600 italic border-l-4 border-gray-200">
+                        {r.notes}
+                      </p>
+                    )}
+                  </motion.div>
                 );
               })}
             </div>
