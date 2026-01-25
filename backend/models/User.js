@@ -29,14 +29,16 @@ const userSchema = new mongoose.Schema(
     },
 
     verified: { type: Boolean, default: false },
-    phone: { type: String, required: true, 
-      unique:[true,"A user with this phone exists"],
+    phone: {
+      type: String,
+      required: true,
+      unique: [true, "A user with this phone exists"],
       validate: {
         validator: (v) => {
-           return /^(017|018|019|015|016|013)\d{8}$/.test(v);
+          return /^(017|018|019|015|016|013)\d{8}$/.test(v);
         },
         message: (props) => `${props.value} is not a valid phone number!`,
-      }, 
+      },
     },
     family: {
       father: {
@@ -58,8 +60,9 @@ const userSchema = new mongoose.Schema(
         { type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] },
       ],
     },
+    private: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Hash password
@@ -68,7 +71,7 @@ userSchema.index(
   {
     expireAfterSeconds: 300, // 60 seconds = 1 minute
     partialFilterExpression: { verified: false },
-  }
+  },
 );
 
 userSchema.pre("save", async function () {

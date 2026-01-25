@@ -11,12 +11,15 @@ export const getHealthSummary = async (req, res, next) => {
     const userId = req.user?._id;
     if (!userId) return next(new AppError("Unauthorized", 401));
 
-    const [conditionsCount, medicationsCount, reportsCount, latestReport] = await Promise.all([
-      ChronicCondition.countDocuments({ owner: userId }),
-      Medication.countDocuments({ owner: userId }),
-      MedicalReport.countDocuments({ owner: userId }),
-      MedicalReport.findOne({ owner: userId }).sort({ createdAt: -1 }).select("createdAt category"),
-    ]);
+    const [conditionsCount, medicationsCount, reportsCount, latestReport] =
+      await Promise.all([
+        ChronicCondition.countDocuments({ owner: userId }),
+        Medication.countDocuments({ owner: userId }),
+        MedicalReport.countDocuments({ owner: userId }),
+        MedicalReport.findOne({ owner: userId })
+          .sort({ createdAt: -1 })
+          .select("createdAt category"),
+      ]);
 
     return res.status(200).json({
       summary: {
@@ -71,7 +74,7 @@ export const addChronicCondition = async (req, res, next) => {
       userId,
       "added_condition",
       `Added chronic condition: ${conditionName}`,
-      { conditionId: condition._id, conditionName, severityLevel }
+      { conditionId: condition._id, conditionName, severityLevel },
     );
 
     return res.status(201).json({ success: true, condition });
@@ -87,7 +90,10 @@ export const deleteChronicCondition = async (req, res, next) => {
     if (!userId) return next(new AppError("Unauthorized", 401));
 
     const { id } = req.params;
-    const condition = await ChronicCondition.findOne({ _id: id, owner: userId });
+    const condition = await ChronicCondition.findOne({
+      _id: id,
+      owner: userId,
+    });
 
     if (!condition) {
       return next(new AppError("Chronic condition not found", 404));
@@ -101,7 +107,7 @@ export const deleteChronicCondition = async (req, res, next) => {
       userId,
       "removed_condition",
       `Removed chronic condition: ${conditionName}`,
-      { conditionId: id, conditionName }
+      { conditionId: id, conditionName },
     );
 
     return res.status(200).json({ success: true, id: condition._id });
@@ -132,7 +138,14 @@ export const addMedication = async (req, res, next) => {
     const userId = req.user?._id;
     if (!userId) return next(new AppError("Unauthorized", 401));
 
-    const { medicationName, dosage, frequency, duration, times, notificationType } = req.body;
+    const {
+      medicationName,
+      dosage,
+      frequency,
+      duration,
+      times,
+      notificationType,
+    } = req.body;
 
     if (!medicationName || !dosage || !frequency || !duration) {
       return next(new AppError("All fields are required", 400));
@@ -143,7 +156,7 @@ export const addMedication = async (req, res, next) => {
       return next(new AppError("Duration must be a positive number", 400));
     }
 
-    const expiryDate = new Date(Date.now() + durationNum*60*1000); // days to milliseconds
+    const expiryDate = new Date(Date.now() + durationNum * 60 * 1000); // days to milliseconds
     const medication = await Medication.create({
       medicationName,
       dosage,
@@ -160,7 +173,7 @@ export const addMedication = async (req, res, next) => {
       userId,
       "added_medication",
       `Added medication: ${medicationName}`,
-      { medicationId: medication._id, medicationName, dosage }
+      { medicationId: medication._id, medicationName, dosage },
     );
 
     return res.status(201).json({ success: true, medication });
@@ -190,7 +203,7 @@ export const deleteMedication = async (req, res, next) => {
       userId,
       "removed_medication",
       `Removed medication: ${medicationName}`,
-      { medicationId: id, medicationName }
+      { medicationId: id, medicationName },
     );
 
     return res.status(200).json({ success: true, id: medication._id });
@@ -214,12 +227,15 @@ export const checkMedicationReminders = async (req, res, next) => {
     const medications = await Medication.find({ times: currentTime }).populate({
       path: "owner",
       populate: {
-        path: "family.father family.mother family.spouse family.children"
-      }
+        path: "family.father family.mother family.spouse family.children",
+      },
     });
 
     if (medications.length === 0) {
-      if (res) return res.status(200).json({ success: true, checkedTime: currentTime, sentCount: 0 });
+      if (res)
+        return res
+          .status(200)
+          .json({ success: true, checkedTime: currentTime, sentCount: 0 });
       return 0;
     }
 
@@ -231,14 +247,17 @@ export const checkMedicationReminders = async (req, res, next) => {
 
       // Determine recipients
       const recipients = [med.owner.email];
-      
-      if (med.notificationType === 'family' && med.owner.family) {
+
+      if (med.notificationType === "family" && med.owner.family) {
         const family = med.owner.family;
-        if (family.father && family.father.email) recipients.push(family.father.email);
-        if (family.mother && family.mother.email) recipients.push(family.mother.email);
-        if (family.spouse && family.spouse.email) recipients.push(family.spouse.email);
+        if (family.father && family.father.email)
+          recipients.push(family.father.email);
+        if (family.mother && family.mother.email)
+          recipients.push(family.mother.email);
+        if (family.spouse && family.spouse.email)
+          recipients.push(family.spouse.email);
         if (Array.isArray(family.children)) {
-          family.children.forEach(child => {
+          family.children.forEach((child) => {
             if (child && child.email) recipients.push(child.email);
           });
         }
@@ -254,7 +273,7 @@ export const checkMedicationReminders = async (req, res, next) => {
         html: `
           <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
             <h2 style="color: #e91e63;">Medication Reminder</h2>
-            <p>Hello ${med.owner.username || "User"} ${med.notificationType === 'family' ? "& Family" : ""},</p>
+            <p>Hello ${med.owner.username || "User"} ${med.notificationType === "family" ? "& Family" : ""},</p>
             <p>This is a reminder to take the medication:</p>
             <div style="background: #fdf2f8; padding: 15px; border-left: 4px solid #db2777; margin: 20px 0;">
               <h3 style="margin: 0; color: #db2777;">${med.medicationName}</h3>
@@ -263,42 +282,55 @@ export const checkMedicationReminders = async (req, res, next) => {
             <p>Stay healthy!</p>
             <p style="font-size: 12px; color: #888;">Jotno Health App</p>
           </div>
-        `
+        `,
       };
 
       try {
         await sendEmail(mailOptions);
-        console.log(`Sent email to ${uniqueRecipients.join(", ")} for ${med.medicationName}`);
+        console.log(
+          `Sent email to ${uniqueRecipients.join(", ")} for ${med.medicationName}`,
+        );
         return true;
       } catch (e) {
-        console.error(`Failed to send email to ${uniqueRecipients.join(", ")}:`, e.message);
+        console.error(
+          `Failed to send email to ${uniqueRecipients.join(", ")}:`,
+          e.message,
+        );
         return false;
       }
     };
 
     // Process in batches (chunks) to avoid overwhelming SMTP or memory
-    const BATCH_SIZE = 20; 
+    const BATCH_SIZE = 20;
     let sentCount = 0;
 
     for (let i = 0; i < medications.length; i += BATCH_SIZE) {
       const batch = medications.slice(i, i + BATCH_SIZE);
       // Run the batch in parallel
-      const results = await Promise.allSettled(batch.map(med => sendReminderEmail(med)));
-      
+      const results = await Promise.allSettled(
+        batch.map((med) => sendReminderEmail(med)),
+      );
+
       // Count successes
-      const batchSuccess = results.filter(r => r.status === 'fulfilled' && r.value === true).length;
+      const batchSuccess = results.filter(
+        (r) => r.status === "fulfilled" && r.value === true,
+      ).length;
       sentCount += batchSuccess;
-      
+
       // Optional: small delay between batches if needed to respect rate limits
-      // await new Promise(r => setTimeout(r, 100)); 
+      // await new Promise(r => setTimeout(r, 100));
     }
 
-    console.log(`Sent ${sentCount}/${medications.length} emails for time ${currentTime}`);
+    console.log(
+      `Sent ${sentCount}/${medications.length} emails for time ${currentTime}`,
+    );
 
     if (res) {
-      return res.status(200).json({ success: true, checkedTime: currentTime, sentCount });
+      return res
+        .status(200)
+        .json({ success: true, checkedTime: currentTime, sentCount });
     } else {
-        return sentCount;
+      return sentCount;
     }
   } catch (err) {
     console.error("Error in checkMedicationReminders:", err);

@@ -5,12 +5,12 @@ import MedicalReport from "../models/MedicalReport.js";
 
 const router = express.Router();
 
-// POST /api/medical-report -> upload a file and save record
+// POST /api/medical-report -> upload one or multiple files and save records
 router.post(
   "/",
   protect,
-  medicalReportController.uploadMiddleware.single("file"),
-  medicalReportController.uploadMedicalReport
+  medicalReportController.uploadMiddleware.array("files", 10),
+  medicalReportController.uploadMedicalReport,
 );
 
 // GET /api/medical-report -> list reports for the authenticated user
@@ -33,6 +33,10 @@ router.get("/", protect, async (req, res, next) => {
 router.delete("/:id", protect, medicalReportController.deleteMedicalReport);
 
 // PATCH /api/medical-report/:id/privacy -> toggle privacy
-router.patch("/:id/privacy", protect, medicalReportController.toggleReportPrivacy);
+router.patch(
+  "/:id/privacy",
+  protect,
+  medicalReportController.toggleReportPrivacy,
+);
 
 export default router;

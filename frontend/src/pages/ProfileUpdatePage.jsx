@@ -9,7 +9,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  
+
   const [formData, setFormData] = useState({
     email: user?.email || "",
     phone: user?.phone || "",
@@ -17,6 +17,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     password: "",
     confirmPassword: "",
     gender: user?.gender || "male",
+    private: user?.private || false,
   });
 
   const handleChange = (e) => {
@@ -31,7 +32,14 @@ const ProfileUpdatePage = ({ user, setUser }) => {
   };
 
   const validateForm = () => {
-    if (!formData.email && !formData.phone && !formData.username && !formData.password && !formData.gender) {
+    if (
+      !formData.email &&
+      !formData.phone &&
+      !formData.username &&
+      !formData.password &&
+      !formData.gender &&
+      formData.private === user?.private
+    ) {
       setErrorMessage("Please fill in at least one field to update");
       return false;
     }
@@ -49,7 +57,9 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     if (formData.phone) {
       const phoneRegex = /^(017|018|019|015|016|013)\d{8}$/;
       if (!phoneRegex.test(formData.phone)) {
-        setErrorMessage("Phone must be a valid Bangladeshi number (10 digits starting with 01)");
+        setErrorMessage(
+          "Phone must be a valid Bangladeshi number (10 digits starting with 01)",
+        );
         return false;
       }
     }
@@ -102,6 +112,9 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       if (formData.gender && formData.gender !== user?.gender) {
         updatePayload.gender = formData.gender;
       }
+      if (formData.private !== user?.private) {
+        updatePayload.private = formData.private;
+      }
 
       if (Object.keys(updatePayload).length === 0) {
         setErrorMessage("No changes detected");
@@ -116,14 +129,17 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       if (response.data.success) {
         setUser(response.data.user);
         setSuccessMessage("Profile updated successfully!");
-        
+
         // Reset form and redirect after 2 seconds
         setTimeout(() => {
           navigate("/dashboard");
         }, 2000);
       }
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || "Failed to update profile";
+      const errorMsg =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to update profile";
       setErrorMessage(errorMsg);
     } finally {
       setIsLoading(false);
@@ -150,8 +166,12 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Update Profile</h1>
-          <p className="text-gray-600">Update your email, phone, username, password, or gender</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Update Profile
+          </h1>
+          <p className="text-gray-600">
+            Update your email, phone, username, password, or gender
+          </p>
         </motion.div>
 
         {/* Form Container */}
@@ -197,7 +217,9 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                 placeholder={user?.email || "Enter your email"}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
               />
-              <p className="text-xs text-gray-700 mt-3">Current: {user?.email}</p>
+              <p className="text-xs text-gray-700 mt-3">
+                Current: {user?.email}
+              </p>
             </div>
 
             {/* Phone */}
@@ -213,7 +235,9 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                 placeholder={user?.phone || "Enter your phone number"}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
               />
-              <p className="text-xs text-gray-700 mt-3">Current: {user?.phone}</p>
+              <p className="text-xs text-gray-700 mt-3">
+                Current: {user?.phone}
+              </p>
             </div>
 
             {/* Username */}
@@ -229,7 +253,9 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                 placeholder={user?.username || "Enter your username"}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
               />
-              <p className="text-xs text-gray-700 mt-3">Current: {user?.username}</p>
+              <p className="text-xs text-gray-700 mt-3">
+                Current: {user?.username}
+              </p>
             </div>
 
             {/* Gender */}
@@ -247,13 +273,65 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                 <option value="male">male</option>
                 <option value="female">female</option>
               </select>
-              <p className="text-xs text-gray-700 mt-3">Current: {user?.gender}</p>
+              <p className="text-xs text-gray-700 mt-3">
+                Current: {user?.gender}
+              </p>
+            </div>
+
+            {/* Private Profile */}
+            <div>
+              <label className="block text-xl font-semibold text-gray-700 mb-4">
+                Profile Privacy Settings
+              </label>
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      private: !prev.private,
+                    }))
+                  }
+                  className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors ${
+                    formData.private ? "bg-[rgb(211,46,149)]" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                      formData.private ? "translate-x-9" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+                <span className="text-gray-600 font-medium">
+                  {formData.private ? "Private" : "Public"}
+                </span>
+              </div>
+              <div className="mt-4 p-4 rounded-lg bg-blue-50 border border-blue-200">
+                <p className="text-sm text-blue-900 mb-2">
+                  <span className="font-semibold">Public Profile:</span> Family
+                  members can view your health information and add medications
+                  and medical reports.
+                </p>
+                <p className="text-sm text-blue-900">
+                  <span className="font-semibold">Private Profile:</span> Only
+                  you can manage your health information.
+                </p>
+              </div>
+              <p className="text-xs text-gray-700 mt-3">
+                Current:{" "}
+                {user?.private
+                  ? "Private - Only you manage your data"
+                  : "Public - Family members can add info"}
+              </p>
             </div>
 
             {/* Password */}
             <div className="pt-4 border-t border-gray-200">
               <p className="text-sm text-gray-600 mb-4">
-                <span className="font-semibold">Password Change (Optional)</span> - Leave blank to keep password unchanged
+                <span className="font-semibold">
+                  Password Change (Optional)
+                </span>{" "}
+                - Leave blank to keep password unchanged
               </p>
 
               <div className="space-y-4">
@@ -320,7 +398,8 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           className="mt-8 p-4 rounded-lg bg-blue-50 border border-blue-200"
         >
           <p className="text-sm text-blue-700 text-center">
-            <span className="font-semibold">Note:</span> Your role cannot be changed.
+            <span className="font-semibold">Note:</span> Your role cannot be
+            changed.
           </p>
         </motion.div>
       </div>

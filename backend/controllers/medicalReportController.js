@@ -24,66 +24,118 @@ function uploadBufferToCloudinary(buffer, options = {}) {
       (error, result) => {
         if (error) return reject(error);
         resolve(result);
-      }
+      },
     );
     streamifier.createReadStream(buffer).pipe(uploadStream);
   });
 }
 
-// Controller: expects `uploadMiddleware.single('file')` to run before this handler
+// Controller: expects `uploadMiddleware.array('files')` to run before this handler
+// Supports multiple file uploads (PNG, JPEG, JPG, PDF)
 export const uploadMedicalReport = async (req, res, next) => {
   try {
     if (!req.user || !req.user._id)
       return next(new AppError("Unauthorized", 401));
-    if (!req.file) return next(new AppError("No file uploaded", 400));
+    if (!req.files || req.files.length === 0)
+      return next(new AppError("No files uploaded", 400));
 
-    const { mimetype, buffer, originalname } = req.file;
     const { category, reportDate, notes, tags, isPrivate } = req.body;
 
-    // Choose resource_type for Cloudinary (pdf and images -> image, others -> raw)
-    // Cloudinary supports PDF under 'image' resource type, which serves it with correct MIME type for browser viewing
-    const resource_type = (mimetype === "application/pdf" || mimetype.startsWith("image/")) ? "image" : "raw";
+    // Validate number of files
+    if (req.files.length > 10) {
+      return next(
+        new AppError("Maximum 10 files can be uploaded at once", 400),
+      );
+    }
+
+    const uploadedReports = [];
+    const errors = [];
 
     // Use a folder to group uploads
     const folder =
       process.env.CLOUDINARY_MEDICAL_FOLDER || "jotno_medical_reports";
 
-    const public_id = `${Date.now()}-${originalname.replace(/\.[^/.]+$/, "")}`;
+    // Process each file
+    for (let i = 0; i < req.files.length; i++) {
+      try {
+        const { mimetype, buffer, originalname } = req.files[i];
 
-    const result = await uploadBufferToCloudinary(buffer, {
-      folder,
-      resource_type,
-      public_id,
-    });
+        // Choose resource_type for Cloudinary (pdf and images -> image, others -> raw)
+        // Cloudinary supports PDF under 'image' resource type, which serves it with correct MIME type for browser viewing
+        const resource_type =
+          mimetype === "application/pdf" || mimetype.startsWith("image/")
+            ? "image"
+            : "raw";
 
-    if (!result || !result.secure_url) {
-      return next(new AppError("Failed to upload file to Cloudinary", 500));
+        const public_id = `${Date.now()}-${i}-${originalname.replace(/\.[^/.]+$/, "")}`;
+
+        const result = await uploadBufferToCloudinary(buffer, {
+          folder,
+          resource_type,
+          public_id,
+        });
+
+        if (!result || !result.secure_url) {
+          errors.push({
+            filename: originalname,
+            error: "Failed to upload file to Cloudinary",
+          });
+          continue;
+        }
+
+        const url = result.secure_url;
+
+        const medicalReport = await MedicalReport.create({
+          url,
+          public_id: result.public_id,
+          resourceType: resource_type,
+          owner: req.user._id,
+          category: category || "Other",
+          reportDate: reportDate || null,
+          notes: notes || "",
+          tags: tags ? (Array.isArray(tags) ? tags : JSON.parse(tags)) : [],
+          isPrivate: isPrivate === "true" ? true : false,
+        });
+
+        uploadedReports.push(medicalReport);
+      } catch (err) {
+        errors.push({
+          filename: req.files[i].originalname,
+          error: err.message,
+        });
+      }
     }
 
-    const url = result.secure_url;
-
-    const medicalReport = await MedicalReport.create({
-      url,
-      public_id: result.public_id,
-      resourceType: resource_type,
-      owner: req.user._id,
-      category: category || "Other",
-      reportDate: reportDate || null,
-      notes: notes || "",
-      tags: tags ? (Array.isArray(tags) ? tags : JSON.parse(tags)) : [],
-      isPrivate: isPrivate === "true" || isPrivate === true,
-    });
-
-    
     // Log activity
-    await logActivity(
-      req.user._id,
-      "uploaded_report",
-      `Uploaded medical report: ${category || "Other"}`,
-      { reportId: medicalReport._id, category: category || "Other" }
-    );
+    if (uploadedReports.length > 0) {
+      await logActivity(
+        req.user._id,
+        "uploaded_report",
+        `Uploaded ${uploadedReports.length} medical report(s): ${category || "Other"}`,
+        {
+          reportIds: uploadedReports.map((r) => r._id),
+          count: uploadedReports.length,
+          category: category || "Other",
+        },
+      );
+    }
 
-    return res.status(201).json({ success: true, medicalReport });
+    // If no files were uploaded successfully
+    if (uploadedReports.length === 0) {
+      return next(
+        new AppError(
+          `Failed to upload files: ${errors.map((e) => e.filename).join(", ")}`,
+          400,
+        ),
+      );
+    }
+
+    return res.status(201).json({
+      success: true,
+      medicalReports: uploadedReports,
+      uploadedCount: uploadedReports.length,
+      errors: errors.length > 0 ? errors : undefined,
+    });
   } catch (err) {
     return next(err);
   }
@@ -107,10 +159,14 @@ export const toggleReportPrivacy = async (req, res, next) => {
       userId,
       "updated_report_privacy",
       `Updated report privacy to ${report.isPrivate ? "Private" : "Public"}`,
-      { reportId: report._id, isPrivate: report.isPrivate }
+      { reportId: report._id, isPrivate: report.isPrivate },
     );
 
-    return res.status(200).json({ success: true, isPrivate: report.isPrivate, medicalReport: report });
+    return res.status(200).json({
+      success: true,
+      isPrivate: report.isPrivate,
+      medicalReport: report,
+    });
   } catch (err) {
     return next(err);
   }
@@ -147,7 +203,7 @@ export const deleteMedicalReport = async (req, res, next) => {
       userId,
       "deleted_report",
       `Deleted medical report: ${report.category || "Other"}`,
-      { reportId: report._id, category: report.category || "Other" }
+      { reportId: report._id, category: report.category || "Other" },
     );
 
     return res.status(200).json({ success: true, id: report._id });

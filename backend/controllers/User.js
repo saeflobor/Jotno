@@ -9,10 +9,14 @@ const verifyemail = async (req, res, next) => {
   try {
     const { token } = req.body;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByIdAndUpdate(decoded.id, { verified: true }, { new: true })
+    const user = await User.findByIdAndUpdate(
+      decoded.id,
+      { verified: true },
+      { new: true },
+    )
       .select("-password")
       .populate("family.father family.spouse family.mother family.children");
-    
+
     const localStoragetoken = generateToken(user._id);
     return res
       .status(200)
@@ -45,6 +49,7 @@ const register = async (req, res, next) => {
         verified: false,
         gender,
         phone,
+        private: false,
       });
 
       const verifytoken = generateverifyToken(user._id);
@@ -60,8 +65,8 @@ const register = async (req, res, next) => {
       return next(
         new AppError(
           "Please verify your email for successful registration",
-          401
-        )
+          401,
+        ),
       );
     } else {
       return next(new AppError("Email already exists", 400));
@@ -125,7 +130,14 @@ const UserDetails = async (req, res, next) => {
 // Update Profile route
 const updateProfile = async (req, res, next) => {
   try {
-    const { email, phone, username, password, gender } = req.body;
+    const {
+      email,
+      phone,
+      username,
+      password,
+      gender,
+      private: isPrivate,
+    } = req.body;
     const userId = req.user._id;
 
     // Find the user
@@ -164,7 +176,9 @@ const updateProfile = async (req, res, next) => {
     // Update gender
     if (gender) {
       if (!["male", "female"].includes(gender)) {
-        return next(new AppError("Invalid gender. Must be 'male' or 'female'", 400));
+        return next(
+          new AppError("Invalid gender. Must be 'male' or 'female'", 400),
+        );
       }
       user.gender = gender;
     }
@@ -172,6 +186,11 @@ const updateProfile = async (req, res, next) => {
     // Update password if provided
     if (password) {
       user.password = password; // Password will be hashed by the pre-save hook
+    }
+
+    // Update private status if provided
+    if (isPrivate !== undefined) {
+      user.private = Boolean(isPrivate);
     }
 
     // Save the updated user
