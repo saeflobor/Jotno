@@ -1,6 +1,7 @@
 import ChronicCondition from "../models/ChronicCondition.js";
 import Medication from "../models/Medication.js";
 import MedicalReport from "../models/MedicalReport.js";
+import User from "../models/User.js";
 import AppError from "../utils/AppError.js";
 import { logActivity } from "../utils/activityLogger.js";
 import { sendEmail } from "../utils/sendEmail.js";
@@ -204,6 +205,247 @@ export const deleteMedication = async (req, res, next) => {
       "removed_medication",
       `Removed medication: ${medicationName}`,
       { medicationId: id, medicationName },
+    );
+
+    return res.status(200).json({ success: true, id: medication._id });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// Helper function to check if requester can add data for a target user
+const canAddDataForUser = async (requesterId, targetUserId) => {
+  if (requesterId.toString() === targetUserId.toString()) {
+    // User can always add data for themselves
+    return true;
+  }
+
+  // Check if requester is a family member of the target user
+  const targetUser = await User.findById(targetUserId).select("family private");
+  if (!targetUser) return false;
+
+  // If target user's private is true, family members cannot add data
+  if (targetUser.private) return false;
+
+  // Check if requester is in target user's family
+  const requesterIdStr = requesterId.toString();
+  if (targetUser.family.father?.toString() === requesterIdStr) return true;
+  if (targetUser.family.mother?.toString() === requesterIdStr) return true;
+  if (targetUser.family.spouse?.toString() === requesterIdStr) return true;
+  if (
+    targetUser.family.children?.some((id) => id.toString() === requesterIdStr)
+  )
+    return true;
+
+  return false;
+};
+
+// Add a chronic condition (supports adding for family members if private: false)
+export const addChronicConditionForUser = async (req, res, next) => {
+  try {
+    const userId = req.user?._id;
+    const { targetUserId } = req.body; // The user for whom we're adding the condition
+    const { conditionName, severityLevel } = req.body;
+
+    if (!userId) return next(new AppError("Unauthorized", 401));
+
+    const ownerUserId = targetUserId || userId;
+
+    if (!conditionName || !severityLevel) {
+      return next(new AppError("All fields are required", 400));
+    }
+
+    // Check if requester can add data for this user
+    const canAdd = await canAddDataForUser(userId, ownerUserId);
+    if (!canAdd) {
+      return next(
+        new AppError(
+          "Access denied: Cannot add data for this user due to privacy settings",
+          403,
+        ),
+      );
+    }
+
+    const condition = await ChronicCondition.create({
+      conditionName,
+      severityLevel,
+      owner: ownerUserId,
+    });
+
+    // Log activity
+    await logActivity(
+      userId,
+      "added_condition",
+      `Added chronic condition: ${conditionName}`,
+      { conditionId: condition._id, conditionName, severityLevel },
+    );
+
+    return res.status(201).json({ success: true, condition });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// Add a medication (supports adding for family members if private: false)
+export const addMedicationForUser = async (req, res, next) => {
+  try {
+    const userId = req.user?._id;
+    const { targetUserId } = req.body; // The user for whom we're adding the medication
+    const {
+      medicationName,
+      dosage,
+      frequency,
+      duration,
+      times,
+      notificationType,
+    } = req.body;
+
+    if (!userId) return next(new AppError("Unauthorized", 401));
+
+    const ownerUserId = targetUserId || userId;
+
+    if (!medicationName || !dosage || !frequency || !duration) {
+      return next(new AppError("All fields are required", 400));
+    }
+
+    // Check if requester can add data for this user
+    const canAdd = await canAddDataForUser(userId, ownerUserId);
+    if (!canAdd) {
+      return next(
+        new AppError(
+          "Access denied: Cannot add data for this user due to privacy settings",
+          403,
+        ),
+      );
+    }
+
+    const durationNum = parseInt(duration);
+    if (isNaN(durationNum) || durationNum <= 0) {
+      return next(new AppError("Duration must be a positive number", 400));
+    }
+
+    const expiryDate = new Date(Date.now() + durationNum * 60 * 1000); // days to milliseconds
+    const medication = await Medication.create({
+      medicationName,
+      dosage,
+      frequency,
+      duration,
+      expiryDate,
+      times,
+      notificationType,
+      owner: ownerUserId,
+    });
+
+    // Log activity
+    await logActivity(
+      userId,
+      "added_medication",
+      `Added medication: ${medicationName}`,
+      { medicationId: medication._id, medicationName, dosage },
+    );
+
+    return res.status(201).json({ success: true, medication });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// Delete a chronic condition for a family member (if private: false)
+export const deleteChronicConditionForUser = async (req, res, next) => {
+  try {
+    const requesterId = req.user?._id;
+    if (!requesterId) return next(new AppError("Unauthorized", 401));
+
+    const { targetUserId, conditionId } = req.params;
+
+    if (!targetUserId || !conditionId) {
+      return next(
+        new AppError("Target User ID and Condition ID are required", 400),
+      );
+    }
+
+    // Check if requester can delete data for this user
+    const canDelete = await canAddDataForUser(requesterId, targetUserId);
+    if (!canDelete) {
+      return next(
+        new AppError(
+          "Access denied: Cannot delete data for this user due to privacy settings",
+          403,
+        ),
+      );
+    }
+
+    // Find and delete the condition
+    const condition = await ChronicCondition.findOne({
+      _id: conditionId,
+      owner: targetUserId,
+    });
+
+    if (!condition) {
+      return next(new AppError("Chronic condition not found", 404));
+    }
+
+    const conditionName = condition.conditionName;
+    await condition.deleteOne();
+
+    // Log activity
+    await logActivity(
+      requesterId,
+      "removed_family_condition",
+      `Removed chronic condition for family member: ${conditionName}`,
+      { conditionId, targetUserId, conditionName },
+    );
+
+    return res.status(200).json({ success: true, id: condition._id });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// Delete a medication for a family member (if private: false)
+export const deleteMedicationForUser = async (req, res, next) => {
+  try {
+    const requesterId = req.user?._id;
+    if (!requesterId) return next(new AppError("Unauthorized", 401));
+
+    const { targetUserId, medicationId } = req.params;
+
+    if (!targetUserId || !medicationId) {
+      return next(
+        new AppError("Target User ID and Medication ID are required", 400),
+      );
+    }
+
+    // Check if requester can delete data for this user
+    const canDelete = await canAddDataForUser(requesterId, targetUserId);
+    if (!canDelete) {
+      return next(
+        new AppError(
+          "Access denied: Cannot delete data for this user due to privacy settings",
+          403,
+        ),
+      );
+    }
+
+    // Find and delete the medication
+    const medication = await Medication.findOne({
+      _id: medicationId,
+      owner: targetUserId,
+    });
+
+    if (!medication) {
+      return next(new AppError("Medication not found", 404));
+    }
+
+    const medicationName = medication.medicationName;
+    await medication.deleteOne();
+
+    // Log activity
+    await logActivity(
+      requesterId,
+      "removed_family_medication",
+      `Removed medication for family member: ${medicationName}`,
+      { medicationId, targetUserId, medicationName },
     );
 
     return res.status(200).json({ success: true, id: medication._id });

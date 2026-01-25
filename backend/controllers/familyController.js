@@ -228,6 +228,22 @@ const isFamilyMember = (user, memberId) => {
   return false;
 };
 
+// Check if a family member allows access based on their private setting
+const canAccessFamilyMemberData = async (memberId) => {
+  const member = await User.findById(memberId).select("private");
+  if (!member) return false;
+  // Family members can always view, regardless of private setting
+  return true;
+};
+
+// Check if a family member can edit (add/delete) data
+const canEditFamilyMemberData = async (memberId) => {
+  const member = await User.findById(memberId).select("private");
+  if (!member) return false;
+  // Can edit only if private is false
+  return !member.private;
+};
+
 // Get family member's medications
 export const getFamilyMemberMedications = async (req, res, next) => {
   try {
@@ -244,6 +260,17 @@ export const getFamilyMemberMedications = async (req, res, next) => {
     // Check if memberId is in the user's family
     if (!isFamilyMember(user, memberId)) {
       return next(new AppError("Access denied: Not a family member", 403));
+    }
+
+    // Check if the family member allows access to their data
+    const canAccess = await canAccessFamilyMemberData(memberId);
+    if (!canAccess) {
+      return next(
+        new AppError(
+          "Access denied: Member privacy settings prevent access",
+          403,
+        ),
+      );
     }
 
     // Fetch medications for the family member
@@ -275,6 +302,17 @@ export const getFamilyMemberConditions = async (req, res, next) => {
       return next(new AppError("Access denied: Not a family member", 403));
     }
 
+    // Check if the family member allows access to their data
+    const canAccess = await canAccessFamilyMemberData(memberId);
+    if (!canAccess) {
+      return next(
+        new AppError(
+          "Access denied: Member privacy settings prevent access",
+          403,
+        ),
+      );
+    }
+
     // Fetch chronic conditions for the family member
     const conditions = await ChronicCondition.find({ owner: memberId }).sort({
       createdAt: -1,
@@ -304,7 +342,19 @@ export const getFamilyMemberReports = async (req, res, next) => {
       return next(new AppError("Access denied: Not a family member", 403));
     }
 
-    // Fetch medical reports for the family member (only public ones)
+    // Check if the family member allows access to their data
+    const canAccess = await canAccessFamilyMemberData(memberId);
+    if (!canAccess) {
+      return next(
+        new AppError(
+          "Access denied: Member privacy settings prevent access",
+          403,
+        ),
+      );
+    }
+
+    // Fetch medical reports for the family member
+    // Only include reports that are NOT marked as private
     const reports = await MedicalReport.find({
       owner: memberId,
       isPrivate: false,
