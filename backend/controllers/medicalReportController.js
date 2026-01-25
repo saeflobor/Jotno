@@ -70,11 +70,7 @@ export const uploadMedicalReport = async (req, res, next) => {
       tags: tags ? (Array.isArray(tags) ? tags : JSON.parse(tags)) : [],
     });
 
-    // Add reference to user's medicalReports array
-    await User.findByIdAndUpdate(req.user._id, {
-      $addToSet: { medicalReports: medicalReport._id },
-    });
-
+    
     // Log activity
     await logActivity(
       req.user._id,
@@ -114,11 +110,6 @@ export const deleteMedicalReport = async (req, res, next) => {
 
     // Remove DB record (use deleteOne instead of deprecated/removed remove())
     await report.deleteOne();
-
-    // Remove reference from user's medicalReports
-    await User.findByIdAndUpdate(userId, {
-      $pull: { medicalReports: report._id },
-    });
 
     // Log activity
     await logActivity(

@@ -9,7 +9,10 @@ const verifyemail = async (req, res, next) => {
   try {
     const { token } = req.body;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByIdAndUpdate(decoded.id, { verified: true });
+    const user = await User.findByIdAndUpdate(decoded.id, { verified: true }, { new: true })
+      .select("-password")
+      .populate("family.father family.spouse family.mother family.children");
+    
     const localStoragetoken = generateToken(user._id);
     return res
       .status(200)
@@ -93,13 +96,12 @@ const Login = async (req, res, next) => {
       return next(new AppError("Please verify your email to login", 401));
     }
     const token = generateToken(user._id);
+    const populatedUser = await User.findById(user._id)
+      .select("-password")
+      .populate("family.father family.spouse family.mother family.children");
+
     res.status(200).json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-      gender: user.gender,
+      ...populatedUser._doc,
       token,
     });
   } catch (err) {

@@ -90,7 +90,7 @@ export const addFamilyMember = async (req, res, next) => {
 };
 
 // Remove family member (now includes spouse)
-export const removeFamilyMember = async (req, res) => {
+export const removeFamilyMember = async (req, res, next) => {
   const { memberId, relation } = req.body;
   const userId = req.user?._id;
 
@@ -325,18 +325,21 @@ export const sendFamilyRequest = async (req, res, next) => {
   try {
     const { memberEmail, memberPhone, relation, message } = req.body;
     const userId = req.user?._id;
-
     if (!userId) return next(new AppError("Unauthorized", 401));
-    if ((!memberEmail && !memberPhone) || !relation)
+    if (!memberEmail || !memberPhone || !relation)
       return next(new AppError("All fields are required", 400));
 
     if (!["father", "mother", "child", "spouse"].includes(relation))
       return next(new AppError("Invalid relation type", 400));
 
+     
     // Find the receiver
     let receiver = null;
-    if (memberEmail) receiver = await User.findOne({ email: memberEmail });
-    else if (memberPhone) receiver = await User.findOne({ phone: memberPhone });
+    receiver = await User.findOne({
+      email: memberEmail,
+      phone: memberPhone
+    });
+
 
     if (!receiver) return next(new AppError("User not found", 404));
     if (receiver._id.toString() === userId.toString())
@@ -344,7 +347,7 @@ export const sendFamilyRequest = async (req, res, next) => {
 
     // Check if receiver is already a family member
     // Fetch sender (current user) to check family relations
-    const sender = await User.findById(userId);
+    const sender = req.user;
     if (isFamilyMember(sender, receiver._id)) {
       return next(new AppError("User is already a family member", 400));
     }
@@ -360,6 +363,19 @@ export const sendFamilyRequest = async (req, res, next) => {
       return next(new AppError("Request already sent", 400));
 
     // Create the request
+    if(receiver.gender == sender.gender  && relation === "spouse") {
+      return next(new AppError("Spouse must be opposite gender", 400));
+
+    }
+
+    if(receiver.gender === "female" && relation === "father") {
+      return next(new AppError("Father must be male", 400));
+    }
+
+    if(receiver.gender === "male" && relation === "mother") {
+      return next(new AppError("Mother must be female", 400));
+    }
+    
     const request = await FamilyRequest.create({
       sender: userId,
       receiver: receiver._id,

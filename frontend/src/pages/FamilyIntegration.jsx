@@ -24,11 +24,10 @@ const Pill = ({ children, className = "" }) => (
 const FamilyIntegration = ({ user, setUser }) => {
   const navigate = useNavigate();
   const family = user?.family || {};
-  
+
   const [relationKey, setRelationKey] = useState("father");
   const [memberEmail, setMemberEmail] = useState("");
   const [memberPhone, setMemberPhone] = useState("");
-  const [identifierType, setIdentifierType] = useState("email");
   const [toast, setToast] = useState({ type: "", text: "" });
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -58,29 +57,31 @@ const FamilyIntegration = ({ user, setUser }) => {
     setMemberEmail("");
     setMemberPhone("");
     setRelationKey("father");
-    setIdentifierType("email");
   };
 
+  // 🔥 SEND BOTH EMAIL + PHONE (STRICT MODE)
   const handleSendRequest = async () => {
     const trimmedEmail = memberEmail.trim();
     const trimmedPhone = memberPhone.trim();
 
     if (!trimmedEmail) {
-      return showToast("error", "Please enter an email");
-    }
-    if (!trimmedPhone) {
-      return showToast("error", "Please enter a phone number");
+      return showToast("error", "Email is required");
     }
 
-    const payload = { relation: relationMap[relationKey] };
-    if (identifierType === "email" && trimmedEmail) {
-      payload.memberEmail = trimmedEmail;
-    } else if (identifierType === "phone" && trimmedPhone) {
-      payload.memberPhone = trimmedPhone;
+    if (!trimmedPhone) {
+      return showToast("error", "Phone number is required");
     }
+
+    const payload = {
+      memberEmail: trimmedEmail,
+      memberPhone: trimmedPhone,
+      relation: relationMap[relationKey],
+    };
 
     const result = await sendRequest(payload);
+
     showToast(result.success ? "success" : "error", result.message);
+
     if (result.success) resetForm();
   };
 
@@ -147,7 +148,7 @@ const FamilyIntegration = ({ user, setUser }) => {
           </div>
         </div>
 
-        {/* Notifications Panel */}
+        {/* Notifications */}
         <AnimatePresence>
           {showNotifications && (
             <motion.div
@@ -175,19 +176,16 @@ const FamilyIntegration = ({ user, setUser }) => {
                 Send Family Request
               </div>
               <div className="text-sm text-gray-600">
-                Send a request to add a family member. They will need to accept.
+                Enter both email and phone to identify the user.
               </div>
             </div>
-            <Pill className="text-gray-700 bg-gray-100 border border-gray-200">
-              Request System
-            </Pill>
           </div>
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
             <select
               value={relationKey}
               onChange={(e) => setRelationKey(e.target.value)}
-              className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white"
+              className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900"
             >
               {RELATIONS.map((r) => (
                 <option key={r.key} value={r.key}>
@@ -196,38 +194,27 @@ const FamilyIntegration = ({ user, setUser }) => {
               ))}
             </select>
 
-            <select
-              value={identifierType}
-              onChange={(e) => setIdentifierType(e.target.value)}
-              className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white"
-            >
-              <option value="email">Email</option>
-              <option value="phone">Phone</option>
-            </select>
+            <input
+              type="email"
+              placeholder="family@example.com"
+              value={memberEmail}
+              onChange={(e) => setMemberEmail(e.target.value)}
+              className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900"
+            />
 
-            {identifierType === "email" ? (
-              <input
-                type="email"
-                placeholder="family@example.com"
-                value={memberEmail}
-                onChange={(e) => setMemberEmail(e.target.value)}
-                className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400"
-              />
-            ) : (
-              <input
-                type="tel"
-                placeholder="01XXXXXXXXX"
-                value={memberPhone}
-                onChange={(e) => setMemberPhone(e.target.value)}
-                className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400"
-              />
-            )}
+            <input
+              type="tel"
+              placeholder="01XXXXXXXXX"
+              value={memberPhone}
+              onChange={(e) => setMemberPhone(e.target.value)}
+              className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900"
+            />
 
             <div className="flex gap-2">
               <button
                 onClick={handleSendRequest}
                 disabled={processing}
-                className="flex-1 py-3 rounded-lg font-semibold bg-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/80 text-white disabled:opacity-50"
+                className="flex-1 py-3 rounded-lg font-semibold bg-[rgb(211,46,149)] text-white hover:bg-[rgb(211,46,149)]/80 disabled:opacity-50"
               >
                 {processing ? "Sending..." : "Send Request"}
               </button>
@@ -240,7 +227,7 @@ const FamilyIntegration = ({ user, setUser }) => {
             </div>
           </div>
 
-          {/* Toast Notification */}
+          {/* Toast */}
           <AnimatePresence>
             {toast.text && (
               <motion.div
@@ -258,10 +245,10 @@ const FamilyIntegration = ({ user, setUser }) => {
             )}
           </AnimatePresence>
 
-          {/* Family Members Grid */}
+          {/* Family Members */}
           <motion.div
             layout
-            className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-min"
+            className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             <FamilyMemberSection
               title="Father"
@@ -284,30 +271,25 @@ const FamilyIntegration = ({ user, setUser }) => {
               relationType="spouse"
             />
 
-            {/* Children Section */}
-            <div className="lg:col-span-3 min-h-[180px]">
+            <div className="lg:col-span-3">
               <div className="text-xs text-gray-600 font-semibold mb-2">
                 Children
               </div>
               <div className="flex flex-wrap gap-4">
                 <AnimatePresence>
-                  {Array.isArray(family.children) && family.children.length > 0 ? (
+                  {Array.isArray(family.children) &&
+                  family.children.length > 0 ? (
                     family.children.map((child) => (
-                      <div key={child._id} className="w-full sm:w-auto">
-                        <FamilyMemberSection
-                          title=""
-                          member={child}
-                          onRemove={handleRemove}
-                          relationType="child"
-                        />
-                      </div>
+                      <FamilyMemberSection
+                        key={child._id}
+                        title=""
+                        member={child}
+                        onRemove={handleRemove}
+                        relationType="child"
+                      />
                     ))
                   ) : (
-                    <motion.div
-                      layout
-                      key="no-children"
-                      className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 w-full h-[180px] flex items-center justify-center"
-                    >
+                    <motion.div className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 w-full h-[160px] flex items-center justify-center">
                       No children
                     </motion.div>
                   )}
