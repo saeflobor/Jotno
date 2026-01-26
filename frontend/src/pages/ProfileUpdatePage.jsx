@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { MdArrowBack } from "react-icons/md";
 
 const ProfileUpdatePage = ({ user, setUser }) => {
@@ -52,20 +52,32 @@ const ProfileUpdatePage = ({ user, setUser }) => {
   };
 
   const validateForm = () => {
+    const emailChanged = formData.email && formData.email !== user?.email;
+    const phoneChanged =
+      formData.phone &&
+      formData.phone !== "+88" &&
+      formData.phone !== user?.phone;
+    const usernameChanged =
+      formData.username && formData.username !== user?.username;
+    const passwordChanged = !!formData.password;
+    const genderChanged =
+      formData.gender && formData.gender !== user?.gender;
+    const privateChanged = formData.private !== user?.private;
+
     if (
-      !formData.email &&
-      !formData.phone &&
-      !formData.username &&
-      !formData.password &&
-      !formData.gender &&
-      formData.private === user?.private
+      !emailChanged &&
+      !phoneChanged &&
+      !usernameChanged &&
+      !passwordChanged &&
+      !genderChanged &&
+      !privateChanged
     ) {
       setErrorMessage("Please fill in at least one field to update");
       return false;
     }
 
     // Email validation
-    if (formData.email) {
+    if (emailChanged) {
       const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
       if (!emailRegex.test(formData.email)) {
         setErrorMessage("Invalid email format");
@@ -74,7 +86,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     }
 
     // Phone validation
-    if (formData.phone) {
+    if (phoneChanged) {
       const phoneRegex = /^\+88(013|014|015|016|017|018|019)\d{8}$/;
       if (!phoneRegex.test(formData.phone)) {
         setErrorMessage("Phone must be a valid Bangladeshi number (format: +8801XXXXXXXXX)");
@@ -83,7 +95,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     }
 
     // Password validation
-    if (formData.password) {
+    if (passwordChanged) {
       if (formData.password.length < 6) {
         setErrorMessage("Password must be at least 6 characters long");
         return false;
@@ -203,27 +215,60 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           className="bg-white rounded-2xl p-8 shadow-lg"
           style={{ boxShadow: "8px 8px 20px rgba(211, 46, 149, 0.1)" }}
         >
-          {/* Success Message */}
-          {successMessage && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 rounded-lg bg-green-50 border border-green-200"
-            >
-              <p className="text-green-700 font-semibold">{successMessage}</p>
-            </motion.div>
-          )}
+          {/* Floating Notifications */}
+          <AnimatePresence>
+            {successMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className="fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg bg-green-50 border border-green-200"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 text-green-600">✔</div>
+                  <div className="flex-1">
+                    <p className="text-green-800 font-semibold">{successMessage}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSuccessMessage("")}
+                    className="text-green-700 hover:text-green-900"
+                    aria-label="Dismiss success message"
+                  >
+                    ×
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {/* Error Message */}
-          {errorMessage && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200"
-            >
-              <p className="text-red-700 font-semibold">{errorMessage}</p>
-            </motion.div>
-          )}
+          <AnimatePresence>
+            {errorMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className="fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg bg-red-50 border border-red-200"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 text-red-600">⚠</div>
+                  <div className="flex-1">
+                    <p className="text-red-800 font-semibold">{errorMessage}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setErrorMessage("")}
+                    className="text-red-700 hover:text-red-900"
+                    aria-label="Dismiss error message"
+                  >
+                    ×
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}

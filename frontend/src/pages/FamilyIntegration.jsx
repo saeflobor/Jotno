@@ -27,7 +27,7 @@ const FamilyIntegration = ({ user, setUser }) => {
 
   const [relationKey, setRelationKey] = useState("father");
   const [memberEmail, setMemberEmail] = useState("");
-  const [memberPhone, setMemberPhone] = useState("");
+  const [memberPhone, setMemberPhone] = useState("+88");
   const [toast, setToast] = useState({ type: "", text: "" });
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -55,8 +55,23 @@ const FamilyIntegration = ({ user, setUser }) => {
 
   const resetForm = () => {
     setMemberEmail("");
-    setMemberPhone("");
+    setMemberPhone("+88");
     setRelationKey("father");
+  };
+
+  // Keep +88 prefix enforced on phone input
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    if (!value.startsWith("+88")) {
+      setMemberPhone("+88");
+      return;
+    }
+
+    const afterPrefix = value.slice(3);
+    if (!/^\d*$/.test(afterPrefix)) return;
+    if (value.length > 14) return; // +88 plus up to 11 digits
+
+    setMemberPhone(value);
   };
 
   // 🔥 SEND BOTH EMAIL + PHONE (STRICT MODE)
@@ -68,7 +83,7 @@ const FamilyIntegration = ({ user, setUser }) => {
       return showToast("error", "Email is required");
     }
 
-    if (!trimmedPhone) {
+    if (!trimmedPhone || trimmedPhone === "+88") {
       return showToast("error", "Phone number is required");
     }
 
@@ -207,9 +222,9 @@ const FamilyIntegration = ({ user, setUser }) => {
 
             <input
               type="tel"
-              placeholder="01XXXXXXXXX"
+              placeholder="+8801xxxxxxxxx"
               value={memberPhone}
-              onChange={(e) => setMemberPhone(e.target.value)}
+              onChange={handlePhoneChange}
               className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900"
             />
 
