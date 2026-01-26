@@ -52,6 +52,10 @@ const medicalReportSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    isPrivate: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

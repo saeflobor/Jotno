@@ -25,7 +25,7 @@ import activityRoutes from "./routes/activityRoutes.js";
 import errorHandler from "./middleware/errorhandler.js";
 import medicineRoutes from "./routes/Medicines.js";
 import { connectDB } from "./config/db.js";
-import { checkMedicationReminders } from "./controllers/healthController.js";
+import { startScheduler } from "./utils/scheduler.js";
 
 
 const PORT = process.env.PORT || 5001;
@@ -49,11 +49,8 @@ app.use(errorHandler);
 // Connect to MongoDB
 connectDB();
 
-// Schedule task to run every minute using setInterval (native alternative to node-cron)
-setInterval(() => {
-  console.log("Running medication reminder task...");
-  checkMedicationReminders(); // Call without req, res
-}, 60 * 1000); // 60 seconds
+// Start the scheduler
+startScheduler();
 
 // Start server
 app.listen(PORT, () => {
