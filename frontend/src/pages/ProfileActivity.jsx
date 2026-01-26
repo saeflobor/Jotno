@@ -825,7 +825,7 @@ const ProfileActivity = ({ user, setUser }) => {
                 onChange={(e) =>
                   setUploadFormData({ ...uploadFormData, category: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm appearance-none cursor-pointer bg-white"
               >
                 <option value="Lab Results">Lab Results</option>
                 <option value="Prescription">Prescription</option>
@@ -982,7 +982,7 @@ const ProfileActivity = ({ user, setUser }) => {
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm appearance-none bg-white"
+                className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm appearance-none cursor-pointer bg-white"
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
@@ -1264,7 +1264,7 @@ const ProfileActivity = ({ user, setUser }) => {
                       severityLevel: e.target.value,
                     })
                   }
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none text-gray-900 bg-white"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none text-gray-900 bg-white appearance-none cursor-pointer"
                 >
                   <option value="mild">Mild</option>
                   <option value="moderate">Moderate</option>
@@ -1385,7 +1385,7 @@ const ProfileActivity = ({ user, setUser }) => {
                         times: newTimes,
                       });
                     }}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 bg-white"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 bg-white appearance-none cursor-pointer"
                   >
                     <option value="once-daily">Once Daily</option>
                     <option value="twice-daily">Twice Daily</option>

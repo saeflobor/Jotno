@@ -266,7 +266,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                 // value={formData.gender}
                 onChange={handleChange}
                 placeholder={user?.gender || "Select gender"}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition text-black/50"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition text-gray-900 bg-white appearance-none cursor-pointer"
               >
                 <option value="male">male</option>
                 <option value="female">female</option>

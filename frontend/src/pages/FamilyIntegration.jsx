@@ -119,25 +119,27 @@ const FamilyIntegration = ({ user, setUser }) => {
     <div className="min-h-screen py-8 px-6 bg-gray-50">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 grid grid-cols-3 items-center">
           <div className="text-sm text-gray-600">
             Dashboard /{" "}
             <span className="text-gray-900 font-semibold">
               Family Management
             </span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex justify-center">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
+              className="relative px-4 py-2 rounded-4xl border border-gray-300 text-gray-700 hover:bg-gray-100"
             >
-              🔔 Requests
+              Pending Requests
               {pendingRequests.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {pendingRequests.length}
                 </span>
               )}
             </button>
+          </div>
+          <div className="flex justify-end">
             <button
               onClick={() => navigate("/dashboard")}
               className="flex items-center gap-2 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold"
@@ -176,19 +178,16 @@ const FamilyIntegration = ({ user, setUser }) => {
                 Send Family Request
               </div>
               <div className="text-sm text-gray-600">
-                Send a request to add a family member. They will need to accept.
+                Send a request to add as a family member. They will need to accept.
               </div>
             </div>
-            <Pill className="text-gray-700 bg-gray-100 border border-gray-200">
-              Request System
-            </Pill>
           </div>
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
             <select
               value={relationKey}
               onChange={(e) => setRelationKey(e.target.value)}
-              className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white"
+              className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition"
             >
               {RELATIONS.map((r) => (
                 <option key={r.key} value={r.key}>
@@ -200,7 +199,7 @@ const FamilyIntegration = ({ user, setUser }) => {
             <select
               value={identifierType}
               onChange={(e) => setIdentifierType(e.target.value)}
-              className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white"
+              className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition"
             >
               <option value="email">Email</option>
               <option value="phone">Phone</option>
