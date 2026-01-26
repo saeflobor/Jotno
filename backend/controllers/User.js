@@ -9,7 +9,14 @@ const verifyemail = async (req, res, next) => {
   try {
     const { token } = req.body;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByIdAndUpdate(decoded.id, { verified: true });
+    const user = await User.findByIdAndUpdate(
+      decoded.id,
+      { verified: true },
+      { new: true },
+    )
+      .select("-password")
+      .populate("family.father family.spouse family.mother family.children");
+
     const localStoragetoken = generateToken(user._id);
     return res
       .status(200)
@@ -21,7 +28,7 @@ const verifyemail = async (req, res, next) => {
 
 // Register route
 const register = async (req, res, next) => {
-  const { username, email, phone, password, role, gender } = req.body;
+  const { username, email, phone, password, gender } = req.body;
   try {
     const domain = email.split("@")[1];
     if (
@@ -38,10 +45,10 @@ const register = async (req, res, next) => {
         username,
         email,
         password,
-        role,
         verified: false,
         gender,
         phone,
+        private: false,
       });
 
       const verifytoken = generateverifyToken(user._id);
@@ -57,8 +64,8 @@ const register = async (req, res, next) => {
       return next(
         new AppError(
           "Please verify your email for successful registration",
-          401
-        )
+          401,
+        ),
       );
     } else {
       return next(new AppError("Email already exists", 400));
@@ -70,14 +77,10 @@ const register = async (req, res, next) => {
 
 // Login route
 const Login = async (req, res, next) => {
-  const { email, password, role } = req.body;
+  const { email, password } = req.body;
   try {
-    if (!email || !password || !role) {
-      return next(new AppError("Please provide email, password and role", 400));
-    }
-
-    if (!["doctor", "patient"].includes(role)) {
-      return next(new AppError("Invalid role provided", 400));
+    if (!email || !password) {
+      return next(new AppError("Please provide email and password", 400));
     }
 
     const user = await User.findOne({ email });
@@ -85,21 +88,16 @@ const Login = async (req, res, next) => {
       return next(new AppError("Invalid email or password", 401));
     }
 
-    if (user.role !== role) {
-      return next(new AppError("Role does not match", 401));
-    }
-
     if (user.verified === false) {
       return next(new AppError("Please verify your email to login", 401));
     }
     const token = generateToken(user._id);
+    const populatedUser = await User.findById(user._id)
+      .select("-password")
+      .populate("family.father family.spouse family.mother family.children");
+
     res.status(200).json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-      gender: user.gender,
+      ...populatedUser._doc,
       token,
     });
   } catch (err) {
@@ -123,7 +121,14 @@ const UserDetails = async (req, res, next) => {
 // Update Profile route
 const updateProfile = async (req, res, next) => {
   try {
-    const { email, phone, username, password, gender } = req.body;
+    const {
+      email,
+      phone,
+      username,
+      password,
+      gender,
+      private: isPrivate,
+    } = req.body;
     const userId = req.user._id;
 
     // Find the user
@@ -143,9 +148,9 @@ const updateProfile = async (req, res, next) => {
 
     // Check if phone is being changed and if it's already taken
     if (phone && phone !== user.phone) {
-      // Validate phone format
-      if (!/^(017|018|019|015|016|013)\d{8}$/.test(phone)) {
-        return next(new AppError("Invalid phone number format", 400));
+      // Validate phone format - must include +88 prefix
+      if (!/^\+88(013|014|015|016|017|018|019)\d{8}$/.test(phone)) {
+        return next(new AppError("Invalid phone number format. Use format: +8801XXXXXXXXX", 400));
       }
       const existingPhone = await User.findOne({ phone });
       if (existingPhone) {
@@ -162,7 +167,9 @@ const updateProfile = async (req, res, next) => {
     // Update gender
     if (gender) {
       if (!["male", "female"].includes(gender)) {
-        return next(new AppError("Invalid gender. Must be 'male' or 'female'", 400));
+        return next(
+          new AppError("Invalid gender. Must be 'male' or 'female'", 400),
+        );
       }
       user.gender = gender;
     }
@@ -170,6 +177,11 @@ const updateProfile = async (req, res, next) => {
     // Update password if provided
     if (password) {
       user.password = password; // Password will be hashed by the pre-save hook
+    }
+
+    // Update private status if provided
+    if (isPrivate !== undefined) {
+      user.private = Boolean(isPrivate);
     }
 
     // Save the updated user

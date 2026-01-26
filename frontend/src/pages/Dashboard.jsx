@@ -2,39 +2,32 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FiFileText, FiUsers } from "react-icons/fi";
-import { MdMedication, MdAccountCircle, MdSettings } from "react-icons/md";
+import { FiFileText } from "react-icons/fi";
+import { MdAccountCircle, MdSettings, MdArrowBack } from "react-icons/md";
+import { PiPillBold } from "react-icons/pi";
+import { PiUsersBold } from "react-icons/pi";
 
 const Dashboard = ({ user, setUser }) => {
   const navigate = useNavigate();
-  const [hoverFamily, setHoverFamily] = useState(false);
-  const [hoverMedical, setHoverMedical] = useState(false);
-  const [hoverMeds, setHoverMeds] = useState(false);
-  const [hoverSOS, setHoverSOS] = useState(false);
-  const [hoverSignOut, setHoverSignOut] = useState(false);
-  const [hoverSettings, setHoverSettings] = useState(false);
+  const [sendingSOS, setSendingSOS] = useState(false);
+  const [sosMessage, setSosMessage] = useState("");
+  const [showProfileModal, setShowProfileModal] = useState(false);
   
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-xl text-gray-900">Loading user data...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-pink-50">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-xl text-gray-900"
+        >
+          Loading user data...
+        </motion.div>
       </div>
     );
   }
   
   const family = user?.family || {};
-  const [sendingSOS, setSendingSOS] = useState(false);
-  const [sosMessage, setSosMessage] = useState("");
-
-  // FamilyIntegration handles add/remove actions and toast internally.
-
-  const avatarInitials = (name = "") =>
-    name
-      .split(" ")
-      .map((n) => (n ? n[0] : ""))
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
 
   const sendSOS = async () => {
     setSosMessage("");
@@ -56,235 +49,219 @@ const Dashboard = ({ user, setUser }) => {
     }
   };
 
+  const handleSignOut = () => {
+    const confirmed = window.confirm("Are you sure you want to sign out?");
+    if (confirmed) {
+      localStorage.removeItem("token");
+      setUser(null);
+      navigate("/");
+    }
+  };
+
+  const familyCount = (Array.isArray(family.siblings) ? family.siblings.length : 0) +
+    (Array.isArray(family.children) ? family.children.length : 0) +
+    (family.father ? 1 : 0) +
+    (family.mother ? 1 : 0);
+
   return (
-    <div className="min-h-screen py-8 px-6 bg-gray-50">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-center gap-4 mb-4">
-          <button
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-pink-50 relative overflow-hidden">
+      {/* Animated background blobs */}
+      <motion.div
+        className="absolute top-0 right-0 w-96 h-96 bg-pink-200/20 rounded-full blur-3xl"
+        animate={{ y: [0, 30, 0] }}
+        transition={{ duration: 8, repeat: Infinity }}
+      />
+      <motion.div
+        className="absolute bottom-0 left-0 w-96 h-96 bg-pink-100/20 rounded-full blur-3xl"
+        animate={{ y: [0, -30, 0] }}
+        transition={{ duration: 8, repeat: Infinity, delay: 1 }}
+      />
+
+              <div className="px-6 pt-6">
+                <div className="text-sm text-gray-600">
+                  Dashboard / <span className="font-semibold text-gray-900">Dashboard</span>
+                </div>
+              </div>
+
+      <div className="relative z-10 flex-1 flex flex-col">
+        {/* Top Right Profile */}
+        <div className="flex justify-end items-center p-6 pr-8">
+          <motion.button
+            onClick={() => setShowProfileModal(!showProfileModal)}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative"
+            title="View Profile"
+          >
+            <motion.div
+              className="w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-pink-100 to-purple-100 border-2 border-pink-300 shadow-md"
+              whileHover={{ boxShadow: "0px 8px 24px rgba(211, 46, 149, 0.4)" }}
+            >
+              <MdAccountCircle className="text-5xl text-[rgb(211,46,149)]" />
+            </motion.div>
+          </motion.button>
+        </div>
+
+        {/* Profile Modal */}
+        {showProfileModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowProfileModal(false)}
+            className="fixed inset-0 backdrop-blur-md z-40 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl"
+            >
+              <div className="flex flex-col items-center text-center mb-6">
+                <motion.div
+                  className="w-24 h-24 rounded-full flex items-center justify-center bg-gradient-to-br from-pink-100 to-purple-100 mb-4"
+                >
+                  <MdAccountCircle className="text-7xl text-[rgb(211,46,149)]" />
+                </motion.div>
+                <h2 className="text-2xl font-semibold text-gray-900">{user.username}</h2>
+                <p className="text-sm text-gray-500 mt-1">{user.email}</p>
+              </div>
+
+              <div className="space-y-3 mb-6">
+                <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
+                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Gender</p>
+                  <p className="text-sm font-semibold text-gray-900">{user.gender}</p>
+                </div>
+                <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
+                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Family</p>
+                  <p className="text-sm font-semibold text-gray-900">{familyCount} members</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <motion.button
+                  onClick={() => {
+                    setShowProfileModal(false);
+                    navigate("/profile-update");
+                  }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 bg-gradient-to-r from-[rgb(211,46,149)] to-[rgb(255,95,109)] text-white py-2 rounded-4xl font-medium transition hover:shadow-md"
+                >
+                  Edit Profile
+                </motion.button>
+                <motion.button
+                  onClick={handleSignOut}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 bg-red-500 text-white py-2 rounded-4xl font-medium transition hover:shadow-md"
+                >
+                  Sign Out
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* SOS Button */}
+        <div className="flex justify-center py-6">
+          <motion.button
             onClick={sendSOS}
             disabled={sendingSOS}
-            className="px-6 py-3 rounded-full text-white font-semibold shadow-lg transition disabled:opacity-60"
-            onMouseEnter={() => setHoverSOS(true)}
-            onMouseLeave={() => setHoverSOS(false)}
+            whileHover={{ scale: 1.08, boxShadow: "0px 12px 32px rgba(255, 31, 75, 0.4)" }}
+            whileTap={{ scale: 0.98 }}
+            className="px-10 py-4 rounded-full text-white font-bold text-lg shadow-lg transition disabled:opacity-60"
             style={{
               background: "linear-gradient(90deg,#ff1f4b,#ff5f6d)",
-              transform: "translateZ(0)",
-              opacity: hoverSOS ? 0.8 : 1,
-              scale: hoverSOS ? 0.90 : 1,
-              transitionDuration: "200ms",
             }}
           >
             {sendingSOS ? "Sending..." : "SOS"}
-          </button>
+          </motion.button>
         </div>
-        {sosMessage && (
-          <div className="mb-4 flex justify-center">
-            <div className="px-4 py-2 rounded-lg text-sm text-white bg-gray-800 shadow-md">
-              {sosMessage}
+
+        {/* Main content */}
+        <div className="flex-1 flex items-start justify-center px-4 pt-40 pb-8">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
+            className="w-full max-w-6xl"
+          >
+            {sosMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 flex justify-center"
+              >
+                <div className="px-4 py-2 rounded-lg text-sm text-white bg-gray-800 shadow-md">
+                  {sosMessage}
+                </div>
+              </motion.div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Medical Records */}
+                <motion.button
+                  onClick={() => navigate("/profile-activity")}
+                  whileHover={{ y: -4, boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)" }}
+                  whileTap={{ scale: 0.98 }}
+                  initial={{ opacity: 0, y: 20, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
+                  animate={{ opacity: 1, y: 0, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
+                  // transition={{ duration: 0, delay: 0.5 }}
+                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition w-full h-50"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="p-3 rounded-lg bg-purple-100">
+                      <FiFileText className="text-2xl text-purple-600" />
+                    </div>
+                    <span className="text-2xl text-gray-300">→</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-1">Medical Records</h3>
+                  <p className="text-sm text-gray-600">View and manage your medical history</p>
+                </motion.button>
+
+                {/* Family Management */}
+                <motion.button
+                  onClick={() => navigate("/family-integration")}
+                  whileHover={{ y: -4, boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)" }}
+                  whileTap={{ scale: 0.98 }}
+                  initial={{ opacity: 0, y: 20, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
+                  animate={{ opacity: 1, y: 0, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
+                  // transition={{ duration: 0, delay: 0.55 }}
+                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition w-full h-50"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="p-3 rounded-lg bg-pink-100">
+                      <PiUsersBold className="text-2xl text-pink-600" />
+                    </div>
+                    <span className="text-2xl text-gray-300">→</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-1">Family Management</h3>
+                  <p className="text-sm text-gray-600">Connect and manage family members</p>
+                </motion.button>
+
+                {/* Lookup Meds */}
+                <motion.button
+                  onClick={() => alert("Coming soon!")}
+                  whileHover={{ y: -4, boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)" }}
+                  whileTap={{ scale: 0.98 }}
+                  initial={{ opacity: 0, y: 20, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
+                  animate={{ opacity: 1, y: 0, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
+                  // transition={{ duration: 0, delay: 0.6 }}
+                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition opacity-50 cursor-not-allowed w-full h-50"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="p-3 rounded-lg bg-red-100">
+                      <PiPillBold className="text-2xl text-red-600" />
+                    </div>
+                    <span className="text-2xl text-gray-300">→</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-1">Lookup Meds</h3>
+                  <p className="text-sm text-gray-600">Coming soon</p>
+                </motion.button>
             </div>
-          </div>
-        )}
-        <div
-          className="relative rounded-3xl overflow-hidden mt-40"
-          style={{
-            // background: "linear-gradient(135deg, rgba(211,46,149,0.1), rgba(255,255,255,1))",
-            // border: "1px solid rgba(211,46,149,0.1)",
-          }}
-        >
-          {/* <div
-            className="absolute -left-40 -top-28 w-80 h-80 rounded-full"
-            style={{
-              background:
-                "radial-gradient(circle at 30% 20%, rgba(211,46,149,0.08), transparent 30%)",
-              filter: "blur(30px)",
-            }}
-          /> */}
-          {/* <div
-            className="absolute -right-28 -bottom-20 w-72 h-72 rounded-full"
-            style={{
-              background:
-                "radial-gradient(circle at 70% 80%, rgba(211,46,149,0.06), transparent 30%)",
-              filter: "blur(28px)",
-            }}
-          /> */}
-
-          <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Profile summary */}
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="md:col-span-1 bg-white rounded-2xl p-5"
-              style={{
-                boxShadow: "8px 8px 20px rgba(211, 46, 149, 0.3)"
-              }}
-            >
-              <div className="flex items-center gap-4">
-                <div
-                  style={{ width: 72, height: 72 }}
-                  className="rounded-full flex items-center justify-center"
-                >
-                  <MdAccountCircle className="text-6xl text-[rgb(211,46,149)]" />
-                </div>
-                <div>
-                  <div className="text-gray-900 text-xl font-bold">
-                    {user.username}
-                  </div>
-                  <div className="text-sm text-gray-600">{user.email}</div>
-                </div>
-              </div>
-
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                <div
-                  className="p-3 rounded-lg"
-                  style={{
-                    // background:
-                    //   // "linear-gradient(180deg, rgba(249,250,251,1), rgba(243,244,246,1))",
-                    // border: "1px solid rgba(229,231,235,1)",
-                  }}
-                >
-                  <div className="text-s text-gray-600 text-center">Role</div>
-                  <div className="font-semibold text-gray-900 text-center">{user.role}</div>
-                </div>
-                <div
-                  className="p-3 rounded-lg"
-                  style={{
-                    // background:
-                    //   "linear-gradient(180deg, rgba(249,250,251,1), rgba(243,244,246,1))",
-                    // border: "1px solid rgba(229,231,235,1)",
-                  }}
-                >
-                  <div className="text-s text-gray-600 text-center">Gender</div>
-                  <div className="font-semibold text-gray-900 text-center">
-                    {user.gender}
-                  </div>
-                </div>
-                <div
-                  className="rounded-lg col-span-2 flex items-center justify-center"
-                  style={{
-                    // background: "rgba(249,250,251,1)",
-                    // // border: "1px solid rgba(229,231,235,1)",
-                  }}
-                >
-                  <div className="text-s text-black p-3">Family size</div>
-                  <div className="font-semibold text-black p-3">
-                    {(Array.isArray(family.siblings)
-                      ? family.siblings.length
-                      : 0) +
-                      (Array.isArray(family.children)
-                        ? family.children.length
-                        : 0) +
-                      (family.father ? 1 : 0) +
-                      (family.mother ? 1 : 0)}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 flex gap-3">
-                <button
-                  onClick={() => {
-                    const confirmed = window.confirm("Are you sure you want to sign out?");
-                    if (confirmed) {
-                      localStorage.removeItem("token");
-                      setUser(null);
-                    }
-                  }}
-                  className="flex-1 py-2 rounded-lg font-semibold transition"
-                  onMouseEnter={() => setHoverSignOut(true)}
-                  onMouseLeave={() => setHoverSignOut(false)}
-                  style={{
-                    background: "linear-gradient(90deg,#ff1f4b,#ff5f6d)",
-                    color: "#fff",
-                    opacity: hoverSignOut ? 0.8 : 1,
-                    transform: hoverSignOut ? "scale(0.90)" : "scale(1)",
-                    transitionDuration: "200ms",
-                  }}
-                >
-                  Sign out
-                </button>
-                <button
-                  onClick={() => navigate("/profile-update")}
-                  className="p-2 rounded-lg transition"
-                  title="Update Profile"
-                  onMouseEnter={() => setHoverSettings(true)}
-                  onMouseLeave={() => setHoverSettings(false)}
-                  style={{
-                    backgroundColor: hoverSettings ? "pink" : "transparent",
-                    opacity: hoverSettings ? 0.9 : 1,
-                    transform: hoverSettings ? "scale(0.90)" : "scale(1)",
-                    transitionDuration: "200ms",
-                  }}
-                >
-                  <MdSettings className="text-4xl text-[rgb(211,46,149)]" />
-                </button>
-              </div>
-            </motion.div>
-
-            {/* Middle area: Overview cards OR Family Integration */}
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="md:col-span-2 p-5 rounded-2xl"
-            >
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-stretch">
-                  <div className="flex flex-col items-center">
-                    <FiFileText className="text-[rgb(211,46,149)] text-4xl mb-4" />
-                    <button
-                      className="bg-purple-500 p-6 rounded-4xl text-center text-xl transition w-full h-full"
-                      onClick={() => navigate("/profile-activity")}
-                      onMouseEnter={() => setHoverMedical(true)}
-                      onMouseLeave={() => setHoverMedical(false)}
-                      style={{
-                        opacity: hoverMedical ? 0.8 : 1,
-                        transform: hoverMedical ? "scale(0.90)" : "scale(1)",
-                        transitionDuration: "200ms",
-                      }}
-                    >
-                      <div className="text-white font-semibold p-5">
-                        Medical Record Management
-                      </div>
-                    </button>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <FiUsers className="text-[rgb(211,46,149)] text-4xl mb-4" />
-                    <button
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 p-6 rounded-4xl text-center text-xl transition w-full h-full"
-                      onClick={() => navigate("/family-integration")}
-                      onMouseEnter={() => setHoverFamily(true)}
-                      onMouseLeave={() => setHoverFamily(false)}
-                      style={{
-                        opacity: hoverFamily ? 0.8 : 1,
-                        transform: hoverFamily ? "scale(0.90)" : "scale(1)",
-                        transitionDuration: "200ms",
-                      }}
-                    >
-                      <div className="text-white font-semibold p-5">
-                        Family Management
-                      </div>
-                    </button>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <MdMedication className="text-[rgb(211,46,149)] text-4xl mb-4" />
-                    <button
-                      className="bg-pink-500 p-6 rounded-4xl text-center text-xl transition w-full h-full"
-                      onClick={() => alert("Coming soon!")}
-                      onMouseEnter={() => setHoverMeds(true)}
-                      onMouseLeave={() => setHoverMeds(false)}
-                      style={{
-                        opacity: hoverMeds ? 0.8 : 1,
-                        // transform: hoverMeds ? "scale(0.90)" : "scale(1)",
-                        transitionDuration: "200ms",
-                      }}
-                    >
-                      <div className="text-white font-semibold p-5">
-                        Lookup Meds
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </>
-            </motion.div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

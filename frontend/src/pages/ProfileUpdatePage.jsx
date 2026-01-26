@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { MdArrowBack } from "react-icons/md";
 
 const ProfileUpdatePage = ({ user, setUser }) => {
@@ -9,18 +9,39 @@ const ProfileUpdatePage = ({ user, setUser }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  
+
   const [formData, setFormData] = useState({
     email: user?.email || "",
-    phone: user?.phone || "",
+    phone: "+88",
     username: user?.username || "",
     password: "",
     confirmPassword: "",
     gender: user?.gender || "male",
+    private: user?.private || false,
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Special handling for phone input
+    if (name === "phone") {
+      if (!value.startsWith("+88")) {
+        setFormData((prev) => ({ ...prev, [name]: "+88" }));
+        return;
+      }
+      
+      // Only allow digits after +88
+      const afterPrefix = value.slice(3);
+      if (!/^\d*$/.test(afterPrefix)) {
+        return;
+      }
+      
+      // Limit to 14 characters total (+88 + 11 digits)
+      if (value.length > 14) {
+        return;
+      }
+    }
+    
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -31,13 +52,32 @@ const ProfileUpdatePage = ({ user, setUser }) => {
   };
 
   const validateForm = () => {
-    if (!formData.email && !formData.phone && !formData.username && !formData.password && !formData.gender) {
+    const emailChanged = formData.email && formData.email !== user?.email;
+    const phoneChanged =
+      formData.phone &&
+      formData.phone !== "+88" &&
+      formData.phone !== user?.phone;
+    const usernameChanged =
+      formData.username && formData.username !== user?.username;
+    const passwordChanged = !!formData.password;
+    const genderChanged =
+      formData.gender && formData.gender !== user?.gender;
+    const privateChanged = formData.private !== user?.private;
+
+    if (
+      !emailChanged &&
+      !phoneChanged &&
+      !usernameChanged &&
+      !passwordChanged &&
+      !genderChanged &&
+      !privateChanged
+    ) {
       setErrorMessage("Please fill in at least one field to update");
       return false;
     }
 
     // Email validation
-    if (formData.email) {
+    if (emailChanged) {
       const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
       if (!emailRegex.test(formData.email)) {
         setErrorMessage("Invalid email format");
@@ -46,16 +86,16 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     }
 
     // Phone validation
-    if (formData.phone) {
-      const phoneRegex = /^(017|018|019|015|016|013)\d{8}$/;
+    if (phoneChanged) {
+      const phoneRegex = /^\+88(013|014|015|016|017|018|019)\d{8}$/;
       if (!phoneRegex.test(formData.phone)) {
-        setErrorMessage("Phone must be a valid Bangladeshi number (10 digits starting with 01)");
+        setErrorMessage("Phone must be a valid Bangladeshi number (format: +8801XXXXXXXXX)");
         return false;
       }
     }
 
     // Password validation
-    if (formData.password) {
+    if (passwordChanged) {
       if (formData.password.length < 6) {
         setErrorMessage("Password must be at least 6 characters long");
         return false;
@@ -102,6 +142,9 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       if (formData.gender && formData.gender !== user?.gender) {
         updatePayload.gender = formData.gender;
       }
+      if (formData.private !== user?.private) {
+        updatePayload.private = formData.private;
+      }
 
       if (Object.keys(updatePayload).length === 0) {
         setErrorMessage("No changes detected");
@@ -116,14 +159,17 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       if (response.data.success) {
         setUser(response.data.user);
         setSuccessMessage("Profile updated successfully!");
-        
+
         // Reset form and redirect after 2 seconds
         setTimeout(() => {
           navigate("/dashboard");
         }, 2000);
       }
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || "Failed to update profile";
+      const errorMsg =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to update profile";
       setErrorMessage(errorMsg);
     } finally {
       setIsLoading(false);
@@ -144,14 +190,22 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           Back to Dashboard
         </motion.button>
 
+        <div className="mb-4 text-sm text-gray-600">
+          Dashboard / <span className="text-gray-900 font-semibold">Update Profile</span>
+        </div>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Update Profile</h1>
-          <p className="text-gray-600">Update your email, phone, username, password, or gender</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Update Profile
+          </h1>
+          <p className="text-gray-600">
+            Update your email, phone, username, password, or gender
+          </p>
         </motion.div>
 
         {/* Form Container */}
@@ -161,27 +215,60 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           className="bg-white rounded-2xl p-8 shadow-lg"
           style={{ boxShadow: "8px 8px 20px rgba(211, 46, 149, 0.1)" }}
         >
-          {/* Success Message */}
-          {successMessage && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 rounded-lg bg-green-50 border border-green-200"
-            >
-              <p className="text-green-700 font-semibold">{successMessage}</p>
-            </motion.div>
-          )}
+          {/* Floating Notifications */}
+          <AnimatePresence>
+            {successMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className="fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg bg-green-50 border border-green-200"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 text-green-600">✔</div>
+                  <div className="flex-1">
+                    <p className="text-green-800 font-semibold">{successMessage}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSuccessMessage("")}
+                    className="text-green-700 hover:text-green-900"
+                    aria-label="Dismiss success message"
+                  >
+                    ×
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {/* Error Message */}
-          {errorMessage && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200"
-            >
-              <p className="text-red-700 font-semibold">{errorMessage}</p>
-            </motion.div>
-          )}
+          <AnimatePresence>
+            {errorMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className="fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg bg-red-50 border border-red-200"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 text-red-600">⚠</div>
+                  <div className="flex-1">
+                    <p className="text-red-800 font-semibold">{errorMessage}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setErrorMessage("")}
+                    className="text-red-700 hover:text-red-900"
+                    aria-label="Dismiss error message"
+                  >
+                    ×
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
@@ -197,7 +284,9 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                 placeholder={user?.email || "Enter your email"}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
               />
-              <p className="text-xs text-gray-700 mt-3">Current: {user?.email}</p>
+              <p className="text-xs text-gray-700 mt-3">
+                Current: {user?.email}
+              </p>
             </div>
 
             {/* Phone */}
@@ -208,12 +297,14 @@ const ProfileUpdatePage = ({ user, setUser }) => {
               <input
                 type="tel"
                 name="phone"
-                // value={formData.phone}
+                value={formData.phone}
                 onChange={handleChange}
-                placeholder={user?.phone || "Enter your phone number"}
+                placeholder="+8801xxxxxxxxx"
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
               />
-              <p className="text-xs text-gray-700 mt-3">Current: {user?.phone}</p>
+              <p className="text-xs text-gray-700 mt-3">
+                Current: {user?.phone}
+              </p>
             </div>
 
             {/* Username */}
@@ -229,7 +320,9 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                 placeholder={user?.username || "Enter your username"}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
               />
-              <p className="text-xs text-gray-700 mt-3">Current: {user?.username}</p>
+              <p className="text-xs text-gray-700 mt-3">
+                Current: {user?.username}
+              </p>
             </div>
 
             {/* Gender */}
@@ -242,18 +335,70 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                 // value={formData.gender}
                 onChange={handleChange}
                 placeholder={user?.gender || "Select gender"}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition text-black/50"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition text-gray-900 bg-white appearance-none cursor-pointer"
               >
                 <option value="male">male</option>
                 <option value="female">female</option>
               </select>
-              <p className="text-xs text-gray-700 mt-3">Current: {user?.gender}</p>
+              <p className="text-xs text-gray-700 mt-3">
+                Current: {user?.gender}
+              </p>
+            </div>
+
+            {/* Private Profile */}
+            <div>
+              <label className="block text-xl font-semibold text-gray-700 mb-4">
+                Profile Privacy Settings
+              </label>
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      private: !prev.private,
+                    }))
+                  }
+                  className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors ${
+                    formData.private ? "bg-[rgb(211,46,149)]" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                      formData.private ? "translate-x-9" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+                <span className="text-gray-600 font-medium">
+                  {formData.private ? "Private" : "Public"}
+                </span>
+              </div>
+              <div className="mt-4 p-4 rounded-lg bg-blue-50 border border-blue-200">
+                <p className="text-sm text-blue-900 mb-2">
+                  <span className="font-semibold">Public Profile:</span> Family
+                  members can view your health information and add medications
+                  and medical reports.
+                </p>
+                <p className="text-sm text-blue-900">
+                  <span className="font-semibold">Private Profile:</span> Only
+                  you can manage your health information.
+                </p>
+              </div>
+              <p className="text-xs text-gray-700 mt-3">
+                Current:{" "}
+                {user?.private
+                  ? "Private - Only you manage your data"
+                  : "Public - Family members can add info"}
+              </p>
             </div>
 
             {/* Password */}
             <div className="pt-4 border-t border-gray-200">
               <p className="text-sm text-gray-600 mb-4">
-                <span className="font-semibold">Password Change (Optional)</span> - Leave blank to keep password unchanged
+                <span className="font-semibold">
+                  Password Change (Optional)
+                </span>{" "}
+                - Leave blank to keep password unchanged
               </p>
 
               <div className="space-y-4">
@@ -292,7 +437,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 py-3 rounded-lg font-semibold text-white transition disabled:opacity-60"
+                className="flex-1 py-3 rounded-4xl font-semibold text-white transition disabled:opacity-60"
                 style={{
                   background: isLoading
                     ? "rgba(211, 46, 149, 0.5)"
@@ -304,7 +449,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
               <button
                 type="button"
                 onClick={() => navigate("/dashboard")}
-                className="flex-1 py-3 rounded-lg font-semibold border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition"
+                className="flex-1 py-3 rounded-4xl font-semibold border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition"
               >
                 Cancel
               </button>
@@ -320,7 +465,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           className="mt-8 p-4 rounded-lg bg-blue-50 border border-blue-200"
         >
           <p className="text-sm text-blue-700 text-center">
-            <span className="font-semibold">Note:</span> Your role cannot be changed.
+            <span className="font-semibold">Note:</span> Please keep your profile information up to date.
           </p>
         </motion.div>
       </div>
