@@ -647,14 +647,11 @@ const ProfileActivity = ({ user, setUser }) => {
   return (
     <div className="min-h-screen bg-linear-to-b from-gray-50 to-white py-12 px-4">
       <div className="max-w-7xl mx-auto">
-        {/* ============ HEADER ROW ============ */}
-        <div className="mb-6 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            Dashboard / <span className="font-semibold text-gray-900">Medical Records</span>
-          </div>
+        {/* ============ BACK TO DASHBOARD BUTTON ============ */}
+        <div className="mb-6 flex items-center">
           <button
             onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-2 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
@@ -903,9 +900,12 @@ const ProfileActivity = ({ user, setUser }) => {
                 <select
                   value={uploadFormData.category}
                   onChange={(e) =>
-                    setUploadFormData({ ...uploadFormData, category: e.target.value })
+                    setUploadFormData({
+                      ...uploadFormData,
+                      category: e.target.value,
+                    })
                   }
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm appearance-none cursor-pointer bg-white"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm"
                 >
                   <option value="Lab Results">Lab Results</option>
                   <option value="Prescription">Prescription</option>
@@ -927,7 +927,10 @@ const ProfileActivity = ({ user, setUser }) => {
                   type="date"
                   value={uploadFormData.reportDate}
                   onChange={(e) =>
-                    setUploadFormData({ ...uploadFormData, reportDate: e.target.value })
+                    setUploadFormData({
+                      ...uploadFormData,
+                      reportDate: e.target.value,
+                    })
                   }
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm"
                 />
@@ -939,7 +942,10 @@ const ProfileActivity = ({ user, setUser }) => {
                 <textarea
                   value={uploadFormData.notes}
                   onChange={(e) =>
-                    setUploadFormData({ ...uploadFormData, notes: e.target.value })
+                    setUploadFormData({
+                      ...uploadFormData,
+                      notes: e.target.value,
+                    })
                   }
                   placeholder="Add any notes about this report..."
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm resize-none"
@@ -988,93 +994,8 @@ const ProfileActivity = ({ user, setUser }) => {
                 />
               </svg>
               <div className="text-sm text-gray-700 mb-2">
-                Drag & drop a file here, or
+                Drag & drop files here, or
               </div>
-
-              <label className="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-md text-sm font-medium text-gray-700 shadow-sm cursor-pointer hover:bg-gray-50">
-                Choose a file
-                <input
-                  type="file"
-                  accept=".png,.jpg,.jpeg,.pdf"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </label>
-
-              <div className="mt-3 w-full">
-                {renderPreview()}
-
-                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-                {success && (
-                  <p className="text-green-600 text-sm mt-2">{success}</p>
-                )}
-
-                <button
-                  onClick={handleUpload}
-                  disabled={uploading}
-                  className="mt-4 w-full py-2 rounded-lg text-white font-semibold disabled:opacity-60 bg-gradient-to-r from-pink-500 to-purple-500 shadow"
-                >
-                  {uploading ? `Uploading ${uploadProgress}%` : "Upload File"}
-                </button>
-
-                {uploadProgress > 0 && (
-                  <div className="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-pink-500 to-purple-500"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="mt-6 text-xs text-gray-400">
-              Supported: PNG, JPG, JPEG, PDF • Max size: depends on server
-              settings
-            </div>
-          </div>
-
-          {/* Documents List */}
-          <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-md font-semibold text-gray-900">
-                Your Documents
-              </h3>
-              <div className="text-xs text-gray-500">
-                {filteredReports.length} file{filteredReports.length !== 1 ? "s" : ""}
-              </div>
-            </div>
-
-            {/* NEW: Search and Filter */}
-            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search reports..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm"
-                />
-              </div>
-              <div className="relative">
-                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <select
-                  value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm appearance-none cursor-pointer bg-white"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat === "All" ? "All Categories" : cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {filteredReports.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12">
 
               <label className="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-md text-sm font-medium text-gray-700 shadow-sm cursor-pointer hover:bg-gray-50">
                 Choose files
@@ -1377,156 +1298,6 @@ const ProfileActivity = ({ user, setUser }) => {
                     {selectedReport.reportDate && (
                       <div className="text-gray-600">
                         <span className="font-medium">Date:</span>{" "}
-                        {new Date(selectedReport.reportDate).toLocaleDateString()}
-                      </div>
-                    )}
-                    {selectedReport.notes && (
-                      <div className="text-gray-600">
-                        <span className="font-medium">Notes:</span> {selectedReport.notes}
-                      </div>
-                    )}
-                  </div>
-                )}
-                <div className="flex items-center space-x-3 mt-3">
-                  <a
-                    href={selectedReport.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 text-sm font-medium"
-                  >
-                    Open in New Tab
-                  </a>
-                  <button
-                    onClick={() =>
-                      handleRemove(
-                        selectedReport._id ||
-                          selectedReport.id ||
-                          selectedReport.url
-                      )
-                    }
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm font-medium"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-4 flex items-center justify-center bg-gray-50">
-                {/\.(jpg|jpeg|png)$/i.test(
-                  selectedReport.url.split("/").pop()
-                ) ? (
-                  <img
-                    src={selectedReport.url}
-                    alt={selectedReport.url.split("/").pop()}
-                    className="max-h-[70vh] object-contain rounded-lg"
-                  />
-                ) : (
-                  <iframe
-                    src={selectedReport.url}
-                    title="document preview"
-                    className="w-full h-[70vh] rounded-lg"
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ============ NEW: ADD CONDITION MODAL ============ */}
-        {showConditionModal && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/20 backdrop-blur-sm"
-            onClick={() => setShowConditionModal(false)}
-          >
-            <div
-              className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl transform transition-all"
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                background: 'linear-gradient(180deg, #ffffff 0%, #f9fafb 100%)',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              }}
-            >
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
-                  <Pill className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  Add Medication
-                </h3>
-              </div>
-              <button
-                onClick={() => setShowMedicationModal(false)}
-                className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-2 transition"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Medication Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g., Metformin, Lisinopril"
-                  value={medicationForm.medicationName}
-                  onChange={(e) =>
-                    setMedicationForm({
-                      ...medicationForm,
-                      medicationName: e.target.value,
-                    })
-                  }
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 placeholder-gray-400"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Dosage
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., 500mg, 10ml"
-                    value={medicationForm.dosage}
-                    onChange={(e) =>
-                      setMedicationForm({
-                        ...medicationForm,
-                        dosage: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 placeholder-gray-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Frequency
-                  </label>
-                  <select
-                    value={medicationForm.frequency}
-                    onChange={(e) => {
-                      const newFreq = e.target.value;
-                      let count = 0;
-                      if (newFreq === "once-daily") count = 1;
-                      else if (newFreq === "twice-daily") count = 2;
-                      else if (newFreq === "three-times-daily") count = 3;
-                      
-                      // Resize times array while preserving existing values where possible
-                      const currentTimes = [...(medicationForm.times || [])];
-                      while (currentTimes.length < count) currentTimes.push("");
-                      const newTimes = currentTimes.slice(0, count);
-
-                      setMedicationForm({
-                        ...medicationForm,
-                        frequency: newFreq,
-                        times: newTimes,
-                      });
-                    }}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 bg-white appearance-none cursor-pointer"
-                  >
                         {new Date(
                           selectedReport.reportDate,
                         ).toLocaleDateString()}
