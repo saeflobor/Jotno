@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { MdArrowBack } from "react-icons/md";
 
 const Register = () => {
@@ -110,27 +110,61 @@ const Register = () => {
             Join us to get started
           </motion.p>
 
-          {/* Success message */}
-          {success && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className='mb-6 p-4 rounded-lg bg-green-50 border border-green-200'
-            >
-              <p className='text-green-700 font-semibold text-sm'>{success}</p>
-            </motion.div>
-          )}
+          {/* Floating Success Notification */}
+          <AnimatePresence>
+            {success && (
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className="fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg bg-green-50 border border-green-200"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 text-green-600">✔</div>
+                  <div className="flex-1">
+                    <p className="text-green-800 font-semibold text-sm">{success}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSuccess("")}
+                    className="text-green-700 hover:text-green-900"
+                    aria-label="Dismiss success message"
+                  >
+                    ×
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {/* Error message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className='mb-6 p-4 rounded-lg bg-red-50 border border-red-200'
-            >
-              <p className='text-red-700 font-semibold text-sm'>{error}</p>
-            </motion.div>
-          )}
+          {/* Floating Error Notification */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className="fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg bg-red-50 border border-red-200"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 text-red-600">⚠</div>
+                  <div className="flex-1">
+                    <p className="text-red-800 font-semibold text-sm">{error}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setError("")}
+                    className="text-red-700 hover:text-red-900"
+                    aria-label="Dismiss error message"
+                  >
+                    ×
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
         <form onSubmit={handleSubmit} className='space-y-6'>
           {/* Username */}

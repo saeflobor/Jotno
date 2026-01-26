@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Pill,
   X,
@@ -646,6 +646,62 @@ const ProfileActivity = ({ user, setUser }) => {
 
   return (
     <div className="min-h-screen bg-linear-to-b from-gray-50 to-white py-12 px-4">
+      {/* Floating Error Notification */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+            className="fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg bg-red-50 border border-red-200"
+          >
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 text-red-600">⚠</div>
+              <div className="flex-1">
+                <p className="text-red-800 font-semibold">{error}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setError("")}
+                className="text-red-700 hover:text-red-900"
+                aria-label="Dismiss error message"
+              >
+                ×
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Success Notification */}
+      <AnimatePresence>
+        {success && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+            className="fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg bg-green-50 border border-green-200"
+          >
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 text-green-600">✔</div>
+              <div className="flex-1">
+                <p className="text-green-800 font-semibold">✓ {success}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSuccess("")}
+                className="text-green-700 hover:text-green-900"
+                aria-label="Dismiss success message"
+              >
+                ×
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-7xl mx-auto">
         {/* ============ BACK TO DASHBOARD BUTTON ============ */}
         <div className="mb-6 flex items-center">
@@ -1011,20 +1067,7 @@ const ProfileActivity = ({ user, setUser }) => {
               <div className="mt-3 w-full">
                 {renderPreview()}
 
-                {error && (
-                  <div className="mt-3 p-3 bg-red-50 border-l-4 border-red-500 rounded">
-                    <p className="text-red-700 text-base font-semibold">
-                      {error}
-                    </p>
-                  </div>
-                )}
-                {success && (
-                  <div className="mt-3 p-3 bg-green-50 border-l-4 border-green-500 rounded">
-                    <p className="text-green-700 text-base font-semibold">
-                      ✓ {success}
-                    </p>
-                  </div>
-                )}
+                {/* Floating notifications handled below */}
 
                 <button
                   onClick={handleUpload}

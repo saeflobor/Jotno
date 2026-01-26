@@ -245,20 +245,42 @@ const FamilyIntegration = ({ user, setUser }) => {
             </div>
           </div>
 
-          {/* Toast */}
+          {/* Floating Toast Notification */}
           <AnimatePresence>
             {toast.text && (
               <motion.div
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                className={`mt-3 p-3 rounded-md ${
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className={`fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg ${
                   toast.type === "success"
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
+                    ? "bg-green-50 border border-green-200"
+                    : "bg-red-50 border border-red-200"
                 }`}
               >
-                {toast.text}
+                <div className="flex items-start gap-3">
+                  <div className={`mt-0.5 ${
+                    toast.type === "success" ? "text-green-600" : "text-red-600"
+                  }`}>
+                    {toast.type === "success" ? "✔" : "⚠"}
+                  </div>
+                  <div className="flex-1">
+                    <p className={`font-semibold ${
+                      toast.type === "success" ? "text-green-800" : "text-red-800"
+                    }`}>
+                      {toast.text}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setToast({ type: "", text: "" })}
+                    className={toast.type === "success" ? "text-green-700 hover:text-green-900" : "text-red-700 hover:text-red-900"}
+                    aria-label="Dismiss notification"
+                  >
+                    ×
+                  </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
