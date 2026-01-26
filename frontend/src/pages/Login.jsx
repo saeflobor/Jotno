@@ -91,7 +91,7 @@ const Login = ({ setUser }) => {
             Sign in to your account to continue
           </motion.p>
 
-          {/* Floating Error Notification */}
+          {/* Error Notification */}
           <AnimatePresence>
             {error && (
               <motion.div
@@ -99,7 +99,7 @@ const Login = ({ setUser }) => {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.98 }}
                 transition={{ duration: 0.2 }}
-                className="fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg bg-red-50 border border-red-200"
+                className="mb-6 p-4 rounded-xl shadow-lg bg-red-50 border border-red-200"
               >
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5 text-red-600">⚠</div>
