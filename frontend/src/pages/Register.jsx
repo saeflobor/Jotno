@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MdArrowBack } from "react-icons/md";
+import { FileText, AlertTriangle, Users, Bell } from "lucide-react";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -144,6 +145,69 @@ const Register = () => {
           >
             Join our community and start managing your health journey with our comprehensive platform designed for you and your family.
           </motion.p>
+
+          {/* Feature Cards */}
+          <div className='grid grid-cols-2 gap-8'>
+            <motion.div
+              className='bg-white/15 backdrop-blur-md rounded-4xl p-4 hover:bg-white/20 transition'
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
+              <div className='flex items-start gap-3'>
+                <FileText className='text-2xl text-white flex-shrink-0' strokeWidth={1.5} />
+                <div>
+                  <h3 className='text-white font-semibold text-xl mb-1'>Medical Records</h3>
+                  <p className='text-white/80 text-xs'>Secure digital storage for all your important medical documents.</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className='bg-white/15 backdrop-blur-md rounded-4xl p-4 hover:bg-white/20 transition'
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.55 }}
+            >
+              <div className='flex items-start gap-3'>
+                <AlertTriangle className='text-2xl text-white flex-shrink-0' strokeWidth={1.5} />
+                <div>
+                  <h3 className='text-white font-semibold text-xl mb-1'>Emergency SOS</h3>
+                  <p className='text-white/80 text-xs'>One-tap SOS button notifies family instantly with message and optional location.</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className='bg-white/15 backdrop-blur-md rounded-4xl p-4 hover:bg-white/20 transition'
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              <div className='flex items-start gap-3'>
+                <Users className='text-2xl text-white flex-shrink-0' strokeWidth={1.5} />
+                <div>
+                  <h3 className='text-white font-semibold text-xl mb-1'>Family Management</h3>
+                  <p className='text-white/80 text-xs'>Monitor medication adherence, access records (with permission), view health summaries.</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className='bg-white/15 backdrop-blur-md rounded-4xl p-4 hover:bg-white/20 transition'
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.65 }}
+            >
+              <div className='flex items-start gap-3'>
+                <Bell className='text-2xl text-white flex-shrink-0' strokeWidth={1.5} />
+                <div>
+                  <h3 className='text-white font-semibold text-xl mb-1'>Medication Reminders</h3>
+                  <p className='text-white/80 text-xs'>Timely alerts via notifications or SMS. Family can track if reminders were acknowledged.</p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </motion.div>
 
