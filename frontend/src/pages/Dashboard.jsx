@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -6,12 +6,14 @@ import { FiFileText } from "react-icons/fi";
 import { MdAccountCircle, MdSettings, MdArrowBack } from "react-icons/md";
 import { PiPillBold } from "react-icons/pi";
 import { PiUsersBold } from "react-icons/pi";
+import { Pill, X, Activity, FileText, Clock } from "lucide-react";
 
 const Dashboard = ({ user, setUser }) => {
   const navigate = useNavigate();
   const [sendingSOS, setSendingSOS] = useState(false);
   const [sosMessage, setSosMessage] = useState("");
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [activities, setActivities] = useState([]);
   
   if (!user) {
     return (
@@ -26,6 +28,23 @@ const Dashboard = ({ user, setUser }) => {
       </div>
     );
   }
+
+  // Fetch activities
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const activitiesRes = await axios.get("/api/activities", { headers });
+        if (activitiesRes?.data?.activities) {
+          setActivities(activitiesRes.data.activities);
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+    fetchActivities();
+  }, []);
   
   const family = user?.family || {};
 
@@ -62,6 +81,44 @@ const Dashboard = ({ user, setUser }) => {
     (Array.isArray(family.children) ? family.children.length : 0) +
     (family.father ? 1 : 0) +
     (family.mother ? 1 : 0);
+
+  const getActivityIcon = (action) => {
+    switch (action) {
+      case "uploaded_report":
+        return <FileText className="w-4 h-4" />;
+      case "deleted_report":
+        return <X className="w-4 h-4" />;
+      case "added_condition":
+      case "added_medication":
+        return <Pill className="w-4 h-4" />;
+      default:
+        return <Activity className="w-4 h-4" />;
+    }
+  };
+
+  const getActivityColor = (action) => {
+    if (action.includes("added") || action.includes("uploaded")) {
+      return "text-green-600 bg-green-50";
+    }
+    if (action.includes("deleted") || action.includes("removed")) {
+      return "text-red-600 bg-red-50";
+    }
+    return "text-blue-600 bg-blue-50";
+  };
+
+  const formatTimeAgo = (date) => {
+    const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+    if (seconds < 60) return "Just now";
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    const weeks = Math.floor(days / 7);
+    if (weeks < 4) return `${weeks}w ago`;
+    return new Date(date).toLocaleDateString();
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-pink-50 relative overflow-hidden">
@@ -261,6 +318,49 @@ const Dashboard = ({ user, setUser }) => {
                   <p className="text-sm text-gray-600">Coming soon</p>
                 </motion.button>
             </div>
+
+            {/* Recent Activity Section */}
+            {activities.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-8 bg-white rounded-2xl shadow-md p-6 border border-gray-100"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                    <Clock className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Recent Activity
+                  </h2>
+                </div>
+                <div className="space-y-3 max-h-64 overflow-y-auto">
+                  {activities.slice(0, 10).map((activity) => (
+                    <div
+                      key={activity._id}
+                      className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+                    >
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center ${getActivityColor(
+                          activity.action,
+                        )}`}
+                      >
+                        {getActivityIcon(activity.action)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-900">
+                          {activity.description}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {formatTimeAgo(activity.createdAt)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </div>

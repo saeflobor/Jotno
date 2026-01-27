@@ -900,42 +900,6 @@ const ProfileActivity = ({ user, setUser }) => {
           </div>
         )}
 
-        {/* ============ NEW: ACTIVITY TIMELINE ============ */}
-        {activities.length > 0 && (
-          <div className="mb-8 bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <Clock className="w-5 h-5 text-blue-600" />
-              </div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Recent Activity
-              </h2>
-            </div>
-            <div className="space-y-3 max-h-64 overflow-y-auto">
-              {activities.slice(0, 10).map((activity) => (
-                <div
-                  key={activity._id}
-                  className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
-                >
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${getActivityColor(activity.action)}`}
-                  >
-                    {getActivityIcon(activity.action)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900">
-                      {activity.description}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {formatTimeAgo(activity.createdAt)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* ============ EXISTING MEDICAL REPORTS SECTION (UNCHANGED) ============ */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* Upload Card */}
@@ -1414,7 +1378,7 @@ const ProfileActivity = ({ user, setUser }) => {
           onSave={handleAddMedication}
           isProcessing={processingHealth}
         />
-      )}
+      )
 
       <AddConditionModal
         isOpen={showConditionModal}

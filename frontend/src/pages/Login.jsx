@@ -13,7 +13,7 @@ const Login = ({ setUser }) => {
   const [typedText, setTypedText] = useState("");
   const navigate = useNavigate();
 
-  const fullText = "যত্ন : Jotno";
+  const fullText = "->  যত্ন : Jotno";
 
   useEffect(() => {
     let currentIndex = 0;
@@ -110,7 +110,7 @@ const Login = ({ setUser }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <div className='text-3xl text-white/90 font-semibold tracking-wide'>Welcome back to</div>
+            <div className='text-3xl text-white/90 font-semibold tracking-wide'>Welcome to</div>
             <div className='flex items-baseline gap-3 mt-2 text-white'>
               <span className='text-6xl font-extrabold leading-none inline-flex items-center'>{typedText}<span className="animate-pulse font-normal">|</span></span>
             </div>
