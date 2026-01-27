@@ -91,17 +91,31 @@ const Dashboard = ({ user, setUser }) => {
       case "added_condition":
       case "added_medication":
         return <Pill className="w-4 h-4" />;
+      case "added_family_member":
+      case "sent_family_request":
+      case "accepted_family_request":
+      case "family_request_accepted":
+        return <PiUsersBold className="w-4 h-4" />;
+      case "removed_family_member":
+      case "declined_family_request":
+      case "cancelled_family_request":
+        return <X className="w-4 h-4" />;
+      case "sent_sos":
+        return <Activity className="w-4 h-4" />;
       default:
         return <Activity className="w-4 h-4" />;
     }
   };
 
   const getActivityColor = (action) => {
-    if (action.includes("added") || action.includes("uploaded")) {
+    if (action.includes("added") || action.includes("uploaded") || action.includes("accepted")) {
       return "text-green-600 bg-green-50";
     }
-    if (action.includes("deleted") || action.includes("removed")) {
+    if (action.includes("deleted") || action.includes("removed") || action.includes("declined") || action.includes("cancelled")) {
       return "text-red-600 bg-red-50";
+    }
+    if (action.includes("sent_family_request") || action.includes("sent_sos")) {
+      return "text-orange-600 bg-orange-50";
     }
     return "text-blue-600 bg-blue-50";
   };
