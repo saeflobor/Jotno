@@ -1,6 +1,7 @@
 import multer from "multer";
 import streamifier from "streamifier";
 import { v2 as cloudinary } from "cloudinary";
+import axios from "axios";
 import MedicalReport from "../models/MedicalReport.js";
 import User from "../models/User.js";
 import AppError from "../utils/AppError.js";
@@ -504,6 +505,87 @@ export const deleteMedicalReportForUser = async (req, res, next) => {
   }
 };
 
+// Controller: download a medical report
+export const downloadMedicalReport = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?._id;
+
+    if (!userId) {
+      return next(new AppError("Unauthorized", 401));
+    }
+
+    // Find the report
+    const report = await MedicalReport.findById(id);
+
+    if (!report) {
+      return next(new AppError("Medical report not found", 404));
+    }
+
+    // Check if user owns the report or has access to it (family member scenario)
+    const isOwner = report.owner.toString() === userId.toString();
+    
+    if (!isOwner) {
+      // Check if user is a family member and report is not private
+      const targetUser = await User.findById(report.owner);
+      if (!targetUser || report.isPrivate === true) {
+        return next(new AppError("Access denied", 403));
+      }
+
+      // Verify that the current user is in the target user's family
+      const isFamilyMember = 
+        targetUser.family?.father?._id?.toString() === userId.toString() ||
+        targetUser.family?.mother?._id?.toString() === userId.toString() ||
+        targetUser.family?.spouse?._id?.toString() === userId.toString() ||
+        (Array.isArray(targetUser.family?.children) && 
+         targetUser.family.children.some(child => child._id?.toString() === userId.toString()));
+
+      if (!isFamilyMember) {
+        return next(new AppError("Access denied", 403));
+      }
+    }
+
+    try {
+      // Fetch the file from Cloudinary using axios
+      const fileResponse = await axios.get(report.url, {
+        responseType: "arraybuffer"
+      });
+
+      // Get content type from the response headers or determine based on URL
+      let contentType = fileResponse.headers["content-type"] || "application/octet-stream";
+      
+      // Generate filename
+      const fileExtension = getFileExtension(contentType);
+      const filename = `${report.category || "report"}-${new Date(report.reportDate || report.createdAt).toISOString().split('T')[0]}.${fileExtension}`;
+
+      // Set response headers for download
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      res.setHeader("Content-Length", fileResponse.data.length);
+
+      // Send the file
+      return res.status(200).send(fileResponse.data);
+    } catch (fetchErr) {
+      console.error("Failed to fetch file from Cloudinary:", fetchErr);
+      return next(new AppError("Failed to download file", 500));
+    }
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// Helper function to get file extension from content type
+function getFileExtension(contentType) {
+  const extensionMap = {
+    "application/pdf": "pdf",
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/jpg": "jpg",
+  };
+  return extensionMap[contentType] || "bin";
+}
+
 export default {
   uploadMiddleware,
   uploadMedicalReport,
@@ -511,4 +593,5 @@ export default {
   deleteMedicalReport,
   deleteMedicalReportForUser,
   toggleReportPrivacy,
+  downloadMedicalReport,
 };

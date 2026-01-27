@@ -1,19 +1,33 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import { GoHomeFill } from 'react-icons/go';
 import { motion } from 'framer-motion';
+import ConfirmationModal from './ConfirmationModal';
 
 const Navbar = ({ user, setUser }) => {
 
   const navigate = useNavigate();
+  const [confirmation, setConfirmation] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    isDangerous: false,
+    onConfirm: null,
+  });
 
   const handleLogout = () => {
-    const confirmed = window.confirm("Are you sure you want to logout?");
-    if (confirmed) {
-      localStorage.removeItem("token");
-      setUser(null);
-      navigate('/');
-    }
+    setConfirmation({
+      isOpen: true,
+      title: "Logout",
+      message: "Are you sure you want to logout from your account?",
+      isDangerous: true,
+      confirmText: "Logout",
+      onConfirm: () => {
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate('/');
+      },
+    });
   }
 
   return (
@@ -126,6 +140,22 @@ const Navbar = ({ user, setUser }) => {
           </motion.div>
         </div>
       </motion.div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmation.isOpen}
+        title={confirmation.title}
+        message={confirmation.message}
+        isDangerous={confirmation.isDangerous}
+        confirmText={confirmation.confirmText || "Confirm"}
+        onConfirm={() => {
+          if (confirmation.onConfirm) {
+            confirmation.onConfirm();
+          }
+          setConfirmation({ ...confirmation, isOpen: false });
+        }}
+        onCancel={() => setConfirmation({ ...confirmation, isOpen: false })}
+      />
     </nav>
   );
 }

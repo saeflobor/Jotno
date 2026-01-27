@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import FamilyRequest from "../models/FamilyRequest.js";
 import { protect } from "../middleware/auth.js";
 import { sendEmail } from "../utils/emailverification.js";
 import AppError from "../utils/AppError.js";
@@ -171,6 +172,20 @@ const updateProfile = async (req, res, next) => {
           new AppError("Invalid gender. Must be 'male' or 'female'", 400),
         );
       }
+
+      // Check if gender is actually being changed
+      if (gender !== user.gender) {
+        // Check if the user has a spouse or children linked
+        if ((user.family.children && user.family.children.length > 0) || user.family.spouse) {
+          return next(
+            new AppError(
+              "You cannot change your gender as you already have a spouse or children linked to your account.",
+              400,
+            ),
+          );
+        }
+      }
+
       user.gender = gender;
     }
 

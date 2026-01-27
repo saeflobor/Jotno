@@ -50,9 +50,7 @@ const userSchema = new mongoose.Schema(
         ref: "User",
         default: null,
       },
-      children: [
-        { type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] },
-      ],
+      children: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     },
     private: { type: Boolean, default: false },
   },

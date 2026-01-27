@@ -14,8 +14,9 @@ import {
   EyeOff,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import AddMedicationModal from "../components/AddMedicationModal";
 import AddConditionModal from "../components/AddConditionModal";
+import AddMedicationModal from "../components/AddMedicationModal";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const ProfileActivity = ({ user, setUser }) => {
   const navigate = useNavigate();
@@ -50,6 +51,15 @@ const ProfileActivity = ({ user, setUser }) => {
     category: "Other",
     reportDate: "",
     notes: "",
+  });
+
+  const [confirmation, setConfirmation] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    isDangerous: false,
+    confirmText: "Confirm",
+    onConfirm: null,
   });
 
   // ============ EXISTING MEDICAL REPORT useEffect ============
@@ -242,59 +252,67 @@ const ProfileActivity = ({ user, setUser }) => {
     }
   };
   const handleRemove = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this document?"))
-      return;
-    try {
-      setDeletingIds((p) => [...p, id]);
-      const token = localStorage.getItem("token");
-      await axios.delete(`/api/medical-report/${id}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+    setConfirmation({
+      isOpen: true,
+      title: "Delete Document",
+      message: "Are you sure you want to delete this document? This action cannot be undone.",
+      isDangerous: true,
+      confirmText: "Delete",
+      onConfirm: async () => {
+        try {
+          setDeletingIds((p) => [...p, id]);
+          const token = localStorage.getItem("token");
+          await axios.delete(`/api/medical-report/${id}`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
 
-      setReports((p) => p.filter((r) => (r._id || r.id || r.url) !== id));
+          setReports((p) => p.filter((r) => (r._id || r.id || r.url) !== id));
 
-      if (setUser) {
-        setUser((prev) =>
-          prev
-            ? {
-                ...prev,
-                medicalReports: (prev.medicalReports || []).filter(
-                  (mid) => mid !== id,
-                ),
-              }
-            : prev,
-        );
-      }
+          if (setUser) {
+            setUser((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    medicalReports: (prev.medicalReports || []).filter(
+                      (mid) => mid !== id,
+                    ),
+                  }
+                : prev,
+            );
+          }
 
-      // Refresh health summary and activities
-      const summaryRes = await axios.get("/api/health/summary", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (summaryRes?.data?.summary) {
-        setHealthSummary(summaryRes.data.summary);
-      }
+          // Refresh health summary and activities
+          const summaryRes = await axios.get("/api/health/summary", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (summaryRes?.data?.summary) {
+            setHealthSummary(summaryRes.data.summary);
+          }
 
-      const activitiesRes = await axios.get("/api/activities", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (activitiesRes?.data?.activities) {
-        setActivities(activitiesRes.data.activities);
-      }
+          const activitiesRes = await axios.get("/api/activities", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (activitiesRes?.data?.activities) {
+            setActivities(activitiesRes.data.activities);
+          }
 
-      setSuccess("Document deleted");
+          setSuccess("Document deleted");
 
-      // close preview if the deleted item was open
-      if (
-        selectedReport &&
-        (selectedReport._id || selectedReport.id || selectedReport.url) === id
-      ) {
-        setSelectedReport(null);
-      }
-    } catch (err) {
-      setError(err?.response?.data?.message || "Delete failed");
-    } finally {
-      setDeletingIds((p) => p.filter((x) => x !== id));
-    }
+          // close preview if the deleted item was open
+          if (
+            selectedReport &&
+            (selectedReport._id || selectedReport.id || selectedReport.url) === id
+          ) {
+            setSelectedReport(null);
+          }
+        } catch (err) {
+          setError(err?.response?.data?.message || "Delete failed");
+        } finally {
+          setDeletingIds((p) => p.filter((x) => x !== id));
+          setConfirmation((prev) => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
   };
 
   const handleTogglePrivacy = async (id) => {
@@ -444,37 +462,45 @@ const ProfileActivity = ({ user, setUser }) => {
   };
 
   const handleDeleteCondition = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this condition?"))
-      return;
+    setConfirmation({
+      isOpen: true,
+      title: "Delete Condition",
+      message: "Are you sure you want to delete this condition?",
+      isDangerous: true,
+      confirmText: "Delete",
+      onConfirm: async () => {
+        try {
+          const token = localStorage.getItem("token");
+          await axios.delete(`/api/health/chronic-conditions/${id}`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
 
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`/api/health/chronic-conditions/${id}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+          setChronicConditions((p) => p.filter((c) => c._id !== id));
+          setHealthSuccess("Condition deleted");
 
-      setChronicConditions((p) => p.filter((c) => c._id !== id));
-      setHealthSuccess("Condition deleted");
+          // Refresh health summary and activities
+          const summaryRes = await axios.get("/api/health/summary", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (summaryRes?.data?.summary) {
+            setHealthSummary(summaryRes.data.summary);
+          }
 
-      // Refresh health summary and activities
-      const summaryRes = await axios.get("/api/health/summary", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (summaryRes?.data?.summary) {
-        setHealthSummary(summaryRes.data.summary);
-      }
+          const activitiesRes = await axios.get("/api/activities", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (activitiesRes?.data?.activities) {
+            setActivities(activitiesRes.data.activities);
+          }
 
-      const activitiesRes = await axios.get("/api/activities", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (activitiesRes?.data?.activities) {
-        setActivities(activitiesRes.data.activities);
-      }
-
-      setTimeout(() => setHealthSuccess(""), 3000);
-    } catch (err) {
-      setHealthError(err?.response?.data?.message || "Failed to delete");
-    }
+          setTimeout(() => setHealthSuccess(""), 3000);
+        } catch (err) {
+          setHealthError(err?.response?.data?.message || "Failed to delete");
+        } finally {
+          setConfirmation((prev) => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
   };
 
   const handleAddMedication = async (formData) => {
@@ -519,37 +545,45 @@ const ProfileActivity = ({ user, setUser }) => {
   };
 
   const handleDeleteMedication = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this medication?"))
-      return;
+    setConfirmation({
+      isOpen: true,
+      title: "Delete Medication",
+      message: "Are you sure you want to delete this medication?",
+      isDangerous: true,
+      confirmText: "Delete",
+      onConfirm: async () => {
+        try {
+          const token = localStorage.getItem("token");
+          await axios.delete(`/api/health/medications/${id}`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
 
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`/api/health/medications/${id}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+          setMedications((p) => p.filter((m) => m._id !== id));
+          setHealthSuccess("Medication deleted");
 
-      setMedications((p) => p.filter((m) => m._id !== id));
-      setHealthSuccess("Medication deleted");
+          // Refresh health summary and activities
+          const summaryRes = await axios.get("/api/health/summary", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (summaryRes?.data?.summary) {
+            setHealthSummary(summaryRes.data.summary);
+          }
 
-      // Refresh health summary and activities
-      const summaryRes = await axios.get("/api/health/summary", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (summaryRes?.data?.summary) {
-        setHealthSummary(summaryRes.data.summary);
-      }
+          const activitiesRes = await axios.get("/api/activities", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (activitiesRes?.data?.activities) {
+            setActivities(activitiesRes.data.activities);
+          }
 
-      const activitiesRes = await axios.get("/api/activities", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (activitiesRes?.data?.activities) {
-        setActivities(activitiesRes.data.activities);
-      }
-
-      setTimeout(() => setHealthSuccess(""), 3000);
-    } catch (err) {
-      setHealthError(err?.response?.data?.message || "Failed to delete");
-    }
+          setTimeout(() => setHealthSuccess(""), 3000);
+        } catch (err) {
+          setHealthError(err?.response?.data?.message || "Failed to delete");
+        } finally {
+          setConfirmation((prev) => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
   };
 
   const getSeverityColor = (severity) => {
@@ -578,6 +612,14 @@ const ProfileActivity = ({ user, setUser }) => {
       default:
         return frequency;
     }
+  };
+
+  const formatTimeTo12h = (time) => {
+    if (!time) return "";
+    const [hours, minutes] = time.split(":").map(Number);
+    const period = hours >= 12 ? "PM" : "AM";
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${String(minutes).padStart(2, "0")} ${period}`;
   };
 
   // Filter and search reports
@@ -706,59 +748,79 @@ const ProfileActivity = ({ user, setUser }) => {
 
       <div className="max-w-7xl mx-auto">
         {/* ============ BACK TO DASHBOARD BUTTON ============ */}
-        <div className="mb-6 flex items-center">
+        <div className="mb-6 flex justify-end">
           <button
             onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <span className="text-lg">←</span>
             Back to Dashboard
           </button>
         </div>
 
         {/* ============ NEW: HEALTH SUMMARY DASHBOARD ============ */}
         {healthSummary && (
-          <div className="mb-8 bg-linear-to-r from-purple-500 to-pink-500 rounded-2xl shadow-lg p-8 text-white">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              <Activity className="w-6 h-6" />
+          <div className="mb-8 bg-white rounded-2xl shadow-md p-8 border border-gray-100">
+            <h2 className="text-3xl font-bold mb-8 text-gray-900">
               Health Summary
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <div className="text-3xl font-bold">
-                  {healthSummary.chronicConditionsCount}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border-l-4 border-purple-500">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-4xl font-bold text-purple-600">
+                    {healthSummary.chronicConditionsCount}
+                  </span>
+                  <Pill className="w-6 h-6 text-purple-500" />
                 </div>
-                <div className="text-sm text-white/80 mt-1">
+                <p className="text-sm font-medium text-gray-600">
                   Chronic Conditions
-                </div>
+                </p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <div className="text-3xl font-bold">
-                  {healthSummary.medicationsCount}
+              <div className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border-l-4 border-orange-500">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-4xl font-bold text-orange-600">
+                    {healthSummary.medicationsCount}
+                  </span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-6 h-6 text-orange-500"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" />
+                  </svg>
                 </div>
-                <div className="text-sm text-white/80 mt-1">Medications</div>
+                <p className="text-sm font-medium text-gray-600">
+                  Current Medications
+                </p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <div className="text-3xl font-bold">
-                  {healthSummary.medicalReportsCount}
+              <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-l-4 border-blue-500">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-4xl font-bold text-blue-600">
+                    {healthSummary.medicalReportsCount}
+                  </span>
+                  <FileText className="w-6 h-6 text-blue-500" />
                 </div>
-                <div className="text-sm text-white/80 mt-1">
+                <p className="text-sm font-medium text-gray-600">
                   Medical Reports
-                </div>
+                </p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <div className="text-sm text-white/80 mb-1">Last Report</div>
-                <div className="text-lg font-semibold">
-                  {healthSummary.lastReportDate
-                    ? new Date(
-                        healthSummary.lastReportDate,
-                      ).toLocaleDateString()
-                    : "None"}
+              <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-l-4 border-green-500">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-lg font-bold text-green-600">
+                    {healthSummary.lastReportDate
+                      ? new Date(
+                          healthSummary.lastReportDate,
+                        ).toLocaleDateString()
+                      : "—"}
+                  </span>
+                  <Clock className="w-6 h-6 text-green-500" />
                 </div>
+                <p className="text-sm font-medium text-gray-600">Last Report</p>
                 {healthSummary.lastReportCategory && (
-                  <div className="text-xs text-white/70 mt-1">
+                  <p className="text-xs text-gray-500 mt-1">
                     {healthSummary.lastReportCategory}
-                  </div>
+                  </p>
                 )}
               </div>
             </div>
@@ -870,7 +932,7 @@ const ProfileActivity = ({ user, setUser }) => {
                         {getFrequencyLabel(medication.frequency)}
                         {medication.times && medication.times.length > 0 && (
                           <span className="ml-1">
-                            • {medication.times.join(", ")}
+                            • {medication.times.map(formatTimeTo12h).join(", ")}
                           </span>
                         )}
                       </div>
@@ -897,42 +959,6 @@ const ProfileActivity = ({ user, setUser }) => {
         {healthSuccess && (
           <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
             {healthSuccess}
-          </div>
-        )}
-
-        {/* ============ NEW: ACTIVITY TIMELINE ============ */}
-        {activities.length > 0 && (
-          <div className="mb-8 bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <Clock className="w-5 h-5 text-blue-600" />
-              </div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Recent Activity
-              </h2>
-            </div>
-            <div className="space-y-3 max-h-64 overflow-y-auto">
-              {activities.slice(0, 10).map((activity) => (
-                <div
-                  key={activity._id}
-                  className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
-                >
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${getActivityColor(activity.action)}`}
-                  >
-                    {getActivityIcon(activity.action)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900">
-                      {activity.description}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {formatTimeAgo(activity.createdAt)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         )}
 
@@ -1414,21 +1440,17 @@ const ProfileActivity = ({ user, setUser }) => {
           onSave={handleAddMedication}
           isProcessing={processingHealth}
         />
-      )}
 
-      <AddConditionModal
-        isOpen={showConditionModal}
-        onClose={() => setShowConditionModal(false)}
-        onSave={handleAddCondition}
-        isProcessing={processingHealth}
-      />
-      
-      <AddMedicationModal
-        isOpen={showMedicationModal}
-        onClose={() => setShowMedicationModal(false)}
-        onSave={handleAddMedication}
-        isProcessing={processingHealth}
-      /> 
+        {/* Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={confirmation.isOpen}
+          title={confirmation.title}
+          message={confirmation.message}
+          confirmText={confirmation.confirmText}
+          isDangerous={confirmation.isDangerous}
+          onConfirm={confirmation.onConfirm}
+          onCancel={() => setConfirmation({ ...confirmation, isOpen: false })}
+        />
       </div>
     </div>
   );
