@@ -458,30 +458,65 @@ export const deleteMedicationForUser = async (req, res, next) => {
 export const checkMedicationReminders = async (req, res, next) => {
   try {
     const now = new Date();
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    const currentTime = `${hours}:${minutes}`;
+    
+    // Get all unique timezones from users who have medications
+    // This helps us calculate only relevant local times
+    const activeTimezones = await User.distinct("timezone");
+    if (!activeTimezones.includes("UTC")) activeTimezones.push("UTC"); // Ensure UTC is checked
 
-    console.log(`Checking reminders for time: ${currentTime}`);
+    const tzToLocalTime = new Map();
+    const dueTimeStrings = new Set();
 
-    // Find medications that have this time in their schedule
-    // Populate owner and their family members nested
-    const medications = await Medication.find({ times: currentTime }).populate({
+    for (const tz of activeTimezones) {
+      try {
+        const formatter = new Intl.DateTimeFormat("en-US", {
+          hour12: false,
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZone: tz,
+        });
+        
+        const parts = formatter.formatToParts(now);
+        const hours = parts.find(p => p.type === "hour").value;
+        const minutes = parts.find(p => p.type === "minute").value;
+        const localTime = `${hours}:${minutes}`;
+        
+        tzToLocalTime.set(tz, localTime);
+        dueTimeStrings.add(localTime);
+      } catch (e) {
+        console.warn(`Invalid timezone found: ${tz}`);
+      }
+    }
+
+    console.log(`Checking reminders for potential local times: ${Array.from(dueTimeStrings).join(", ")}`);
+
+    // Find medications that have any of these times in their schedule
+    const medications = await Medication.find({ 
+      times: { $in: Array.from(dueTimeStrings) } 
+    }).populate({
       path: "owner",
       populate: {
         path: "family.father family.mother family.spouse family.children",
       },
     });
 
-    if (medications.length === 0) {
+    // Filter medications where the scheduled time matches the OWNER'S local time
+    const medicationsToNotify = medications.filter((med) => {
+      if (!med.owner) return false;
+      const userTz = med.owner.timezone || "UTC";
+      const userLocalTime = tzToLocalTime.get(userTz);
+      return med.times.includes(userLocalTime);
+    });
+
+    if (medicationsToNotify.length === 0) {
       if (res)
         return res
           .status(200)
-          .json({ success: true, checkedTime: currentTime, sentCount: 0 });
+          .json({ success: true, checkedTimeZones: activeTimezones.length, sentCount: 0 });
       return 0;
     }
 
-    console.log(`Found ${medications.length} reminders to send.`);
+    console.log(`Found ${medicationsToNotify.length} timezone-matched reminders to send.`);
 
     // Helper function to send a single email wrapper
     const sendReminderEmail = async (med) => {
@@ -546,8 +581,8 @@ export const checkMedicationReminders = async (req, res, next) => {
     const BATCH_SIZE = 20;
     let sentCount = 0;
 
-    for (let i = 0; i < medications.length; i += BATCH_SIZE) {
-      const batch = medications.slice(i, i + BATCH_SIZE);
+    for (let i = 0; i < medicationsToNotify.length; i += BATCH_SIZE) {
+      const batch = medicationsToNotify.slice(i, i + BATCH_SIZE);
       // Run the batch in parallel
       const results = await Promise.allSettled(
         batch.map((med) => sendReminderEmail(med)),
@@ -564,13 +599,13 @@ export const checkMedicationReminders = async (req, res, next) => {
     }
 
     console.log(
-      `Sent ${sentCount}/${medications.length} emails for time ${currentTime}`,
+      `Sent ${sentCount}/${medicationsToNotify.length} emails.`,
     );
 
     if (res) {
       return res
         .status(200)
-        .json({ success: true, checkedTime: currentTime, sentCount });
+        .json({ success: true, processedCount: medicationsToNotify.length, sentCount });
     } else {
       return sentCount;
     }

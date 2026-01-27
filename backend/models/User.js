@@ -53,6 +53,7 @@ const userSchema = new mongoose.Schema(
       children: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     },
     private: { type: Boolean, default: false },
+    timezone: { type: String, default: "UTC" },
   },
   { timestamps: true },
 );
