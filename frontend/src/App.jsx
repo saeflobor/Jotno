@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -17,29 +18,9 @@ import ProfileUpdatePage from "./pages/ProfileUpdatePage";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-function App() {
-  const [user, setUser] = useState(null);
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        try {
-          const res = await axios.get(`/api/users/me`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          setUser(res.data);
-        } catch (err) {
-          setError("Failed to fetch user data");
-          localStorage.removeItem("token");
-        }
-      }
-      setIsLoading(false);
-    };
-    fetchUser();
-  }, []);
+function AppContent({ user, setUser, error, isLoading }) {
+  const location = useLocation();
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/register';
 
   if (isLoading) {
     return (
@@ -50,8 +31,8 @@ function App() {
   }
 
   return (
-    <Router>
-      <Navbar user={user} setUser={setUser} />
+    <>
+      {!hideNavbar && <Navbar user={user} setUser={setUser} />}
       <Routes>
         {/* Public landing page */}
         <Route path="/" element={<Home user={user} error={error} />} />
@@ -123,6 +104,37 @@ function App() {
         {/* 404 Not Found */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const res = await axios.get(`/api/users/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setUser(res.data);
+        } catch (err) {
+          setError("Failed to fetch user data");
+          localStorage.removeItem("token");
+        }
+      }
+      setIsLoading(false);
+    };
+    fetchUser();
+  }, []);
+
+  return (
+    <Router>
+      <AppContent user={user} setUser={setUser} error={error} isLoading={isLoading} />
     </Router>
   );
 }
