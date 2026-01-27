@@ -22,6 +22,10 @@ const activityLogSchema = new mongoose.Schema(
         "removed_family_member",
         "updated_profile",
         "sent_sos",
+        "updated_report_privacy",
+        "removed_family_condition",
+        "removed_family_medication",
+        "deleted_family_report",
       ],
     },
     description: {
@@ -33,7 +37,7 @@ const activityLogSchema = new mongoose.Schema(
       default: {},
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Index for faster queries

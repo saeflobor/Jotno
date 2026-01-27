@@ -65,7 +65,7 @@ export const addFamilyMember = async (req, res, next) => {
       case "spouse":
         if (user.gender === member.gender) {
           return next(
-            new AppError("Spouse must be of the opposite gender", 400)
+            new AppError("Spouse must be of the opposite gender", 400),
           );
         }
         user.family.spouse = member._id;
@@ -77,9 +77,7 @@ export const addFamilyMember = async (req, res, next) => {
 
     const populatedUser = await User.findById(userId)
       .select("-password")
-      .populate(
-        "family.father family.spouse family.mother family.children"
-      );
+      .populate("family.father family.spouse family.mother family.children");
 
     res
       .status(200)
@@ -90,7 +88,7 @@ export const addFamilyMember = async (req, res, next) => {
 };
 
 // Remove family member (now includes spouse)
-export const removeFamilyMember = async (req, res) => {
+export const removeFamilyMember = async (req, res, next) => {
   const { memberId, relation } = req.body;
   const userId = req.user?._id;
 
@@ -116,7 +114,7 @@ export const removeFamilyMember = async (req, res) => {
         if (user.family.father?.toString() === memberId) {
           user.family.father = null;
           member.family.children = member.family.children.filter(
-            (id) => id.toString() !== userId.toString()
+            (id) => id.toString() !== userId.toString(),
           );
         }
         break;
@@ -124,13 +122,13 @@ export const removeFamilyMember = async (req, res) => {
         if (user.family.mother?.toString() === memberId) {
           user.family.mother = null;
           member.family.children = member.family.children.filter(
-            (id) => id.toString() !== userId.toString()
+            (id) => id.toString() !== userId.toString(),
           );
         }
         break;
       case "child":
         user.family.children = user.family.children.filter(
-          (id) => id.toString() !== memberId.toString()
+          (id) => id.toString() !== memberId.toString(),
         );
         if (
           user.gender === "male" &&
@@ -155,9 +153,7 @@ export const removeFamilyMember = async (req, res) => {
 
     const populatedUser = await User.findById(userId)
       .select("-password")
-      .populate(
-        "family.father family.spouse family.mother family.children"
-      );
+      .populate("family.father family.spouse family.mother family.children");
 
     res
       .status(200)
@@ -179,7 +175,7 @@ export const sendSosAlert = async (req, res, next) => {
       .select("username email family")
       .populate(
         "family.father family.mother family.spouse family.children",
-        "email username"
+        "email username",
       );
 
     if (!user) return next(new AppError("Current user not found", 404));
@@ -197,7 +193,7 @@ export const sendSosAlert = async (req, res, next) => {
 
     if (recipientEmails.length === 0) {
       return next(
-        new AppError("No family members with email to send SOS", 400)
+        new AppError("No family members with email to send SOS", 400),
       );
     }
 
@@ -222,13 +218,30 @@ export const sendSosAlert = async (req, res, next) => {
 // Helper function to check if memberId is in the user's family
 const isFamilyMember = (user, memberId) => {
   const memberIdStr = memberId.toString();
-  
+
   if (user.family.father?.toString() === memberIdStr) return true;
   if (user.family.mother?.toString() === memberIdStr) return true;
   if (user.family.spouse?.toString() === memberIdStr) return true;
-  if (user.family.children?.some(id => id.toString() === memberIdStr)) return true;
-  
+  if (user.family.children?.some((id) => id.toString() === memberIdStr))
+    return true;
+
   return false;
+};
+
+// Check if a family member allows access based on their private setting
+const canAccessFamilyMemberData = async (memberId) => {
+  const member = await User.findById(memberId).select("private");
+  if (!member) return false;
+  // Family members can always view, regardless of private setting
+  return true;
+};
+
+// Check if a family member can edit (add/delete) data
+const canEditFamilyMemberData = async (memberId) => {
+  const member = await User.findById(memberId).select("private");
+  if (!member) return false;
+  // Can edit only if private is false
+  return !member.private;
 };
 
 // Get family member's medications
@@ -247,6 +260,17 @@ export const getFamilyMemberMedications = async (req, res, next) => {
     // Check if memberId is in the user's family
     if (!isFamilyMember(user, memberId)) {
       return next(new AppError("Access denied: Not a family member", 403));
+    }
+
+    // Check if the family member allows access to their data
+    const canAccess = await canAccessFamilyMemberData(memberId);
+    if (!canAccess) {
+      return next(
+        new AppError(
+          "Access denied: Member privacy settings prevent access",
+          403,
+        ),
+      );
     }
 
     // Fetch medications for the family member
@@ -278,6 +302,17 @@ export const getFamilyMemberConditions = async (req, res, next) => {
       return next(new AppError("Access denied: Not a family member", 403));
     }
 
+    // Check if the family member allows access to their data
+    const canAccess = await canAccessFamilyMemberData(memberId);
+    if (!canAccess) {
+      return next(
+        new AppError(
+          "Access denied: Member privacy settings prevent access",
+          403,
+        ),
+      );
+    }
+
     // Fetch chronic conditions for the family member
     const conditions = await ChronicCondition.find({ owner: memberId }).sort({
       createdAt: -1,
@@ -307,8 +342,23 @@ export const getFamilyMemberReports = async (req, res, next) => {
       return next(new AppError("Access denied: Not a family member", 403));
     }
 
+    // Check if the family member allows access to their data
+    const canAccess = await canAccessFamilyMemberData(memberId);
+    if (!canAccess) {
+      return next(
+        new AppError(
+          "Access denied: Member privacy settings prevent access",
+          403,
+        ),
+      );
+    }
+
     // Fetch medical reports for the family member
-    const reports = await MedicalReport.find({ owner: memberId }).sort({
+    // Only include reports that are NOT marked as private
+    const reports = await MedicalReport.find({
+      owner: memberId,
+      isPrivate: false,
+    }).sort({
       createdAt: -1,
     });
 
@@ -325,9 +375,8 @@ export const sendFamilyRequest = async (req, res, next) => {
   try {
     const { memberEmail, memberPhone, relation, message } = req.body;
     const userId = req.user?._id;
-
     if (!userId) return next(new AppError("Unauthorized", 401));
-    if ((!memberEmail && !memberPhone) || !relation)
+    if (!memberEmail || !memberPhone || !relation)
       return next(new AppError("All fields are required", 400));
 
     if (!["father", "mother", "child", "spouse"].includes(relation))
@@ -335,8 +384,10 @@ export const sendFamilyRequest = async (req, res, next) => {
 
     // Find the receiver
     let receiver = null;
-    if (memberEmail) receiver = await User.findOne({ email: memberEmail });
-    else if (memberPhone) receiver = await User.findOne({ phone: memberPhone });
+    receiver = await User.findOne({
+      email: memberEmail,
+      phone: memberPhone,
+    });
 
     if (!receiver) return next(new AppError("User not found", 404));
     if (receiver._id.toString() === userId.toString())
@@ -344,7 +395,7 @@ export const sendFamilyRequest = async (req, res, next) => {
 
     // Check if receiver is already a family member
     // Fetch sender (current user) to check family relations
-    const sender = await User.findById(userId);
+    const sender = req.user;
     if (isFamilyMember(sender, receiver._id)) {
       return next(new AppError("User is already a family member", 400));
     }
@@ -356,10 +407,21 @@ export const sendFamilyRequest = async (req, res, next) => {
       status: "pending",
     });
 
-    if (existingRequest)
-      return next(new AppError("Request already sent", 400));
+    if (existingRequest) return next(new AppError("Request already sent", 400));
 
     // Create the request
+    if (receiver.gender == sender.gender && relation === "spouse") {
+      return next(new AppError("Spouse must be opposite gender", 400));
+    }
+
+    if (receiver.gender === "female" && relation === "father") {
+      return next(new AppError("Father must be male", 400));
+    }
+
+    if (receiver.gender === "male" && relation === "mother") {
+      return next(new AppError("Mother must be female", 400));
+    }
+
     const request = await FamilyRequest.create({
       sender: userId,
       receiver: receiver._id,
@@ -439,8 +501,7 @@ export const acceptFamilyRequest = async (req, res, next) => {
     const sender = await User.findById(request.sender);
     const receiver = await User.findById(request.receiver);
 
-    if (!sender || !receiver)
-      return next(new AppError("User not found", 404));
+    if (!sender || !receiver) return next(new AppError("User not found", 404));
 
     // Initialize arrays if undefined
     sender.family.children ||= [];
@@ -471,7 +532,7 @@ export const acceptFamilyRequest = async (req, res, next) => {
       case "spouse":
         if (sender.gender === receiver.gender) {
           return next(
-            new AppError("Spouse must be of the opposite gender", 400)
+            new AppError("Spouse must be of the opposite gender", 400),
           );
         }
         sender.family.spouse = receiver._id;
@@ -550,4 +611,3 @@ export const cancelFamilyRequest = async (req, res, next) => {
     return next(new AppError("Failed to cancel request", 500));
   }
 };
-

@@ -24,11 +24,10 @@ const Pill = ({ children, className = "" }) => (
 const FamilyIntegration = ({ user, setUser }) => {
   const navigate = useNavigate();
   const family = user?.family || {};
-  
+
   const [relationKey, setRelationKey] = useState("father");
   const [memberEmail, setMemberEmail] = useState("");
-  const [memberPhone, setMemberPhone] = useState("");
-  const [identifierType, setIdentifierType] = useState("email");
+  const [memberPhone, setMemberPhone] = useState("+88");
   const [toast, setToast] = useState({ type: "", text: "" });
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -56,31 +55,48 @@ const FamilyIntegration = ({ user, setUser }) => {
 
   const resetForm = () => {
     setMemberEmail("");
-    setMemberPhone("");
+    setMemberPhone("+88");
     setRelationKey("father");
-    setIdentifierType("email");
   };
 
+  // Keep +88 prefix enforced on phone input
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    if (!value.startsWith("+88")) {
+      setMemberPhone("+88");
+      return;
+    }
+
+    const afterPrefix = value.slice(3);
+    if (!/^\d*$/.test(afterPrefix)) return;
+    if (value.length > 14) return; // +88 plus up to 11 digits
+
+    setMemberPhone(value);
+  };
+
+  // 🔥 SEND BOTH EMAIL + PHONE (STRICT MODE)
   const handleSendRequest = async () => {
     const trimmedEmail = memberEmail.trim();
     const trimmedPhone = memberPhone.trim();
 
     if (!trimmedEmail) {
-      return showToast("error", "Please enter an email");
-    }
-    if (!trimmedPhone) {
-      return showToast("error", "Please enter a phone number");
+      return showToast("error", "Email is required");
     }
 
-    const payload = { relation: relationMap[relationKey] };
-    if (identifierType === "email" && trimmedEmail) {
-      payload.memberEmail = trimmedEmail;
-    } else if (identifierType === "phone" && trimmedPhone) {
-      payload.memberPhone = trimmedPhone;
+    if (!trimmedPhone || trimmedPhone === "+88") {
+      return showToast("error", "Phone number is required");
     }
+
+    const payload = {
+      memberEmail: trimmedEmail,
+      memberPhone: trimmedPhone,
+      relation: relationMap[relationKey],
+    };
 
     const result = await sendRequest(payload);
+
     showToast(result.success ? "success" : "error", result.message);
+
     if (result.success) resetForm();
   };
 
@@ -119,35 +135,38 @@ const FamilyIntegration = ({ user, setUser }) => {
     <div className="min-h-screen py-8 px-6 bg-gray-50">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 grid grid-cols-3 items-center">
           <div className="text-sm text-gray-600">
             Dashboard /{" "}
             <span className="text-gray-900 font-semibold">
-              Family Integration
+              Family Management
             </span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex justify-center">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
+              className="relative px-4 py-2 rounded-4xl border border-gray-300 text-gray-700 hover:bg-gray-100"
             >
-              🔔 Requests
+              Pending Requests
               {pendingRequests.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {pendingRequests.length}
                 </span>
               )}
             </button>
+          </div>
+          <div className="flex justify-end">
             <button
               onClick={() => navigate("/dashboard")}
-              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
+              className="flex items-center gap-2 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold"
             >
+              <span className="text-lg">←</span>
               Back to Dashboard
             </button>
           </div>
         </div>
 
-        {/* Notifications Panel */}
+        {/* Notifications */}
         <AnimatePresence>
           {showNotifications && (
             <motion.div
@@ -175,19 +194,16 @@ const FamilyIntegration = ({ user, setUser }) => {
                 Send Family Request
               </div>
               <div className="text-sm text-gray-600">
-                Send a request to add a family member. They will need to accept.
+                Send a request to add as a family member. They will need to accept.
               </div>
             </div>
-            <Pill className="text-gray-700 bg-gray-100 border border-gray-200">
-              Request System
-            </Pill>
           </div>
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
             <select
               value={relationKey}
               onChange={(e) => setRelationKey(e.target.value)}
-              className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white"
+              className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition"
             >
               {RELATIONS.map((r) => (
                 <option key={r.key} value={r.key}>
@@ -196,38 +212,27 @@ const FamilyIntegration = ({ user, setUser }) => {
               ))}
             </select>
 
-            <select
-              value={identifierType}
-              onChange={(e) => setIdentifierType(e.target.value)}
-              className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white"
-            >
-              <option value="email">Email</option>
-              <option value="phone">Phone</option>
-            </select>
+            <input
+              type="email"
+              placeholder="family@example.com"
+              value={memberEmail}
+              onChange={(e) => setMemberEmail(e.target.value)}
+              className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900"
+            />
 
-            {identifierType === "email" ? (
-              <input
-                type="email"
-                placeholder="family@example.com"
-                value={memberEmail}
-                onChange={(e) => setMemberEmail(e.target.value)}
-                className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400"
-              />
-            ) : (
-              <input
-                type="tel"
-                placeholder="01XXXXXXXXX"
-                value={memberPhone}
-                onChange={(e) => setMemberPhone(e.target.value)}
-                className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400"
-              />
-            )}
+            <input
+              type="tel"
+              placeholder="+8801xxxxxxxxx"
+              value={memberPhone}
+              onChange={handlePhoneChange}
+              className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900"
+            />
 
             <div className="flex gap-2">
               <button
                 onClick={handleSendRequest}
                 disabled={processing}
-                className="flex-1 py-3 rounded-lg font-semibold bg-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/80 text-white disabled:opacity-50"
+                className="flex-1 py-3 rounded-lg font-semibold bg-[rgb(211,46,149)] text-white hover:bg-[rgb(211,46,149)]/80 disabled:opacity-50"
               >
                 {processing ? "Sending..." : "Send Request"}
               </button>
@@ -240,28 +245,50 @@ const FamilyIntegration = ({ user, setUser }) => {
             </div>
           </div>
 
-          {/* Toast Notification */}
+          {/* Floating Toast Notification */}
           <AnimatePresence>
             {toast.text && (
               <motion.div
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                className={`mt-3 p-3 rounded-md ${
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className={`fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg ${
                   toast.type === "success"
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
+                    ? "bg-green-50 border border-green-200"
+                    : "bg-red-50 border border-red-200"
                 }`}
               >
-                {toast.text}
+                <div className="flex items-start gap-3">
+                  <div className={`mt-0.5 ${
+                    toast.type === "success" ? "text-green-600" : "text-red-600"
+                  }`}>
+                    {toast.type === "success" ? "✔" : "⚠"}
+                  </div>
+                  <div className="flex-1">
+                    <p className={`font-semibold ${
+                      toast.type === "success" ? "text-green-800" : "text-red-800"
+                    }`}>
+                      {toast.text}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setToast({ type: "", text: "" })}
+                    className={toast.type === "success" ? "text-green-700 hover:text-green-900" : "text-red-700 hover:text-red-900"}
+                    aria-label="Dismiss notification"
+                  >
+                    ×
+                  </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Family Members Grid */}
+          {/* Family Members */}
           <motion.div
             layout
-            className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-min"
+            className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             <FamilyMemberSection
               title="Father"
@@ -284,30 +311,25 @@ const FamilyIntegration = ({ user, setUser }) => {
               relationType="spouse"
             />
 
-            {/* Children Section */}
-            <div className="lg:col-span-3 min-h-[180px]">
+            <div className="lg:col-span-3">
               <div className="text-xs text-gray-600 font-semibold mb-2">
                 Children
               </div>
               <div className="flex flex-wrap gap-4">
                 <AnimatePresence>
-                  {Array.isArray(family.children) && family.children.length > 0 ? (
+                  {Array.isArray(family.children) &&
+                  family.children.length > 0 ? (
                     family.children.map((child) => (
-                      <div key={child._id} className="w-full sm:w-auto">
-                        <FamilyMemberSection
-                          title=""
-                          member={child}
-                          onRemove={handleRemove}
-                          relationType="child"
-                        />
-                      </div>
+                      <FamilyMemberSection
+                        key={child._id}
+                        title=""
+                        member={child}
+                        onRemove={handleRemove}
+                        relationType="child"
+                      />
                     ))
                   ) : (
-                    <motion.div
-                      layout
-                      key="no-children"
-                      className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 w-full h-[180px] flex items-center justify-center"
-                    >
+                    <motion.div className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 w-full h-[160px] flex items-center justify-center">
                       No children
                     </motion.div>
                   )}
