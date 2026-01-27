@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import FamilyRequestNotifications from "../components/FamilyRequestNotifications";
@@ -38,6 +39,23 @@ const FamilyIntegration = ({ user, setUser }) => {
     isDangerous: false,
     onConfirm: null,
   });
+
+  useEffect(() => {
+    const syncFamilyData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (token) {
+          const res = await axios.get("/api/users/me", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setUser(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to sync family data:", err);
+      }
+    };
+    syncFamilyData();
+  }, [setUser]);
 
   const {
     pendingRequests,
