@@ -324,6 +324,11 @@ const UserCard = ({ user, onRemove }) => {
               <p className="mt-1 text-xs text-gray-600 truncate">
                 {user.email}
               </p>
+              {user.phone && (
+                <p className="mt-0.5 text-xs text-gray-500 truncate">
+                  {user.phone}
+                </p>
+              )}
             </div>
           </div>
 
