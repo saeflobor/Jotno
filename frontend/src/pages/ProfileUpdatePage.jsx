@@ -3,21 +3,24 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { MdArrowBack } from "react-icons/md";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const ProfileUpdatePage = ({ user, setUser }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const [formData, setFormData] = useState({
     email: user?.email || "",
-    phone: "+88",
+    phone: user?.phone || "+88",
     username: user?.username || "",
     password: "",
     confirmPassword: "",
     gender: user?.gender || "male",
     private: user?.private || false,
+    timezone: user?.timezone || "UTC",
   });
 
   const handleChange = (e) => {
@@ -63,6 +66,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     const genderChanged =
       formData.gender && formData.gender !== user?.gender;
     const privateChanged = formData.private !== user?.private;
+    const timezoneChanged = formData.timezone && formData.timezone !== user?.timezone;
 
     if (
       !emailChanged &&
@@ -70,7 +74,8 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       !usernameChanged &&
       !passwordChanged &&
       !genderChanged &&
-      !privateChanged
+      !privateChanged &&
+      !timezoneChanged
     ) {
       setErrorMessage("Please fill in at least one field to update");
       return false;
@@ -121,7 +126,12 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     if (!validateForm()) {
       return;
     }
+    
+    setShowConfirmation(true);
+  };
 
+  const handleConfirmUpdate = async () => {
+    setShowConfirmation(false);
     setIsLoading(true);
     try {
       const updatePayload = {};
@@ -144,6 +154,9 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       }
       if (formData.private !== user?.private) {
         updatePayload.private = formData.private;
+      }
+      if (formData.timezone && formData.timezone !== user?.timezone) {
+        updatePayload.timezone = formData.timezone;
       }
 
       if (Object.keys(updatePayload).length === 0) {
@@ -332,7 +345,6 @@ const ProfileUpdatePage = ({ user, setUser }) => {
               </label>
               <select
                 name="gender"
-                // value={formData.gender}
                 onChange={handleChange}
                 placeholder={user?.gender || "Select gender"}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition text-gray-900 bg-white appearance-none cursor-pointer"
@@ -342,6 +354,55 @@ const ProfileUpdatePage = ({ user, setUser }) => {
               </select>
               <p className="text-xs text-gray-700 mt-3">
                 Current: {user?.gender}
+              </p>
+            </div>
+
+            {/* Timezone */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-xl font-semibold text-gray-700">
+                  Timezone
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const detectedTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    setFormData(prev => ({ ...prev, timezone: detectedTz }));
+                  }}
+                  className="text-xs font-semibold text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition underline decoration-dotted underline-offset-4"
+                >
+                  Detect Current
+                </button>
+              </div>
+              <div className="relative">
+                <select
+                  name="timezone"
+                  value={formData.timezone}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition text-gray-900 bg-white appearance-none cursor-pointer"
+                >
+                  {[
+                    "UTC",
+                    "Asia/Dhaka",
+                    "Asia/Kolkata",
+                    "Asia/Dubai",
+                    "Europe/London",
+                    "Europe/Paris",
+                    "America/New_York",
+                    "America/Chicago",
+                    "America/Los_Angeles",
+                    Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    user?.timezone
+                  ].filter((tz, index, self) => tz && self.indexOf(tz) === index).map(tz => (
+                    <option key={tz} value={tz}>{tz}</option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-700">
+                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                </div>
+              </div>
+              <p className="text-xs text-gray-700 mt-3">
+                Current: {user?.timezone || "UTC"}
               </p>
             </div>
 
@@ -469,6 +530,16 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           </p>
         </motion.div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showConfirmation}
+        title="Update Profile"
+        message="Are you sure you want to update your profile information?"
+        confirmText="Yes, Update"
+        onConfirm={handleConfirmUpdate}
+        onCancel={() => setShowConfirmation(false)}
+      />
     </div>
   );
 };

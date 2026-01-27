@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import FamilyRequest from "../models/FamilyRequest.js";
 import { protect } from "../middleware/auth.js";
 import { sendEmail } from "../utils/emailverification.js";
 import AppError from "../utils/AppError.js";
@@ -28,7 +29,7 @@ const verifyemail = async (req, res, next) => {
 
 // Register route
 const register = async (req, res, next) => {
-  const { username, email, phone, password, gender } = req.body;
+  const { username, email, phone, password, gender, timezone } = req.body;
   try {
     const domain = email.split("@")[1];
     if (
@@ -49,6 +50,7 @@ const register = async (req, res, next) => {
         gender,
         phone,
         private: false,
+        timezone: timezone || "UTC",
       });
 
       const verifytoken = generateverifyToken(user._id);
@@ -128,6 +130,7 @@ const updateProfile = async (req, res, next) => {
       password,
       gender,
       private: isPrivate,
+      timezone,
     } = req.body;
     const userId = req.user._id;
 
@@ -171,6 +174,20 @@ const updateProfile = async (req, res, next) => {
           new AppError("Invalid gender. Must be 'male' or 'female'", 400),
         );
       }
+
+      // Check if gender is actually being changed
+      if (gender !== user.gender) {
+        // Check if the user has a spouse or children linked
+        if ((user.family.children && user.family.children.length > 0) || user.family.spouse) {
+          return next(
+            new AppError(
+              "You cannot change your gender as you already have a spouse or children linked to your account.",
+              400,
+            ),
+          );
+        }
+      }
+
       user.gender = gender;
     }
 
@@ -182,6 +199,11 @@ const updateProfile = async (req, res, next) => {
     // Update private status if provided
     if (isPrivate !== undefined) {
       user.private = Boolean(isPrivate);
+    }
+    
+    // Update timezone if provided
+    if (timezone) {
+      user.timezone = timezone;
     }
 
     // Save the updated user

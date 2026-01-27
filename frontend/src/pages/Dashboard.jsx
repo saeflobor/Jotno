@@ -7,6 +7,7 @@ import { MdAccountCircle, MdSettings, MdArrowBack } from "react-icons/md";
 import { PiPillBold } from "react-icons/pi";
 import { PiUsersBold } from "react-icons/pi";
 import { Pill, X, Activity, FileText, Clock } from "lucide-react";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const Dashboard = ({ user, setUser }) => {
   const navigate = useNavigate();
@@ -14,6 +15,13 @@ const Dashboard = ({ user, setUser }) => {
   const [sosMessage, setSosMessage] = useState("");
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [activities, setActivities] = useState([]);
+  const [confirmation, setConfirmation] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    isDangerous: false,
+    onConfirm: null,
+  });
   
   if (!user) {
     return (
@@ -69,18 +77,24 @@ const Dashboard = ({ user, setUser }) => {
   };
 
   const handleSignOut = () => {
-    const confirmed = window.confirm("Are you sure you want to sign out?");
-    if (confirmed) {
-      localStorage.removeItem("token");
-      setUser(null);
-      navigate("/");
-    }
+    setConfirmation({
+      isOpen: true,
+      title: "Sign Out",
+      message: "Are you sure you want to sign out from your account?",
+      isDangerous: true,
+      confirmText: "Sign Out",
+      onConfirm: () => {
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/");
+      },
+    });
   };
 
-  const familyCount = (Array.isArray(family.siblings) ? family.siblings.length : 0) +
-    (Array.isArray(family.children) ? family.children.length : 0) +
+  const familyCount = (Array.isArray(family.children) ? family.children.length : 0) +
     (family.father ? 1 : 0) +
-    (family.mother ? 1 : 0);
+    (family.mother ? 1 : 0) +
+    (family.spouse ? 1 : 0);
 
   const getActivityIcon = (action) => {
     switch (action) {
@@ -271,6 +285,54 @@ const Dashboard = ({ user, setUser }) => {
               </motion.div>
             )}
 
+            {/* Timezone Mismatch Banner */}
+            {user.timezone && user.timezone !== Intl.DateTimeFormat().resolvedOptions().timeZone && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-8 p-4 rounded-xl bg-orange-50 border border-orange-200 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm"
+              >
+                <div className="flex items-center gap-3 text-orange-800">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm">Timezone Mismatch Detected</p>
+                    <p className="text-xs">Your account is set to <span className="font-bold">{user.timezone}</span>, but you are currently in <span className="font-bold">{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>.</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const newTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                        const res = await axios.put("/api/users/update", { timezone: newTz }, {
+                          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                        });
+                        if (res.data.success) {
+                          setUser(res.data.user);
+                          setSosMessage("Timezone updated successfully!");
+                          setTimeout(() => setSosMessage(""), 3000);
+                        }
+                      } catch (err) {
+                        setSosMessage("Failed to update timezone");
+                        setTimeout(() => setSosMessage(""), 3000);
+                      }
+                    }}
+                    className="px-4 py-2 bg-[rgb(211,46,149)] text-white text-xs font-bold rounded-lg hover:shadow-md transition whitespace-nowrap"
+                  >
+                    Update Account
+                  </button>
+                  <button
+                    onClick={() => navigate("/profile-update")}
+                    className="px-4 py-2 border border-orange-300 text-orange-800 text-xs font-bold rounded-lg hover:bg-orange-100 transition whitespace-nowrap"
+                  >
+                    Settings
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Medical Records */}
                 <motion.button
@@ -314,7 +376,10 @@ const Dashboard = ({ user, setUser }) => {
 
                 {/* Lookup Meds */}
                 <motion.button
-                  onClick={() => alert("Coming soon!")}
+                  onClick={() => {
+                    setSosMessage("Lookup Meds feature is coming soon!");
+                    setTimeout(() => setSosMessage(""), 4000);
+                  }}
                   whileHover={{ y: -4, boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)" }}
                   whileTap={{ scale: 0.98 }}
                   initial={{ opacity: 0, y: 20, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
@@ -377,6 +442,22 @@ const Dashboard = ({ user, setUser }) => {
             )}
           </motion.div>
         </div>
+
+        {/* Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={confirmation.isOpen}
+          title={confirmation.title}
+          message={confirmation.message}
+          isDangerous={confirmation.isDangerous}
+          confirmText={confirmation.confirmText || "Confirm"}
+          onConfirm={() => {
+            if (confirmation.onConfirm) {
+              confirmation.onConfirm();
+            }
+            setConfirmation({ ...confirmation, isOpen: false });
+          }}
+          onCancel={() => setConfirmation({ ...confirmation, isOpen: false })}
+        />
       </div>
     </div>
   );

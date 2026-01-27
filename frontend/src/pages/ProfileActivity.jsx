@@ -14,8 +14,9 @@ import {
   EyeOff,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import AddMedicationModal from "../components/AddMedicationModal";
 import AddConditionModal from "../components/AddConditionModal";
+import AddMedicationModal from "../components/AddMedicationModal";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const ProfileActivity = ({ user, setUser }) => {
   const navigate = useNavigate();
@@ -50,6 +51,15 @@ const ProfileActivity = ({ user, setUser }) => {
     category: "Other",
     reportDate: "",
     notes: "",
+  });
+
+  const [confirmation, setConfirmation] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    isDangerous: false,
+    confirmText: "Confirm",
+    onConfirm: null,
   });
 
   // ============ EXISTING MEDICAL REPORT useEffect ============
@@ -242,59 +252,67 @@ const ProfileActivity = ({ user, setUser }) => {
     }
   };
   const handleRemove = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this document?"))
-      return;
-    try {
-      setDeletingIds((p) => [...p, id]);
-      const token = localStorage.getItem("token");
-      await axios.delete(`/api/medical-report/${id}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+    setConfirmation({
+      isOpen: true,
+      title: "Delete Document",
+      message: "Are you sure you want to delete this document? This action cannot be undone.",
+      isDangerous: true,
+      confirmText: "Delete",
+      onConfirm: async () => {
+        try {
+          setDeletingIds((p) => [...p, id]);
+          const token = localStorage.getItem("token");
+          await axios.delete(`/api/medical-report/${id}`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
 
-      setReports((p) => p.filter((r) => (r._id || r.id || r.url) !== id));
+          setReports((p) => p.filter((r) => (r._id || r.id || r.url) !== id));
 
-      if (setUser) {
-        setUser((prev) =>
-          prev
-            ? {
-                ...prev,
-                medicalReports: (prev.medicalReports || []).filter(
-                  (mid) => mid !== id,
-                ),
-              }
-            : prev,
-        );
-      }
+          if (setUser) {
+            setUser((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    medicalReports: (prev.medicalReports || []).filter(
+                      (mid) => mid !== id,
+                    ),
+                  }
+                : prev,
+            );
+          }
 
-      // Refresh health summary and activities
-      const summaryRes = await axios.get("/api/health/summary", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (summaryRes?.data?.summary) {
-        setHealthSummary(summaryRes.data.summary);
-      }
+          // Refresh health summary and activities
+          const summaryRes = await axios.get("/api/health/summary", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (summaryRes?.data?.summary) {
+            setHealthSummary(summaryRes.data.summary);
+          }
 
-      const activitiesRes = await axios.get("/api/activities", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (activitiesRes?.data?.activities) {
-        setActivities(activitiesRes.data.activities);
-      }
+          const activitiesRes = await axios.get("/api/activities", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (activitiesRes?.data?.activities) {
+            setActivities(activitiesRes.data.activities);
+          }
 
-      setSuccess("Document deleted");
+          setSuccess("Document deleted");
 
-      // close preview if the deleted item was open
-      if (
-        selectedReport &&
-        (selectedReport._id || selectedReport.id || selectedReport.url) === id
-      ) {
-        setSelectedReport(null);
-      }
-    } catch (err) {
-      setError(err?.response?.data?.message || "Delete failed");
-    } finally {
-      setDeletingIds((p) => p.filter((x) => x !== id));
-    }
+          // close preview if the deleted item was open
+          if (
+            selectedReport &&
+            (selectedReport._id || selectedReport.id || selectedReport.url) === id
+          ) {
+            setSelectedReport(null);
+          }
+        } catch (err) {
+          setError(err?.response?.data?.message || "Delete failed");
+        } finally {
+          setDeletingIds((p) => p.filter((x) => x !== id));
+          setConfirmation((prev) => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
   };
 
   const handleTogglePrivacy = async (id) => {
@@ -444,37 +462,45 @@ const ProfileActivity = ({ user, setUser }) => {
   };
 
   const handleDeleteCondition = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this condition?"))
-      return;
+    setConfirmation({
+      isOpen: true,
+      title: "Delete Condition",
+      message: "Are you sure you want to delete this condition?",
+      isDangerous: true,
+      confirmText: "Delete",
+      onConfirm: async () => {
+        try {
+          const token = localStorage.getItem("token");
+          await axios.delete(`/api/health/chronic-conditions/${id}`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
 
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`/api/health/chronic-conditions/${id}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+          setChronicConditions((p) => p.filter((c) => c._id !== id));
+          setHealthSuccess("Condition deleted");
 
-      setChronicConditions((p) => p.filter((c) => c._id !== id));
-      setHealthSuccess("Condition deleted");
+          // Refresh health summary and activities
+          const summaryRes = await axios.get("/api/health/summary", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (summaryRes?.data?.summary) {
+            setHealthSummary(summaryRes.data.summary);
+          }
 
-      // Refresh health summary and activities
-      const summaryRes = await axios.get("/api/health/summary", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (summaryRes?.data?.summary) {
-        setHealthSummary(summaryRes.data.summary);
-      }
+          const activitiesRes = await axios.get("/api/activities", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (activitiesRes?.data?.activities) {
+            setActivities(activitiesRes.data.activities);
+          }
 
-      const activitiesRes = await axios.get("/api/activities", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (activitiesRes?.data?.activities) {
-        setActivities(activitiesRes.data.activities);
-      }
-
-      setTimeout(() => setHealthSuccess(""), 3000);
-    } catch (err) {
-      setHealthError(err?.response?.data?.message || "Failed to delete");
-    }
+          setTimeout(() => setHealthSuccess(""), 3000);
+        } catch (err) {
+          setHealthError(err?.response?.data?.message || "Failed to delete");
+        } finally {
+          setConfirmation((prev) => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
   };
 
   const handleAddMedication = async (formData) => {
@@ -519,37 +545,45 @@ const ProfileActivity = ({ user, setUser }) => {
   };
 
   const handleDeleteMedication = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this medication?"))
-      return;
+    setConfirmation({
+      isOpen: true,
+      title: "Delete Medication",
+      message: "Are you sure you want to delete this medication?",
+      isDangerous: true,
+      confirmText: "Delete",
+      onConfirm: async () => {
+        try {
+          const token = localStorage.getItem("token");
+          await axios.delete(`/api/health/medications/${id}`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
 
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`/api/health/medications/${id}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+          setMedications((p) => p.filter((m) => m._id !== id));
+          setHealthSuccess("Medication deleted");
 
-      setMedications((p) => p.filter((m) => m._id !== id));
-      setHealthSuccess("Medication deleted");
+          // Refresh health summary and activities
+          const summaryRes = await axios.get("/api/health/summary", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (summaryRes?.data?.summary) {
+            setHealthSummary(summaryRes.data.summary);
+          }
 
-      // Refresh health summary and activities
-      const summaryRes = await axios.get("/api/health/summary", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (summaryRes?.data?.summary) {
-        setHealthSummary(summaryRes.data.summary);
-      }
+          const activitiesRes = await axios.get("/api/activities", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (activitiesRes?.data?.activities) {
+            setActivities(activitiesRes.data.activities);
+          }
 
-      const activitiesRes = await axios.get("/api/activities", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (activitiesRes?.data?.activities) {
-        setActivities(activitiesRes.data.activities);
-      }
-
-      setTimeout(() => setHealthSuccess(""), 3000);
-    } catch (err) {
-      setHealthError(err?.response?.data?.message || "Failed to delete");
-    }
+          setTimeout(() => setHealthSuccess(""), 3000);
+        } catch (err) {
+          setHealthError(err?.response?.data?.message || "Failed to delete");
+        } finally {
+          setConfirmation((prev) => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
   };
 
   const getSeverityColor = (severity) => {
@@ -578,6 +612,14 @@ const ProfileActivity = ({ user, setUser }) => {
       default:
         return frequency;
     }
+  };
+
+  const formatTimeTo12h = (time) => {
+    if (!time) return "";
+    const [hours, minutes] = time.split(":").map(Number);
+    const period = hours >= 12 ? "PM" : "AM";
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${String(minutes).padStart(2, "0")} ${period}`;
   };
 
   // Filter and search reports
@@ -890,7 +932,7 @@ const ProfileActivity = ({ user, setUser }) => {
                         {getFrequencyLabel(medication.frequency)}
                         {medication.times && medication.times.length > 0 && (
                           <span className="ml-1">
-                            • {medication.times.join(", ")}
+                            • {medication.times.map(formatTimeTo12h).join(", ")}
                           </span>
                         )}
                       </div>
@@ -1398,21 +1440,17 @@ const ProfileActivity = ({ user, setUser }) => {
           onSave={handleAddMedication}
           isProcessing={processingHealth}
         />
-      )
 
-      <AddConditionModal
-        isOpen={showConditionModal}
-        onClose={() => setShowConditionModal(false)}
-        onSave={handleAddCondition}
-        isProcessing={processingHealth}
-      />
-      
-      <AddMedicationModal
-        isOpen={showMedicationModal}
-        onClose={() => setShowMedicationModal(false)}
-        onSave={handleAddMedication}
-        isProcessing={processingHealth}
-      /> 
+        {/* Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={confirmation.isOpen}
+          title={confirmation.title}
+          message={confirmation.message}
+          confirmText={confirmation.confirmText}
+          isDangerous={confirmation.isDangerous}
+          onConfirm={confirmation.onConfirm}
+          onCancel={() => setConfirmation({ ...confirmation, isOpen: false })}
+        />
       </div>
     </div>
   );
