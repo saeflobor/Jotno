@@ -39,7 +39,7 @@ const Login = ({ setUser }) => {
     <div className='min-h-screen flex bg-white'>
       {/* Left Section - 60% */}
       <motion.div 
-        className='w-[60%] bg-gradient-to-b from-[rgb(211,46,149)] via-[rgb(235,80,160)] to-[rgb(255,150,190)] relative overflow-hidden flex flex-col justify-center p-16'
+        className='w-[60%] bg-gradient-to-b from-[rgb(211,46,149)] via-[rgb(235,80,160)] to-[rgb(255,150,190)] relative overflow-hidden flex flex-col justify-start pt-65 items-center p-16'
         initial={{ opacity: 0, x: -100 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
