@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,7 +10,24 @@ const Login = ({ setUser }) => {
     password: "",
   });
   const [error, setError] = useState("");
+  const [typedText, setTypedText] = useState("");
   const navigate = useNavigate();
+
+  const fullText = "যত্ন : Jotno";
+
+  useEffect(() => {
+    let currentIndex = 0;
+    const typingInterval = setInterval(() => {
+      if (currentIndex <= fullText.length) {
+        setTypedText(fullText.slice(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, 150);
+
+    return () => clearInterval(typingInterval);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -87,14 +104,17 @@ const Login = ({ setUser }) => {
             Back to Home
           </motion.button>
 
-          <motion.h1 
-            className='text-6xl font-bold text-white mb-6 drop-shadow-lg'
+          <motion.div
+            className='mb-6 drop-shadow-lg'
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            Welcome Back to Jotno
-          </motion.h1>
+            <div className='text-3xl text-white/90 font-semibold tracking-wide'>Welcome back to</div>
+            <div className='flex items-baseline gap-3 mt-2 text-white'>
+              <span className='text-6xl font-extrabold leading-none inline-flex items-center'>{typedText}<span className="animate-pulse font-normal">|</span></span>
+            </div>
+          </motion.div>
           
           <motion.p 
             className='text-2xl text-white/95 mb-12 leading-relaxed drop-shadow-md'
