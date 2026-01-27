@@ -5,6 +5,7 @@ import Medication from "../models/Medication.js";
 import ChronicCondition from "../models/ChronicCondition.js";
 import MedicalReport from "../models/MedicalReport.js";
 import FamilyRequest from "../models/FamilyRequest.js";
+import { logActivity } from "../utils/activityLogger.js";
 
 // Create nodemailer transport
 function createMailTransport() {
@@ -74,6 +75,14 @@ export const addFamilyMember = async (req, res, next) => {
     }
 
     await Promise.all([user.save(), member.save()]);
+
+    // Log activity
+    await logActivity(
+      userId,
+      "added_family_member",
+      `Added ${member.username} as ${relation}`,
+      { memberId: member._id, relation }
+    );
 
     const populatedUser = await User.findById(userId)
       .select("-password")
@@ -151,6 +160,14 @@ export const removeFamilyMember = async (req, res, next) => {
 
     await Promise.all([user.save(), member.save()]);
 
+    // Log activity
+    await logActivity(
+      userId,
+      "removed_family_member",
+      `Removed ${member.username} as ${relation}`,
+      { memberId: member._id, relation }
+    );
+
     const populatedUser = await User.findById(userId)
       .select("-password")
       .populate("family.father family.spouse family.mother family.children");
@@ -205,6 +222,14 @@ export const sendSosAlert = async (req, res, next) => {
       subject: `SOS alert from ${user.username}`,
       text: message,
     });
+
+    // Log activity
+    await logActivity(
+      userId,
+      "sent_sos",
+      `Sent SOS alert to ${recipientEmails.length} family member(s)`,
+      { message, recipientCount: recipientEmails.length }
+    );
 
     return res
       .status(200)
@@ -433,6 +458,14 @@ export const sendFamilyRequest = async (req, res, next) => {
       .populate("sender", "username email")
       .populate("receiver", "username email");
 
+    // Log activity
+    await logActivity(
+      userId,
+      "sent_family_request",
+      `Sent family request to ${receiver.username} as ${relation}`,
+      { receiverId: receiver._id, relation }
+    );
+
     return res.status(201).json({
       message: "Family request sent successfully",
       request: populatedRequest,
@@ -547,6 +580,22 @@ export const acceptFamilyRequest = async (req, res, next) => {
       FamilyRequest.findByIdAndUpdate(requestId, { status: "accepted" }),
     ]);
 
+    // Log activity for both sender and receiver
+    await Promise.all([
+      logActivity(
+        receiver._id,
+        "accepted_family_request",
+        `Accepted family request from ${sender.username}`,
+        { senderId: sender._id, relation }
+      ),
+      logActivity(
+        sender._id,
+        "family_request_accepted",
+        `${receiver.username} accepted your family request`,
+        { receiverId: receiver._id, relation }
+      )
+    ]);
+
     // Get updated user data
     const updatedUser = await User.findById(userId)
       .select("-password")
@@ -581,6 +630,14 @@ export const declineFamilyRequest = async (req, res, next) => {
 
     await FamilyRequest.findByIdAndUpdate(requestId, { status: "declined" });
 
+    // Log activity
+    await logActivity(
+      userId,
+      "declined_family_request",
+      `Declined family request from ${request.sender}`,
+      { requestId, senderId: request.sender }
+    );
+
     return res.status(200).json({ message: "Family request declined" });
   } catch (err) {
     return next(new AppError("Failed to decline request", 500));
@@ -605,6 +662,14 @@ export const cancelFamilyRequest = async (req, res, next) => {
       return next(new AppError("Request already processed", 400));
 
     await FamilyRequest.findByIdAndDelete(requestId);
+
+    // Log activity
+    await logActivity(
+      userId,
+      "cancelled_family_request",
+      `Cancelled family request to ${request.receiver}`,
+      { requestId, receiverId: request.receiver }
+    );
 
     return res.status(200).json({ message: "Family request cancelled" });
   } catch (err) {

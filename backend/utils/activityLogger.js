@@ -29,3 +29,19 @@ export const getUserActivities = async (userId, limit = 20, skip = 0) => {
     return [];
   }
 };
+
+// Get all activities from all users with user information
+export const getAllActivities = async (limit = 20, skip = 0) => {
+  try {
+    const activities = await ActivityLog.find({})
+      .populate('userId', 'username email')
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(skip)
+      .lean();
+    return activities;
+  } catch (error) {
+    console.error("Failed to fetch all activities:", error);
+    return [];
+  }
+};
