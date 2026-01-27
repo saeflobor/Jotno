@@ -10,7 +10,8 @@ const Register = () => {
     email: "",
     phone: "+88",
     password: "",
-    gender: "male", // added gender default
+    gender: "male",
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -234,6 +235,40 @@ const Register = () => {
               </motion.select>
             </motion.div>
           </div>
+
+          {/* Timezone */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.28 }}
+          >
+            <label className='block text-gray-700 text-sm font-semibold mb-2'>
+              Timezone
+            </label>
+            <motion.select
+              className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition text-gray-900 bg-white/60 backdrop-blur-sm appearance-none cursor-pointer'
+              name='timezone'
+              value={formData.timezone}
+              onChange={handleChange}
+              whileFocus={{ scale: 1.02, boxShadow: "0px 8px 20px rgba(211, 46, 149, 0.2)" }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              {[
+                "UTC",
+                "Asia/Dhaka",
+                "Asia/Kolkata",
+                "Asia/Dubai",
+                "Europe/London",
+                "Europe/Paris",
+                "America/New_York",
+                "America/Chicago",
+                "America/Los_Angeles",
+                Intl.DateTimeFormat().resolvedOptions().timeZone
+              ].filter((tz, index, self) => self.indexOf(tz) === index).map(tz => (
+                <option key={tz} value={tz}>{tz}</option>
+              ))}
+            </motion.select>
+          </motion.div>
 
           {/* Email */}
           <motion.div

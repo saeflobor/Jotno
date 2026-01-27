@@ -285,6 +285,54 @@ const Dashboard = ({ user, setUser }) => {
               </motion.div>
             )}
 
+            {/* Timezone Mismatch Banner */}
+            {user.timezone && user.timezone !== Intl.DateTimeFormat().resolvedOptions().timeZone && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-8 p-4 rounded-xl bg-orange-50 border border-orange-200 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm"
+              >
+                <div className="flex items-center gap-3 text-orange-800">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm">Timezone Mismatch Detected</p>
+                    <p className="text-xs">Your account is set to <span className="font-bold">{user.timezone}</span>, but you are currently in <span className="font-bold">{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>.</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const newTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                        const res = await axios.put("/api/users/update", { timezone: newTz }, {
+                          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                        });
+                        if (res.data.success) {
+                          setUser(res.data.user);
+                          setSosMessage("Timezone updated successfully!");
+                          setTimeout(() => setSosMessage(""), 3000);
+                        }
+                      } catch (err) {
+                        setSosMessage("Failed to update timezone");
+                        setTimeout(() => setSosMessage(""), 3000);
+                      }
+                    }}
+                    className="px-4 py-2 bg-[rgb(211,46,149)] text-white text-xs font-bold rounded-lg hover:shadow-md transition whitespace-nowrap"
+                  >
+                    Update Account
+                  </button>
+                  <button
+                    onClick={() => navigate("/profile-update")}
+                    className="px-4 py-2 border border-orange-300 text-orange-800 text-xs font-bold rounded-lg hover:bg-orange-100 transition whitespace-nowrap"
+                  >
+                    Settings
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Medical Records */}
                 <motion.button

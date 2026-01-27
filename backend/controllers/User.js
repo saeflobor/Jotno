@@ -29,7 +29,7 @@ const verifyemail = async (req, res, next) => {
 
 // Register route
 const register = async (req, res, next) => {
-  const { username, email, phone, password, gender } = req.body;
+  const { username, email, phone, password, gender, timezone } = req.body;
   try {
     const domain = email.split("@")[1];
     if (
@@ -50,6 +50,7 @@ const register = async (req, res, next) => {
         gender,
         phone,
         private: false,
+        timezone: timezone || "UTC",
       });
 
       const verifytoken = generateverifyToken(user._id);
@@ -129,6 +130,7 @@ const updateProfile = async (req, res, next) => {
       password,
       gender,
       private: isPrivate,
+      timezone,
     } = req.body;
     const userId = req.user._id;
 
@@ -197,6 +199,11 @@ const updateProfile = async (req, res, next) => {
     // Update private status if provided
     if (isPrivate !== undefined) {
       user.private = Boolean(isPrivate);
+    }
+    
+    // Update timezone if provided
+    if (timezone) {
+      user.timezone = timezone;
     }
 
     // Save the updated user
