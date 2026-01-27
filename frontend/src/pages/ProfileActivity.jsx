@@ -706,12 +706,12 @@ const ProfileActivity = ({ user, setUser }) => {
 
       <div className="max-w-7xl mx-auto">
         {/* ============ BACK TO DASHBOARD BUTTON ============ */}
-        <div className="mb-6 flex items-center">
+        <div className="mb-6 flex justify-end">
           <button
             onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <span className="text-lg">←</span>
             Back to Dashboard
           </button>
         </div>
