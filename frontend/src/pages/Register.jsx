@@ -149,12 +149,12 @@ const Register = () => {
           {/* Feature Cards */}
           <div className='grid grid-cols-2 gap-8'>
             <motion.div
-              className='bg-white/15 backdrop-blur-md rounded-4xl p-4 hover:bg-white/20 transition'
+              className='bg-gradient-to-r from-white/15 to-transparent backdrop-blur-md rounded-4xl p-6 transition'
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
-              <div className='flex items-start gap-3'>
+              <div className='flex items-center gap-4'>
                 <FileText className='text-2xl text-white flex-shrink-0' strokeWidth={1.5} />
                 <div>
                   <h3 className='text-white font-semibold text-xl mb-1'>Medical Records</h3>
@@ -164,12 +164,12 @@ const Register = () => {
             </motion.div>
 
             <motion.div
-              className='bg-white/15 backdrop-blur-md rounded-4xl p-4 hover:bg-white/20 transition'
+              className='bg-gradient-to-r from-white/15 to-transparent backdrop-blur-md rounded-4xl p-6 transition'
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.55 }}
             >
-              <div className='flex items-start gap-3'>
+              <div className='flex items-center gap-4'>
                 <AlertTriangle className='text-2xl text-white flex-shrink-0' strokeWidth={1.5} />
                 <div>
                   <h3 className='text-white font-semibold text-xl mb-1'>Emergency SOS</h3>
@@ -179,12 +179,12 @@ const Register = () => {
             </motion.div>
 
             <motion.div
-              className='bg-white/15 backdrop-blur-md rounded-4xl p-4 hover:bg-white/20 transition'
+              className='bg-gradient-to-r from-white/15 to-transparent backdrop-blur-md rounded-4xl p-6 transition'
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
             >
-              <div className='flex items-start gap-3'>
+              <div className='flex items-center gap-4'>
                 <Users className='text-2xl text-white flex-shrink-0' strokeWidth={1.5} />
                 <div>
                   <h3 className='text-white font-semibold text-xl mb-1'>Family Management</h3>
@@ -194,12 +194,12 @@ const Register = () => {
             </motion.div>
 
             <motion.div
-              className='bg-white/15 backdrop-blur-md rounded-4xl p-4 hover:bg-white/20 transition'
+              className='bg-gradient-to-r from-white/15 to-transparent backdrop-blur-md rounded-4xl p-6 transition'
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.65 }}
             >
-              <div className='flex items-start gap-3'>
+              <div className='flex items-center gap-4'>
                 <Bell className='text-2xl text-white flex-shrink-0' strokeWidth={1.5} />
                 <div>
                   <h3 className='text-white font-semibold text-xl mb-1'>Medication Reminders</h3>
