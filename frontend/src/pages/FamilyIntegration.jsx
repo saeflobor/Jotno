@@ -79,11 +79,40 @@ const FamilyIntegration = ({ user, setUser }) => {
     setTimeout(() => setToast({ type: "", text: "" }), time);
   };
 
+  const getFirstAvailableRelation = () => {
+    const found = RELATIONS.find((r) => {
+      const isTaken =
+        (r.api === "father" && family.father) ||
+        (r.api === "mother" && family.mother) ||
+        (r.api === "spouse" && family.spouse);
+      const hasPending = sentRequests.some(
+        (req) => req.relation === r.api && ["father", "mother"].includes(r.api),
+      );
+      return !isTaken && !hasPending;
+    });
+    return found ? found.key : "son";
+  };
+
   const resetForm = () => {
     setMemberEmail("");
     setMemberPhone("+88");
-    setRelationKey("father");
+    setRelationKey(getFirstAvailableRelation());
   };
+
+  // Switch relation if current one becomes unavailable
+  useEffect(() => {
+    const isCurrentTaken =
+      (relationKey === "father" && family.father) ||
+      (relationKey === "mother" && family.mother) ||
+      (relationKey === "spouse" && family.spouse);
+    const isCurrentPending = sentRequests.some(
+      (req) => req.relation === relationMap[relationKey] && ["father", "mother"].includes(relationMap[relationKey]),
+    );
+
+    if (isCurrentTaken || isCurrentPending) {
+      setRelationKey(getFirstAvailableRelation());
+    }
+  }, [family, sentRequests, relationKey, relationMap]);
 
   // Keep +88 prefix enforced on phone input
   const handlePhoneChange = (e) => {
@@ -113,10 +142,37 @@ const FamilyIntegration = ({ user, setUser }) => {
       return showToast("error", "Phone number is required");
     }
 
+    const relationApi = relationMap[relationKey];
+
+    // Check if relation is already filled
+    if (relationApi === "father" && family.father) {
+      return showToast("error", "You already have a father added");
+    }
+    if (relationApi === "mother" && family.mother) {
+      return showToast("error", "You already have a mother added");
+    }
+    if (relationApi === "spouse" && family.spouse) {
+      return showToast("error", "You already have a spouse added");
+    }
+
+    // Check if there is already a pending request for Father or Mother
+    const hasPendingRoleRequest = sentRequests.some(
+      (r) => r.relation === relationApi,
+    );
+    if (
+      ["father", "mother"].includes(relationApi) &&
+      hasPendingRoleRequest
+    ) {
+      return showToast(
+        "error",
+        `You already have a pending request for a ${relationApi}`,
+      );
+    }
+
     const payload = {
       memberEmail: trimmedEmail,
       memberPhone: trimmedPhone,
-      relation: relationMap[relationKey],
+      relation: relationApi,
     };
 
     const result = await sendRequest(payload);
@@ -240,11 +296,29 @@ const FamilyIntegration = ({ user, setUser }) => {
               onChange={(e) => setRelationKey(e.target.value)}
               className="p-3 rounded-lg border border-gray-300 text-gray-900 bg-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition"
             >
-              {RELATIONS.map((r) => (
-                <option key={r.key} value={r.key}>
-                  {r.label}
-                </option>
-              ))}
+              {RELATIONS.map((r) => {
+                const isTaken =
+                  (r.api === "father" && family.father) ||
+                  (r.api === "mother" && family.mother) ||
+                  (r.api === "spouse" && family.spouse);
+                const hasPending = sentRequests.some(
+                  (req) => req.relation === r.api,
+                );
+                const isDisabled = isTaken || (hasPending && ["father", "mother"].includes(r.api));
+
+                return (
+                  <option key={r.key} value={r.key} disabled={isDisabled}>
+                    {r.label}{" "}
+                    {isTaken
+                      ? "(Already Added)"
+                      : hasPending
+                        ? ["father", "mother"].includes(r.api)
+                          ? "(Pending Request Sent)"
+                          : "(Request Already Sent)"
+                        : ""}
+                  </option>
+                );
+              })}
             </select>
 
             <input

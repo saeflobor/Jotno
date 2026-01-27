@@ -418,21 +418,63 @@ export const sendFamilyRequest = async (req, res, next) => {
     if (receiver._id.toString() === userId.toString())
       return next(new AppError("Cannot send request to yourself", 400));
 
+    // Check if user already has this relation
+    const sender = await User.findById(userId);
+    if (!sender) return next(new AppError("User not found", 404));
+
     // Check if receiver is already a family member
-    // Fetch sender (current user) to check family relations
-    const sender = req.user;
     if (isFamilyMember(sender, receiver._id)) {
       return next(new AppError("User is already a family member", 400));
     }
 
-    // Check if request already exists
+    if (relation === "father" && sender.family.father) {
+      return next(new AppError("You already have a father added", 400));
+    }
+    if (relation === "mother" && sender.family.mother) {
+      return next(new AppError("You already have a mother added", 400));
+    }
+    if (relation === "spouse") {
+      if (sender.family.spouse) {
+        return next(new AppError("You already have a spouse added", 400));
+      }
+      if (receiver.family.spouse) {
+        return next(
+          new AppError("The user you're requesting already has a spouse", 400),
+        );
+      }
+    }
+
+    if (relation === "child") {
+      if (sender.gender === "male" && receiver.family.father) {
+        return next(new AppError("This user already has a father added", 400));
+      }
+      if (sender.gender === "female" && receiver.family.mother) {
+        return next(new AppError("This user already has a mother added", 400));
+      }
+    }
+
+    // Check if there's already a pending request for Father or Mother
+    if (["father", "mother"].includes(relation)) {
+      const pendingRoleRequest = await FamilyRequest.findOne({
+        sender: userId,
+        relation,
+        status: "pending",
+      });
+      if (pendingRoleRequest) {
+        return next(
+          new AppError(`You already have a pending request for a ${relation}`, 400),
+        );
+      }
+    }
+
+    // Check if request already exists for this specific receiver
     const existingRequest = await FamilyRequest.findOne({
       sender: userId,
       receiver: receiver._id,
       status: "pending",
     });
 
-    if (existingRequest) return next(new AppError("Request already sent", 400));
+    if (existingRequest) return next(new AppError("Request already sent to this user", 400));
 
     // Create the request
     if (receiver.gender ===sender.gender && relation === "spouse") {
@@ -543,6 +585,26 @@ export const acceptFamilyRequest = async (req, res, next) => {
     // Update family relationships based on relation
     const relation = request.relation;
 
+    // Check if roles are already filled
+    if (relation === "father" && sender.family.father) {
+      return next(new AppError("Sender already has a father", 400));
+    }
+    if (relation === "mother" && sender.family.mother) {
+      return next(new AppError("Sender already has a mother", 400));
+    }
+    if (relation === "spouse") {
+      if (sender.family.spouse)
+        return next(new AppError("Sender already has a spouse", 400));
+      if (receiver.family.spouse)
+        return next(new AppError("You already have a spouse", 400));
+    }
+    if (relation === "child") {
+      if (sender.gender === "male" && receiver.family.father)
+        return next(new AppError("Receiver already has a father", 400));
+      if (sender.gender === "female" && receiver.family.mother)
+        return next(new AppError("Receiver already has a mother", 400));
+    }
+
     switch (relation) {
       case "father":
         // Sender wants to add receiver as father
@@ -579,6 +641,54 @@ export const acceptFamilyRequest = async (req, res, next) => {
       receiver.save(),
       FamilyRequest.findByIdAndUpdate(requestId, { status: "accepted" }),
     ]);
+
+    // Auto-decline other requests that are now invalid
+    const cleanupFilters = [];
+    if (relation === "spouse") {
+      cleanupFilters.push(
+        { sender: sender._id, relation: "spouse", status: "pending" },
+        { receiver: sender._id, relation: "spouse", status: "pending" },
+        { sender: receiver._id, relation: "spouse", status: "pending" },
+        { receiver: receiver._id, relation: "spouse", status: "pending" },
+      );
+    } else if (relation === "father") {
+      cleanupFilters.push({
+        sender: sender._id,
+        relation: "father",
+        status: "pending",
+      });
+    } else if (relation === "mother") {
+      cleanupFilters.push({
+        sender: sender._id,
+        relation: "mother",
+        status: "pending",
+      });
+    } else if (relation === "child") {
+      // If B (receiver) just got a father/mother, decline B's other requests for that role
+      if (sender.gender === "male") {
+        cleanupFilters.push({
+          sender: receiver._id,
+          relation: "father",
+          status: "pending",
+        });
+      } else if (sender.gender === "female") {
+        cleanupFilters.push({
+          sender: receiver._id,
+          relation: "mother",
+          status: "pending",
+        });
+      }
+    }
+
+    if (cleanupFilters.length > 0) {
+      await FamilyRequest.updateMany(
+        {
+          $or: cleanupFilters,
+          _id: { $ne: requestId },
+        },
+        { status: "declined" },
+      );
+    }
 
     // Log activity for both sender and receiver
     await Promise.all([

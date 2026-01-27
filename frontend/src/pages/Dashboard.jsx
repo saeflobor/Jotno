@@ -91,10 +91,10 @@ const Dashboard = ({ user, setUser }) => {
     });
   };
 
-  const familyCount = (Array.isArray(family.siblings) ? family.siblings.length : 0) +
-    (Array.isArray(family.children) ? family.children.length : 0) +
+  const familyCount = (Array.isArray(family.children) ? family.children.length : 0) +
     (family.father ? 1 : 0) +
-    (family.mother ? 1 : 0);
+    (family.mother ? 1 : 0) +
+    (family.spouse ? 1 : 0);
 
   const getActivityIcon = (action) => {
     switch (action) {
