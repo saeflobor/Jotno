@@ -3,16 +3,18 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { MdArrowBack } from "react-icons/md";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const ProfileUpdatePage = ({ user, setUser }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const [formData, setFormData] = useState({
     email: user?.email || "",
-    phone: "+88",
+    phone: user?.phone || "+88",
     username: user?.username || "",
     password: "",
     confirmPassword: "",
@@ -121,7 +123,12 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     if (!validateForm()) {
       return;
     }
+    
+    setShowConfirmation(true);
+  };
 
+  const handleConfirmUpdate = async () => {
+    setShowConfirmation(false);
     setIsLoading(true);
     try {
       const updatePayload = {};
@@ -332,7 +339,6 @@ const ProfileUpdatePage = ({ user, setUser }) => {
               </label>
               <select
                 name="gender"
-                // value={formData.gender}
                 onChange={handleChange}
                 placeholder={user?.gender || "Select gender"}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition text-gray-900 bg-white appearance-none cursor-pointer"
@@ -469,6 +475,16 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           </p>
         </motion.div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showConfirmation}
+        title="Update Profile"
+        message="Are you sure you want to update your profile information?"
+        confirmText="Yes, Update"
+        onConfirm={handleConfirmUpdate}
+        onCancel={() => setShowConfirmation(false)}
+      />
     </div>
   );
 };

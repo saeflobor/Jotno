@@ -7,6 +7,7 @@ import { MdAccountCircle, MdSettings, MdArrowBack } from "react-icons/md";
 import { PiPillBold } from "react-icons/pi";
 import { PiUsersBold } from "react-icons/pi";
 import { Pill, X, Activity, FileText, Clock } from "lucide-react";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const Dashboard = ({ user, setUser }) => {
   const navigate = useNavigate();
@@ -14,6 +15,13 @@ const Dashboard = ({ user, setUser }) => {
   const [sosMessage, setSosMessage] = useState("");
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [activities, setActivities] = useState([]);
+  const [confirmation, setConfirmation] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    isDangerous: false,
+    onConfirm: null,
+  });
   
   if (!user) {
     return (
@@ -69,12 +77,18 @@ const Dashboard = ({ user, setUser }) => {
   };
 
   const handleSignOut = () => {
-    const confirmed = window.confirm("Are you sure you want to sign out?");
-    if (confirmed) {
-      localStorage.removeItem("token");
-      setUser(null);
-      navigate("/");
-    }
+    setConfirmation({
+      isOpen: true,
+      title: "Sign Out",
+      message: "Are you sure you want to sign out from your account?",
+      isDangerous: true,
+      confirmText: "Sign Out",
+      onConfirm: () => {
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/");
+      },
+    });
   };
 
   const familyCount = (Array.isArray(family.siblings) ? family.siblings.length : 0) +
@@ -314,7 +328,10 @@ const Dashboard = ({ user, setUser }) => {
 
                 {/* Lookup Meds */}
                 <motion.button
-                  onClick={() => alert("Coming soon!")}
+                  onClick={() => {
+                    setSosMessage("Lookup Meds feature is coming soon!");
+                    setTimeout(() => setSosMessage(""), 4000);
+                  }}
                   whileHover={{ y: -4, boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)" }}
                   whileTap={{ scale: 0.98 }}
                   initial={{ opacity: 0, y: 20, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
@@ -377,6 +394,22 @@ const Dashboard = ({ user, setUser }) => {
             )}
           </motion.div>
         </div>
+
+        {/* Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={confirmation.isOpen}
+          title={confirmation.title}
+          message={confirmation.message}
+          isDangerous={confirmation.isDangerous}
+          confirmText={confirmation.confirmText || "Confirm"}
+          onConfirm={() => {
+            if (confirmation.onConfirm) {
+              confirmation.onConfirm();
+            }
+            setConfirmation({ ...confirmation, isOpen: false });
+          }}
+          onCancel={() => setConfirmation({ ...confirmation, isOpen: false })}
+        />
       </div>
     </div>
   );

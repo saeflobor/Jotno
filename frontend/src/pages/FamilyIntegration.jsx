@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import FamilyRequestNotifications from "../components/FamilyRequestNotifications";
 import FamilyMemberSection from "../components/FamilyMemberSection";
+import ConfirmationModal from "../components/ConfirmationModal";
 import { useFamilyRequests } from "../hooks/useFamilyRequests";
 
 const RELATIONS = [
@@ -30,6 +31,13 @@ const FamilyIntegration = ({ user, setUser }) => {
   const [memberPhone, setMemberPhone] = useState("+88");
   const [toast, setToast] = useState({ type: "", text: "" });
   const [showNotifications, setShowNotifications] = useState(false);
+  const [confirmation, setConfirmation] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    isDangerous: false,
+    onConfirm: null,
+  });
 
   const {
     pendingRequests,
@@ -121,14 +129,23 @@ const FamilyIntegration = ({ user, setUser }) => {
   };
 
   const handleRemove = async (memberId, relationType) => {
-    if (!window.confirm("Are you sure?")) return;
-    const result = await removeFamily(memberId, relationType);
-    if (result.success) {
-      setUser(result.user);
-      showToast("success", "Member removed");
-    } else {
-      showToast("error", result.message);
-    }
+    setConfirmation({
+      isOpen: true,
+      title: "Remove Family Member",
+      message: "Are you sure you want to remove this family member? This action cannot be undone.",
+      isDangerous: true,
+      confirmText: "Remove",
+      onConfirm: async () => {
+        const result = await removeFamily(memberId, relationType);
+        if (result.success) {
+          setUser(result.user);
+          showToast("success", "Member removed");
+        } else {
+          showToast("error", result.message);
+        }
+        setConfirmation({ ...confirmation, isOpen: false });
+      },
+    });
   };
 
   return (
@@ -338,6 +355,22 @@ const FamilyIntegration = ({ user, setUser }) => {
             </div>
           </motion.div>
         </div>
+
+        {/* Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={confirmation.isOpen}
+          title={confirmation.title}
+          message={confirmation.message}
+          isDangerous={confirmation.isDangerous}
+          confirmText={confirmation.confirmText || "Confirm"}
+          onConfirm={() => {
+            if (confirmation.onConfirm) {
+              confirmation.onConfirm();
+            }
+            setConfirmation({ ...confirmation, isOpen: false });
+          }}
+          onCancel={() => setConfirmation({ ...confirmation, isOpen: false })}
+        />
       </div>
     </div>
   );

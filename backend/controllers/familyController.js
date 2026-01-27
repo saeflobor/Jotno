@@ -435,7 +435,7 @@ export const sendFamilyRequest = async (req, res, next) => {
     if (existingRequest) return next(new AppError("Request already sent", 400));
 
     // Create the request
-    if (receiver.gender == sender.gender && relation === "spouse") {
+    if (receiver.gender ===sender.gender && relation === "spouse") {
       return next(new AppError("Spouse must be opposite gender", 400));
     }
 

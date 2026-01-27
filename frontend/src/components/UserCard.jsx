@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import AddConditionModal from "./AddConditionModal";
 import AddMedicationModal from "./AddMedicationModal";
+import ConfirmationModal from "./ConfirmationModal";
 
 const initials = (name = "") =>
   name
@@ -56,6 +57,14 @@ const UserCard = ({ user, onRemove }) => {
     category: "Other",
     reportDate: "",
     notes: "",
+  });
+  const [confirmation, setConfirmation] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    isDangerous: false,
+    confirmText: "Confirm",
+    onConfirm: null,
   });
 
   const fetchHealthData = async () => {
@@ -293,7 +302,17 @@ const UserCard = ({ user, onRemove }) => {
                 {onRemove && (
                   <button
                     onClick={() =>
-                      window.confirm("Remove this member?") && onRemove()
+                      setConfirmation({
+                        isOpen: true,
+                        title: "Remove Member",
+                        message: "Are you sure you want to remove this family member?",
+                        isDangerous: true,
+                        confirmText: "Remove",
+                        onConfirm: () => {
+                          onRemove();
+                          setConfirmation((prev) => ({ ...prev, isOpen: false }));
+                        },
+                      })
                     }
                     className="ml-2 inline-flex items-center justify-center rounded-md px-2 py-1 text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 border border-red-300"
                     title="Remove member"
@@ -602,28 +621,36 @@ const UserCard = ({ user, onRemove }) => {
                               </div>
                               {canEdit && (
                                 <button
-                                  onClick={async () => {
-                                    if (
-                                      window.confirm(
-                                        "Are you sure you want to delete this condition?",
-                                      )
-                                    ) {
-                                      try {
-                                        await axiosInstance.delete(
-                                          `/api/health/chronic-conditions-for-user/${user._id}/${condition._id}`,
-                                        );
-                                        fetchHealthData();
-                                      } catch (err) {
-                                        console.error(
-                                          "Failed to delete condition:",
-                                          err,
-                                        );
-                                        alert(
-                                          err.response?.data?.message ||
-                                            "Failed to delete condition",
-                                        );
-                                      }
-                                    }
+                                  onClick={() => {
+                                    setConfirmation({
+                                      isOpen: true,
+                                      title: "Delete Condition",
+                                      message: "Are you sure you want to delete this condition?",
+                                      isDangerous: true,
+                                      confirmText: "Delete",
+                                      onConfirm: async () => {
+                                        try {
+                                          await axiosInstance.delete(
+                                            `/api/health/chronic-conditions-for-user/${user._id}/${condition._id}`,
+                                          );
+                                          fetchHealthData();
+                                        } catch (err) {
+                                          console.error(
+                                            "Failed to delete condition:",
+                                            err,
+                                          );
+                                          setConditionError(
+                                            err.response?.data?.message ||
+                                              "Failed to delete condition",
+                                          );
+                                        } finally {
+                                          setConfirmation((prev) => ({
+                                            ...prev,
+                                            isOpen: false,
+                                          }));
+                                        }
+                                      },
+                                    });
                                   }}
                                   className="ml-2 px-3 py-1.5 rounded-lg font-semibold text-sm bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 shrink-0"
                                   title="Delete condition"
@@ -876,28 +903,36 @@ const UserCard = ({ user, onRemove }) => {
                               </div>
                               {canEdit && (
                                 <button
-                                  onClick={async () => {
-                                    if (
-                                      window.confirm(
-                                        "Are you sure you want to delete this medication?",
-                                      )
-                                    ) {
-                                      try {
-                                        await axiosInstance.delete(
-                                          `/api/health/medications-for-user/${user._id}/${medication._id}`,
-                                        );
-                                        fetchHealthData();
-                                      } catch (err) {
-                                        console.error(
-                                          "Failed to delete medication:",
-                                          err,
-                                        );
-                                        alert(
-                                          err.response?.data?.message ||
-                                            "Failed to delete medication",
-                                        );
-                                      }
-                                    }
+                                  onClick={() => {
+                                    setConfirmation({
+                                      isOpen: true,
+                                      title: "Delete Medication",
+                                      message: "Are you sure you want to delete this medication?",
+                                      isDangerous: true,
+                                      confirmText: "Delete",
+                                      onConfirm: async () => {
+                                        try {
+                                          await axiosInstance.delete(
+                                            `/api/health/medications-for-user/${user._id}/${medication._id}`,
+                                          );
+                                          fetchHealthData();
+                                        } catch (err) {
+                                          console.error(
+                                            "Failed to delete medication:",
+                                            err,
+                                          );
+                                          setMedicationError(
+                                            err.response?.data?.message ||
+                                              "Failed to delete medication",
+                                          );
+                                        } finally {
+                                          setConfirmation((prev) => ({
+                                            ...prev,
+                                            isOpen: false,
+                                          }));
+                                        }
+                                      },
+                                    });
                                   }}
                                   className="ml-2 px-3 py-1.5 rounded-lg font-semibold text-sm bg-purple-100 hover:bg-purple-200 text-purple-700 border border-purple-300 shrink-0"
                                   title="Delete medication"
@@ -955,14 +990,47 @@ const UserCard = ({ user, onRemove }) => {
                                 >
                                   View 📄
                                 </a>
+                                <button
+                                  onClick={async () => {
+                                    try {
+                                      const response = await axiosInstance.get(
+                                        `/api/medical-report/${report._id}/download`,
+                                        { responseType: "blob" }
+                                      );
+                                      const url = window.URL.createObjectURL(new Blob([response.data]));
+                                      const link = document.createElement("a");
+                                      link.href = url;
+                                      const contentDisposition = response.headers["content-disposition"];
+                                      let filename = `report-${Date.now()}`;
+                                      if (contentDisposition) {
+                                        const filenameMatch = contentDisposition.match(/filename="(.+?)"/);
+                                        if (filenameMatch) filename = filenameMatch[1];
+                                      }
+                                      link.setAttribute("download", filename);
+                                      document.body.appendChild(link);
+                                      link.click();
+                                      link.parentNode.removeChild(link);
+                                      window.URL.revokeObjectURL(url);
+                                    } catch (err) {
+                                      console.error("Download failed:", err);
+                                      setReportUploadError("Failed to download report");
+                                    }
+                                  }}
+                                  className="px-4 py-2 rounded-lg font-semibold text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 border border-blue-300"
+                                  title="Download report"
+                                >
+                                  ⬇️
+                                </button>
                                 {canEdit && (
-                                  <button
-                                    onClick={async () => {
-                                      if (
-                                        window.confirm(
-                                          "Are you sure you want to delete this report?",
-                                        )
-                                      ) {
+                                <button
+                                  onClick={() => {
+                                    setConfirmation({
+                                      isOpen: true,
+                                      title: "Delete Report",
+                                      message: "Are you sure you want to delete this report?",
+                                      isDangerous: true,
+                                      confirmText: "Delete",
+                                      onConfirm: async () => {
                                         try {
                                           await axiosInstance.delete(
                                             `/api/medical-report/for-user/${user._id}/${report._id}`,
@@ -973,18 +1041,24 @@ const UserCard = ({ user, onRemove }) => {
                                             "Failed to delete report:",
                                             err,
                                           );
-                                          alert(
+                                          setReportUploadError(
                                             err.response?.data?.message ||
                                               "Failed to delete report",
                                           );
+                                        } finally {
+                                          setConfirmation((prev) => ({
+                                            ...prev,
+                                            isOpen: false,
+                                          }));
                                         }
-                                      }
-                                    }}
-                                    className="px-4 py-2 rounded-lg font-semibold text-sm bg-red-100 hover:bg-red-200 text-red-700 border border-red-300"
-                                    title="Delete report"
-                                  >
-                                    🗑️
-                                  </button>
+                                      },
+                                    });
+                                  }}
+                                  className="px-4 py-2 rounded-lg font-semibold text-sm bg-red-100 hover:bg-red-200 text-red-700 border border-red-300"
+                                  title="Delete report"
+                                >
+                                  🗑️
+                                </button>
                                 )}
                               </div>
                             </div>
@@ -1182,6 +1256,17 @@ const UserCard = ({ user, onRemove }) => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmation.isOpen}
+        title={confirmation.title}
+        message={confirmation.message}
+        confirmText={confirmation.confirmText}
+        isDangerous={confirmation.isDangerous}
+        onConfirm={confirmation.onConfirm}
+        onCancel={() => setConfirmation({ ...confirmation, isOpen: false })}
+      />
     </>
   );
 };

@@ -37,6 +37,9 @@ router.get("/", protect, async (req, res, next) => {
   }
 });
 
+// GET /api/medical-report/:id/download -> download a report
+router.get("/:id/download", protect, medicalReportController.downloadMedicalReport);
+
 // DELETE /api/medical-report/:id -> delete a report
 router.delete("/:id", protect, medicalReportController.deleteMedicalReport);
 
