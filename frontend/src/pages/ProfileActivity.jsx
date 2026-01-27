@@ -418,6 +418,7 @@ const ProfileActivity = ({ user, setUser }) => {
         setHealthSuccess("Chronic condition added");
         setShowConditionModal(false);
 
+        
         // Refresh health summary and activities logic...
         const summaryRes = await axios.get("/api/health/summary", {
           headers: { Authorization: `Bearer ${token}` },
@@ -490,6 +491,7 @@ const ProfileActivity = ({ user, setUser }) => {
         setHealthSuccess("Medication added");
         setShowMedicationModal(false);
 
+        
         // Refresh health summary and activities
         const summaryRes = await axios.get("/api/health/summary", {
           headers: { Authorization: `Bearer ${token}` },
@@ -1412,6 +1414,21 @@ const ProfileActivity = ({ user, setUser }) => {
           onSave={handleAddMedication}
           isProcessing={processingHealth}
         />
+      )}
+
+      <AddConditionModal
+        isOpen={showConditionModal}
+        onClose={() => setShowConditionModal(false)}
+        onSave={handleAddCondition}
+        isProcessing={processingHealth}
+      />
+      
+      <AddMedicationModal
+        isOpen={showMedicationModal}
+        onClose={() => setShowMedicationModal(false)}
+        onSave={handleAddMedication}
+        isProcessing={processingHealth}
+      /> 
       </div>
     </div>
   );

@@ -147,6 +147,7 @@ export const addMedication = async (req, res, next) => {
       times,
       notificationType,
     } = req.body;
+    const { medicationName, dosage, frequency, duration, times, notificationType } = req.body;
 
     if (!medicationName || !dosage || !frequency || !duration) {
       return next(new AppError("All fields are required", 400));
@@ -471,6 +472,8 @@ export const checkMedicationReminders = async (req, res, next) => {
       populate: {
         path: "family.father family.mother family.spouse family.children",
       },
+        path: "family.father family.mother family.spouse family.children"
+      }
     });
 
     if (medications.length === 0) {
@@ -500,6 +503,14 @@ export const checkMedicationReminders = async (req, res, next) => {
           recipients.push(family.spouse.email);
         if (Array.isArray(family.children)) {
           family.children.forEach((child) => {
+      
+      if (med.notificationType === 'family' && med.owner.family) {
+        const family = med.owner.family;
+        if (family.father && family.father.email) recipients.push(family.father.email);
+        if (family.mother && family.mother.email) recipients.push(family.mother.email);
+        if (family.spouse && family.spouse.email) recipients.push(family.spouse.email);
+        if (Array.isArray(family.children)) {
+          family.children.forEach(child => {
             if (child && child.email) recipients.push(child.email);
           });
         }
@@ -516,6 +527,7 @@ export const checkMedicationReminders = async (req, res, next) => {
           <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
             <h2 style="color: #e91e63;">Medication Reminder</h2>
             <p>Hello ${med.owner.username || "User"} ${med.notificationType === "family" ? "& Family" : ""},</p>
+            <p>Hello ${med.owner.username || "User"} ${med.notificationType === 'family' ? "& Family" : ""},</p>
             <p>This is a reminder to take the medication:</p>
             <div style="background: #fdf2f8; padding: 15px; border-left: 4px solid #db2777; margin: 20px 0;">
               <h3 style="margin: 0; color: #db2777;">${med.medicationName}</h3>
@@ -538,6 +550,10 @@ export const checkMedicationReminders = async (req, res, next) => {
           `Failed to send email to ${uniqueRecipients.join(", ")}:`,
           e.message,
         );
+        console.log(`Sent email to ${uniqueRecipients.join(", ")} for ${med.medicationName}`);
+        return true;
+      } catch (e) {
+        console.error(`Failed to send email to ${uniqueRecipients.join(", ")}:`, e.message);
         return false;
       }
     };
