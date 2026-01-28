@@ -150,6 +150,15 @@ const Dashboard = ({ user, setUser }) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-pink-50 relative overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-50 blur-sm"
+        style={{
+          backgroundImage: "url('/Smiling_Old_Couple_Black.jpg')",
+          filter: "blur(8px)",
+        }}
+      />
+      
       {/* Animated background blobs */}
       <motion.div
         className="absolute top-0 right-0 w-96 h-96 bg-pink-200/20 rounded-full blur-3xl"
@@ -169,8 +178,26 @@ const Dashboard = ({ user, setUser }) => {
               </div>
 
       <div className="relative z-10 flex-1 flex flex-col">
-        {/* Top Right Profile */}
-        <div className="flex justify-end items-center p-6 pr-8">
+        {/* SOS Button & Profile - Same Row */}
+        <div className="flex justify-between items-center p-6 pr-8">
+          {/* Empty space for balance */}
+          <div className="w-16"></div>
+          
+          {/* SOS Button */}
+          <motion.button
+            onClick={sendSOS}
+            disabled={sendingSOS}
+            whileHover={{ scale: 1.08, boxShadow: "0px 12px 32px rgba(255, 31, 75, 0.4)" }}
+            whileTap={{ scale: 0.98 }}
+            className="px-10 py-4 rounded-full text-white font-bold text-lg shadow-lg transition disabled:opacity-60"
+            style={{
+              background: "linear-gradient(90deg,#ff1f4b,#ff5f6d)",
+            }}
+          >
+            {sendingSOS ? "Sending..." : "SOS"}
+          </motion.button>
+
+          {/* Profile Button */}
           <motion.button
             onClick={() => setShowProfileModal(!showProfileModal)}
             whileHover={{ scale: 1.1 }}
@@ -249,24 +276,8 @@ const Dashboard = ({ user, setUser }) => {
           </motion.div>
         )}
 
-        {/* SOS Button */}
-        <div className="flex justify-center py-6">
-          <motion.button
-            onClick={sendSOS}
-            disabled={sendingSOS}
-            whileHover={{ scale: 1.08, boxShadow: "0px 12px 32px rgba(255, 31, 75, 0.4)" }}
-            whileTap={{ scale: 0.98 }}
-            className="px-10 py-4 rounded-full text-white font-bold text-lg shadow-lg transition disabled:opacity-60"
-            style={{
-              background: "linear-gradient(90deg,#ff1f4b,#ff5f6d)",
-            }}
-          >
-            {sendingSOS ? "Sending..." : "SOS"}
-          </motion.button>
-        </div>
-
         {/* Main content */}
-        <div className="flex-1 flex items-start justify-center px-4 pt-40 pb-8">
+        <div className="flex-1 flex items-start justify-center px-4 pt-20 pb-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -337,12 +348,12 @@ const Dashboard = ({ user, setUser }) => {
                 {/* Medical Records */}
                 <motion.button
                   onClick={() => navigate("/profile-activity")}
-                  whileHover={{ y: -4, boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)" }}
+                  whileHover={{ y: -4, boxShadow: "0px 40px 40px rgba(211, 46, 149, 0.5)" }}
                   whileTap={{ scale: 0.98 }}
-                  initial={{ opacity: 0, y: 20, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
-                  animate={{ opacity: 1, y: 0, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
+                  initial={{ opacity: 0, y: 20, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
+                  animate={{ opacity: 1, y: 0, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
                   // transition={{ duration: 0, delay: 0.5 }}
-                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition w-full h-50"
+                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition w-full h-50 shadow-lg"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="p-3 rounded-lg bg-purple-100">
@@ -357,12 +368,12 @@ const Dashboard = ({ user, setUser }) => {
                 {/* Family Management */}
                 <motion.button
                   onClick={() => navigate("/family-integration")}
-                  whileHover={{ y: -4, boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)" }}
+                  whileHover={{ y: -4, boxShadow: "0px 40px 40px rgba(211, 46, 149, 0.5)" }}
                   whileTap={{ scale: 0.98 }}
-                  initial={{ opacity: 0, y: 20, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
-                  animate={{ opacity: 1, y: 0, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
+                  initial={{ opacity: 0, y: 20, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
+                  animate={{ opacity: 1, y: 0, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
                   // transition={{ duration: 0, delay: 0.55 }}
-                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition w-full h-50"
+                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition w-full h-50 shadow-lg"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="p-3 rounded-lg bg-pink-100">
@@ -380,12 +391,12 @@ const Dashboard = ({ user, setUser }) => {
                     setSosMessage("Lookup Meds feature is coming soon!");
                     setTimeout(() => setSosMessage(""), 4000);
                   }}
-                  whileHover={{ y: -4, boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)" }}
+                  whileHover={{ y: -4, boxShadow: "0px 40px 40px rgba(211, 46, 149, 0.5)" }}
                   whileTap={{ scale: 0.98 }}
-                  initial={{ opacity: 0, y: 20, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
-                  animate={{ opacity: 1, y: 0, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
+                  initial={{ opacity: 0, y: 20, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
+                  animate={{ opacity: 1, y: 0, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
                   // transition={{ duration: 0, delay: 0.6 }}
-                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition opacity-50 cursor-not-allowed w-full h-50"
+                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition opacity-50 cursor-not-allowed w-full h-50 shadow-lg"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="p-3 rounded-lg bg-red-100">

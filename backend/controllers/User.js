@@ -149,9 +149,22 @@ const updateProfile = async (req, res, next) => {
       // Store pending email and send verification
       user.pendingEmail = email;
       const verifytoken = generateverifyToken(user._id);
-      const sendemail = await sendEmail(email, verifytoken, true);
-      if (!sendemail.success) {
-        return next(new AppError("Verification email not sent, please try again", 500));
+      
+      // Send email with timeout to prevent hanging
+      try {
+        const emailPromise = sendEmail(email, verifytoken, true);
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Email timeout')), 10000)
+        );
+        
+        const sendemail = await Promise.race([emailPromise, timeoutPromise]);
+        
+        if (!sendemail.success) {
+          return next(new AppError("Verification email not sent, please try again", 500));
+        }
+      } catch (error) {
+        console.error('Email sending error:', error);
+        return next(new AppError("Email service temporarily unavailable. Your email change has been saved, but verification email could not be sent.", 500));
       }
     }
 
@@ -221,7 +234,7 @@ const updateProfile = async (req, res, next) => {
       .populate("family.father family.spouse family.mother family.children");
 
     // Check if email change was requested
-    const emailChangeRequested = user.pendingEmail !== null;
+    const emailChangeRequested = updatedUser.pendingEmail !== null;
 
     res.status(200).json({
       success: true,
