@@ -170,13 +170,23 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       });
 
       if (response.data.success) {
-        setUser(response.data.user);
-        setSuccessMessage("Profile updated successfully!");
+        // Check if email change was requested
+        if (response.data.emailChangeRequested) {
+          setSuccessMessage(response.data.message || "Verification email sent! Please check your new email to confirm the change.");
+          
+          // Don't update user or redirect immediately for email changes
+          setTimeout(() => {
+            navigate("/dashboard");
+          }, 4000);
+        } else {
+          setUser(response.data.user);
+          setSuccessMessage(response.data.message || "Profile updated successfully!");
 
-        // Reset form and redirect after 2 seconds
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 2000);
+          // Reset form and redirect after 2 seconds
+          setTimeout(() => {
+            navigate("/dashboard");
+          }, 2000);
+        }
       }
     } catch (err) {
       const errorMsg =

@@ -146,7 +146,13 @@ const updateProfile = async (req, res, next) => {
       if (existingEmail) {
         return next(new AppError("Email already exists", 400));
       }
-      user.email = email;
+      // Store pending email and send verification
+      user.pendingEmail = email;
+      const verifytoken = generateverifyToken(user._id);
+      const sendemail = await sendEmail(email, verifytoken, true);
+      if (!sendemail.success) {
+        return next(new AppError("Verification email not sent, please try again", 500));
+      }
     }
 
     // Check if phone is being changed and if it's already taken
@@ -214,14 +220,53 @@ const updateProfile = async (req, res, next) => {
       .select("-password")
       .populate("family.father family.spouse family.mother family.children");
 
+    // Check if email change was requested
+    const emailChangeRequested = user.pendingEmail !== null;
+
     res.status(200).json({
       success: true,
-      message: "Profile updated successfully",
+      message: emailChangeRequested 
+        ? "Verification email sent. Please check your new email to confirm the change."
+        : "Profile updated successfully",
       user: updatedUser,
+      emailChangeRequested,
     });
   } catch (err) {
     return next(err);
   }
 };
 
-export { register, Login, UserDetails, verifyemail, updateProfile };
+// Verify Email Change route
+const verifyEmailChange = async (req, res, next) => {
+  try {
+    const { token } = req.body;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return next(new AppError("User not found", 404));
+    }
+
+    if (!user.pendingEmail) {
+      return next(new AppError("No pending email change found", 400));
+    }
+
+    // Update email and clear pendingEmail
+    user.email = user.pendingEmail;
+    user.pendingEmail = null;
+    await user.save();
+
+    const updatedUser = await User.findById(user._id)
+      .select("-password")
+      .populate("family.father family.spouse family.mother family.children");
+
+    const localStoragetoken = generateToken(user._id);
+    return res
+      .status(200)
+      .json({ success: true, user: updatedUser, token: localStoragetoken });
+  } catch (error) {
+    return next(new AppError("Invalid or expired token", 400));
+  }
+};
+
+export { register, Login, UserDetails, verifyemail, updateProfile, verifyEmailChange };
