@@ -16,6 +16,7 @@ import {
   Moon,
   Sun,
   Pill,
+  Sparkles,
 } from "lucide-react";
 
 const Home = ({ user, error }) => {
@@ -30,7 +31,7 @@ const Home = ({ user, error }) => {
       icon: Bell,
       title: "Medication Reminders",
       description:
-        "Timely alerts via notifications or SMS. Family can track if reminders were acknowledged.",
+        "Timely alerts via notifications or SMS. Never miss a dose again InshaAllah",
       visible: true,
     },
     {
@@ -38,7 +39,7 @@ const Home = ({ user, error }) => {
       icon: Users,
       title: "Family Supervision",
       description:
-        "Monitor medication adherence, access records (with permission), view health summaries.",
+        "Monitor medication adherence, access records (with permission), view health summaries",
       visible: true,
     },
     {
@@ -46,15 +47,15 @@ const Home = ({ user, error }) => {
       icon: AlertTriangle,
       title: "Emergency SOS",
       description:
-        "One-tap SOS button notifies family instantly with message and optional location.",
+        "One-tap SOS button notifies family instantly with email and optional location",
       visible: true,
     },
     {
       id: 4,
       icon: Calendar,
-      title: "Appointment Tracking",
+      title: "Appointment Tracking & Doctors List",
       description:
-        "Never miss a doctor's appointment with our smart scheduling system.",
+        "Never miss a doctor's appointment & find nearby healthcare professionals easily",
       visible: showAllFeatures,
     },
     {
@@ -62,7 +63,7 @@ const Home = ({ user, error }) => {
       icon: Activity,
       title: "Health Monitoring",
       description:
-        "Track vital signs and health metrics with easy-to-use tools.",
+        "Track vital signs and health metrics with easy-to-use tools",
       visible: showAllFeatures,
     },
     {
@@ -70,7 +71,7 @@ const Home = ({ user, error }) => {
       icon: FileText,
       title: "Medical Records",
       description:
-        "Secure digital storage for all your important medical documents.",
+        "Secure digital storage for all your important medical documents, accessible anytime, anywhere",
       visible: showAllFeatures,
     },
     {
@@ -78,7 +79,15 @@ const Home = ({ user, error }) => {
       icon: Pill,
       title: "Drug Lookup",
       description:
-        "Search comprehensive medicine information and drug interactions using MedEx API.",
+        "Search comprehensive medicine information and drug interactions",
+      visible: showAllFeatures,
+    },
+    {
+      id: 8,
+      icon: Sparkles,
+      title: "Smart Scanning (AI)",
+      description:
+        "Data inputs automatically retrieved from prescriptions & reports using AI",
       visible: showAllFeatures,
     },
   ];
@@ -268,9 +277,6 @@ const Home = ({ user, error }) => {
                         transition: { duration: 0.3 }
                       }}
                       whileHover={{
-                        scale: 1.08,
-                        y: -10,
-                        rotate: [0, -2, 2, 0],
                         boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)",
                         transition: { duration: 0.3 }
                       }}
@@ -278,11 +284,6 @@ const Home = ({ user, error }) => {
                     >
                       <motion.div
                         className="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mb-4"
-                        whileHover={{
-                          rotate: 360,
-                          scale: 1.2
-                        }}
-                        transition={{ duration: 0.5 }}
                       >
                         <IconComponent className="text-black w-6 h-6" />
                       </motion.div>

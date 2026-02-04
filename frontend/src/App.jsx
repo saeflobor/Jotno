@@ -12,9 +12,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import FamilyIntegration from "./pages/FamilyIntegration";
 import EmailVerification from "./pages/EmailVerification";
+import VerifyEmailChange from "./pages/VerifyEmailChange";
 import NotFound from "./components/NotFound";
 import ProfileActivity from "./pages/ProfileActivity";
 import ProfileUpdatePage from "./pages/ProfileUpdatePage";
+import LookupMeds from "./pages/LookupMeds";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -41,6 +43,12 @@ function AppContent({ user, setUser, error, isLoading }) {
         <Route
           path="/verifyemail/:token"
           element={<EmailVerification setUser={setUser} />}
+        />
+
+        {/*Email Change Verification Page */}
+        <Route
+          path="/verify-email-change/:token"
+          element={<VerifyEmailChange setUser={setUser} />}
         />
 
         {/* Protected Dashboard page */}
@@ -83,6 +91,18 @@ function AppContent({ user, setUser, error, isLoading }) {
           element={
             user ? (
               <ProfileUpdatePage user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        {/* Protected Lookup Meds page */}
+        <Route
+          path="/lookup-meds"
+          element={
+            user ? (
+              <LookupMeds />
             ) : (
               <Navigate to="/login" />
             )

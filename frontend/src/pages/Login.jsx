@@ -110,10 +110,10 @@ const Login = ({ setUser }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <div className='text-3xl text-white/90 font-semibold tracking-wide'>Welcome to</div>
             <div className='flex items-baseline gap-3 mt-2 text-white'>
               <span className='text-6xl font-extrabold leading-none inline-flex items-center'>{typedText}<span className="animate-pulse font-normal">|</span></span>
             </div>
+            <div className='mt-10 text-3xl text-white/90 font-semibold tracking-wide'>Welcome back</div>
           </motion.div>
           
           <motion.p 
@@ -122,7 +122,7 @@ const Login = ({ setUser }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            Continue managing your health journey with our comprehensive platform designed for you and your family.
+            Continue managing your health journey with our comprehensive platform designed for you and your family
           </motion.p>
         </div>
       </motion.div>

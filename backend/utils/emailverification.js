@@ -17,18 +17,24 @@ const getTransporter = () => {
   return transporter;
 };
 
-const sendEmail = async (email, verifytoken) => {
+const sendEmail = async (email, verifytoken, isEmailChange = false) => {
   try {
     const to = email;
     const transport = getTransporter();
     await transport.verify();
     console.log("SMTP Server is ready to send messages");
-    const link = `http://localhost:5173/verifyemail/${verifytoken}`;
+    const link = isEmailChange 
+      ? `http://localhost:5173/verify-email-change/${verifytoken}`
+      : `http://localhost:5173/verifyemail/${verifytoken}`;
+    const subject = isEmailChange ? "Verify Email Change" : "Email Verification";
+    const text = isEmailChange 
+      ? "Please verify your new email by clicking the link below."
+      : "Please verify your email by clicking the link below.";
     const mailOptions = {
       from: process.env.SMTP_USER,
       to,
-      subject: "Email Verification",
-      text: "Please verify your email by clicking the link below.",
+      subject,
+      text,
       html: htmlContent(link),
     };
 

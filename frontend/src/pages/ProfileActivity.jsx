@@ -989,7 +989,7 @@ const ProfileActivity = ({ user, setUser }) => {
                       category: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm text-gray-900"
                 >
                   <option value="Lab Results">Lab Results</option>
                   <option value="Prescription">Prescription</option>
@@ -1016,7 +1016,7 @@ const ProfileActivity = ({ user, setUser }) => {
                       reportDate: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm text-gray-900"
                 />
               </div>
               <div>
@@ -1032,7 +1032,7 @@ const ProfileActivity = ({ user, setUser }) => {
                     })
                   }
                   placeholder="Add any notes about this report..."
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm resize-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm resize-none text-gray-900 placeholder-gray-400"
                   rows="2"
                   maxLength="500"
                 />
@@ -1145,7 +1145,7 @@ const ProfileActivity = ({ user, setUser }) => {
                   placeholder="Search reports..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm"
+                  className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm text-gray-900 placeholder-gray-400"
                 />
               </div>
               <div className="relative">
@@ -1153,7 +1153,7 @@ const ProfileActivity = ({ user, setUser }) => {
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm appearance-none bg-white"
+                  className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm appearance-none bg-white text-gray-900"
                 >
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>

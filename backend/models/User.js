@@ -54,6 +54,7 @@ const userSchema = new mongoose.Schema(
     },
     private: { type: Boolean, default: false },
     timezone: { type: String, default: "UTC" },
+    pendingEmail: { type: String, default: null },
   },
   { timestamps: true },
 );
