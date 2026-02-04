@@ -387,16 +387,13 @@ const Dashboard = ({ user, setUser }) => {
 
                 {/* Lookup Meds */}
                 <motion.button
-                  onClick={() => {
-                    setSosMessage("Lookup Meds feature is coming soon!");
-                    setTimeout(() => setSosMessage(""), 4000);
-                  }}
+                  onClick={() => navigate("/lookup-meds")}
                   whileHover={{ y: -4, boxShadow: "0px 40px 40px rgba(211, 46, 149, 0.5)" }}
                   whileTap={{ scale: 0.98 }}
                   initial={{ opacity: 0, y: 20, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
                   animate={{ opacity: 1, y: 0, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
                   // transition={{ duration: 0, delay: 0.6 }}
-                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition opacity-50 cursor-not-allowed w-full h-50 shadow-lg"
+                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition w-full h-50 shadow-lg"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="p-3 rounded-lg bg-red-100">
@@ -405,7 +402,7 @@ const Dashboard = ({ user, setUser }) => {
                     <span className="text-2xl text-gray-300">→</span>
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-1">Lookup Meds</h3>
-                  <p className="text-sm text-gray-600">Coming soon</p>
+                  <p className="text-sm text-gray-600">Search and explore medicine information</p>
                 </motion.button>
             </div>
 

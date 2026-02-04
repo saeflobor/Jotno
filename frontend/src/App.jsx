@@ -16,6 +16,7 @@ import VerifyEmailChange from "./pages/VerifyEmailChange";
 import NotFound from "./components/NotFound";
 import ProfileActivity from "./pages/ProfileActivity";
 import ProfileUpdatePage from "./pages/ProfileUpdatePage";
+import LookupMeds from "./pages/LookupMeds";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -90,6 +91,18 @@ function AppContent({ user, setUser, error, isLoading }) {
           element={
             user ? (
               <ProfileUpdatePage user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        {/* Protected Lookup Meds page */}
+        <Route
+          path="/lookup-meds"
+          element={
+            user ? (
+              <LookupMeds />
             ) : (
               <Navigate to="/login" />
             )
