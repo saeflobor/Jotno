@@ -173,7 +173,7 @@ const Dashboard = ({ user, setUser }) => {
 
               <div className="px-6 pt-6">
                 <div className="text-sm text-gray-600">
-                  Dashboard / <span className="font-semibold text-gray-900">Dashboard</span>
+                  Home / <span className="font-semibold text-gray-900">Dashboard</span>
                 </div>
               </div>
 
