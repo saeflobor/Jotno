@@ -109,13 +109,13 @@ const LookupMeds = () => {
           >
             <form onSubmit={handleSearch} className="flex gap-3">
               <div className="flex-1 relative">
-                <MdSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
+                <MdSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-xl" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by medicine name (e.g., Aspirin, Ibuprofen)..."
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-white shadow-sm"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-white shadow-sm text-gray-900 placeholder-gray-500 text-base font-medium"
                 />
               </div>
               <motion.button
