@@ -18,12 +18,13 @@ import Footer from "./components/Footer";
 import ProfileActivity from "./pages/ProfileActivity";
 import ProfileUpdatePage from "./pages/ProfileUpdatePage";
 import LookupMeds from "./pages/LookupMeds";
+import ResetPassword from "./pages/ResetPassword";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
 function AppContent({ user, setUser, error, isLoading }) {
   const location = useLocation();
-  const hideNavbar = location.pathname === '/login' || location.pathname === '/register';
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname.startsWith('/reset-password');
 
   if (isLoading) {
     return (
@@ -53,6 +54,12 @@ function AppContent({ user, setUser, error, isLoading }) {
         <Route
           path="/verify-email-change/:token"
           element={<VerifyEmailChange setUser={setUser} />}
+        />
+
+        {/* Password Reset Page */}
+        <Route
+          path="/reset-password/:token"
+          element={<ResetPassword />}
         />
 
         {/* Protected Dashboard page */}

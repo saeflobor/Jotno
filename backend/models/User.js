@@ -55,6 +55,8 @@ const userSchema = new mongoose.Schema(
     private: { type: Boolean, default: false },
     timezone: { type: String, default: "UTC" },
     pendingEmail: { type: String, default: null },
+    passwordResetToken: { type: String, default: null },
+    passwordResetExpires: { type: Date, default: null },
   },
   { timestamps: true },
 );

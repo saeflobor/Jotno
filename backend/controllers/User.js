@@ -4,6 +4,7 @@ import { protect } from "../middleware/auth.js";
 import { sendEmail } from "../utils/emailverification.js";
 import AppError from "../utils/AppError.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { generateToken, generateverifyToken } from "../utils/generatetokens.js";
 
 const verifyemail = async (req, res, next) => {
@@ -282,4 +283,95 @@ const verifyEmailChange = async (req, res, next) => {
   }
 };
 
-export { register, Login, UserDetails, verifyemail, updateProfile, verifyEmailChange };
+// Forgot Password - sends reset email
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return next(new AppError("Please provide your email address", 400));
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Don't reveal whether the email exists — always return success message
+      return res.status(200).json({
+        success: true,
+        message: "If an account with that email exists, a password reset link has been sent.",
+      });
+    }
+
+    if (!user.verified) {
+      return next(new AppError("Please verify your email first", 400));
+    }
+
+    // Generate a random reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+    // Save hashed token and expiry (10 minutes) to user
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save();
+
+    // Build reset link
+    const resetLink = `http://localhost:5173/reset-password/${resetToken}`;
+
+    // Send email
+    const { sendPasswordResetEmail } = await import("../utils/emailverification.js");
+    const result = await sendPasswordResetEmail(email, resetLink);
+    if (!result.success) {
+      user.passwordResetToken = null;
+      user.passwordResetExpires = null;
+      await user.save();
+      return next(new AppError("Failed to send reset email. Please try again.", 500));
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "If an account with that email exists, a password reset link has been sent.",
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// Reset Password - validates token and sets new password
+const resetPassword = async (req, res, next) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      return next(new AppError("Token and new password are required", 400));
+    }
+
+    if (password.length < 6) {
+      return next(new AppError("Password must be at least 6 characters", 400));
+    }
+
+    // Hash the token from the URL to compare with stored hash
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return next(new AppError("Reset token is invalid or has expired", 400));
+    }
+
+    // Set new password (will be hashed by pre-save hook)
+    user.password = password;
+    user.passwordResetToken = null;
+    user.passwordResetExpires = null;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password has been reset successfully. You can now log in with your new password.",
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export { register, Login, UserDetails, verifyemail, updateProfile, verifyEmailChange, forgotPassword, resetPassword };

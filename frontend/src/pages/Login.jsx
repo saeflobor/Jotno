@@ -11,6 +11,12 @@ const Login = ({ setUser }) => {
   });
   const [error, setError] = useState("");
   const [typedText, setTypedText] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMessage, setForgotMessage] = useState("");
+  const [forgotError, setForgotError] = useState("");
+  const [hasLoginError, setHasLoginError] = useState(false);
   const navigate = useNavigate();
 
   const fullText = "->  যত্ন : Jotno";
@@ -48,7 +54,30 @@ const Login = ({ setUser }) => {
       setUser(profileRes.data);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      const msg = err.response?.data?.message || "Login failed";
+      setError(msg);
+      setHasLoginError(true);
+    }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setForgotError("");
+    setForgotMessage("");
+
+    if (!forgotEmail) {
+      setForgotError("Please enter your email address");
+      return;
+    }
+
+    setForgotLoading(true);
+    try {
+      const res = await axios.post("/api/users/forgot-password", { email: forgotEmail });
+      setForgotMessage(res.data.message);
+    } catch (err) {
+      setForgotError(err.response?.data?.message || "Something went wrong. Please try again.");
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -228,6 +257,31 @@ const Login = ({ setUser }) => {
                   autoComplete='current-password'
                   required
                 />
+                {/* Forgot Password link */}
+                <AnimatePresence>
+                  {hasLoginError && (
+                    <motion.div
+                      className="mt-2 text-right"
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowForgotPassword(true);
+                          setForgotEmail(formData.email);
+                          setForgotMessage("");
+                          setForgotError("");
+                        }}
+                        className="text-sm text-[rgb(211,46,149)] font-medium hover:underline transition"
+                      >
+                        Forgot Password?
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
 
               {/* Login button */}
@@ -262,6 +316,102 @@ const Login = ({ setUser }) => {
           </motion.div>
         </div>
       </motion.div>
+
+      {/* Forgot Password Modal */}
+      <AnimatePresence>
+        {showForgotPassword && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowForgotPassword(false)}
+          >
+            <motion.div
+              className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl"
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Reset Password</h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Enter your email address and we'll send you a link to reset your password.
+              </p>
+
+              {/* Success Message */}
+              <AnimatePresence>
+                {forgotMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="mb-4 p-4 rounded-xl bg-green-50 border border-green-200"
+                  >
+                    <p className="text-green-800 text-sm font-medium">{forgotMessage}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Error Message */}
+              <AnimatePresence>
+                {forgotError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="mb-4 p-4 rounded-xl bg-red-50 border border-red-200"
+                  >
+                    <p className="text-red-800 text-sm font-medium">{forgotError}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {!forgotMessage && (
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <div>
+                    <label className="block text-gray-700 text-sm font-semibold mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      placeholder="Enter your registered email"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition placeholder-gray-400 text-gray-900 bg-white"
+                      required
+                    />
+                  </div>
+                  <motion.button
+                    type="submit"
+                    disabled={forgotLoading}
+                    className="w-full bg-gradient-to-r from-[rgb(211,46,149)] to-[rgb(255,95,109)] text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    whileHover={{ scale: forgotLoading ? 1 : 1.02 }}
+                    whileTap={{ scale: forgotLoading ? 1 : 0.98 }}
+                  >
+                    {forgotLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Sending...
+                      </span>
+                    ) : (
+                      "Send Reset Link"
+                    )}
+                  </motion.button>
+                </form>
+              )}
+
+              <button
+                onClick={() => setShowForgotPassword(false)}
+                className="w-full mt-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition font-medium"
+              >
+                {forgotMessage ? "Close" : "Back to Sign In"}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
