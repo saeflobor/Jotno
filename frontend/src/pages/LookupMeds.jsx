@@ -74,24 +74,24 @@ const LookupMeds = () => {
       <div className="relative z-10 min-h-screen">
         {/* Header */}
         <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-20">
-          <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 sm:gap-4">
                 <motion.button
                   onClick={() => navigate("/dashboard")}
                   whileHover={{ scale: 1.05, x: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition"
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition"
                 >
-                  <MdArrowBack className="text-2xl text-gray-700" />
+                  <MdArrowBack className="text-xl sm:text-2xl text-gray-700" />
                 </motion.button>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-100 rounded-lg">
-                    <PiPillBold className="text-2xl text-red-600" />
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 bg-red-100 rounded-lg">
+                    <PiPillBold className="text-xl sm:text-2xl text-red-600" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Lookup Meds</h1>
-                    <p className="text-sm text-gray-600">Search and explore medicine information</p>
+                    <h1 className="text-lg sm:text-2xl font-bold text-gray-900">Lookup Meds</h1>
+                    <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Search and explore medicine information</p>
                   </div>
                 </div>
               </div>
@@ -100,30 +100,31 @@ const LookupMeds = () => {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           {/* Search Bar */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <form onSubmit={handleSearch} className="flex gap-3">
+            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 relative">
                 <MdSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-xl" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by medicine name (e.g., Aspirin, Ibuprofen)..."
+                  placeholder="Search medicine name..."
                   className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-white shadow-sm text-gray-900 placeholder-gray-500 text-base font-medium"
                 />
               </div>
-              <motion.button
-                type="submit"
-                disabled={loading}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-6 py-3 bg-gradient-to-r from-[rgb(211,46,149)] to-[rgb(255,95,109)] text-white font-semibold rounded-xl hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              <div className="flex gap-2">
+                <motion.button
+                  type="submit"
+                  disabled={loading}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-[rgb(211,46,149)] to-[rgb(255,95,109)] text-white font-semibold rounded-xl hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -142,6 +143,7 @@ const LookupMeds = () => {
                   Clear
                 </motion.button>
               )}
+              </div>
             </form>
           </motion.div>
 

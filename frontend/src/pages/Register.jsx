@@ -74,10 +74,26 @@ const Register = () => {
   };
 
   return (
-    <div className='min-h-screen flex bg-white'>
-      {/* Left Section - 60% */}
+    <div className='min-h-screen flex flex-col lg:flex-row bg-white'>
+      {/* Mobile Header - Visible only on mobile */}
+      <div className='lg:hidden bg-gradient-to-r from-[rgb(211,46,149)] to-[rgb(255,95,109)] p-4'>
+        <div className='flex items-center justify-between'>
+          <motion.button
+            onClick={() => navigate("/")}
+            whileTap={{ scale: 0.95 }}
+            className='flex items-center gap-2 text-white/90 hover:text-white transition font-semibold'
+          >
+            <MdArrowBack className='text-xl' />
+            Back
+          </motion.button>
+          <span className='text-white text-xl font-bold'>যত্ন : Jotno</span>
+          <div className='w-16'></div>
+        </div>
+      </div>
+
+      {/* Left Section - Hidden on mobile, 60% on desktop */}
       <motion.div 
-        className='w-[60%] bg-gradient-to-b from-[rgb(211,46,149)] via-[rgb(235,80,160)] to-[rgb(255,150,190)] relative overflow-hidden flex flex-col justify-start pt-35 items-center p-16'
+        className='hidden lg:flex w-full lg:w-[60%] bg-gradient-to-b from-[rgb(211,46,149)] via-[rgb(235,80,160)] to-[rgb(255,150,190)] relative overflow-hidden flex-col justify-start pt-16 lg:pt-35 items-center p-8 lg:p-16'
         initial={{ opacity: 0, x: -100 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
@@ -211,9 +227,9 @@ const Register = () => {
         </div>
       </motion.div>
 
-      {/* Right Section - 40% */}
+      {/* Right Section - Full width on mobile, 40% on desktop */}
       <motion.div 
-        className='w-[40%] flex items-center justify-center p-12 bg-gray-50'
+        className='w-full lg:w-[40%] flex items-center justify-center p-4 sm:p-8 lg:p-12 bg-gray-50 flex-1'
         initial={{ opacity: 0, x: 100 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
@@ -221,7 +237,7 @@ const Register = () => {
         <div className='w-full max-w-md'>
           {/* Main form container */}
           <motion.div 
-            className='bg-white p-8 rounded-2xl shadow-xl'
+            className='bg-white p-6 sm:p-8 rounded-2xl shadow-xl'
             initial={{ opacity: 0, y: 50, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.3, type: "spring", stiffness: 100 }}
@@ -322,7 +338,7 @@ const Register = () => {
               </motion.div>
 
               {/* Phone and Gender row */}
-              <div className='grid grid-cols-2 gap-4'>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}

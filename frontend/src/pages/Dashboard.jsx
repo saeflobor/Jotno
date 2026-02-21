@@ -171,17 +171,17 @@ const Dashboard = ({ user, setUser }) => {
         transition={{ duration: 8, repeat: Infinity, delay: 1 }}
       />
 
-              <div className="px-6 pt-6">
-                <div className="text-sm text-gray-600">
+              <div className="px-4 sm:px-6 pt-4 sm:pt-6">
+                <div className="text-xs sm:text-sm text-gray-600">
                   Home / <span className="font-semibold text-gray-900">Dashboard</span>
                 </div>
               </div>
 
       <div className="relative z-10 flex-1 flex flex-col">
         {/* SOS Button & Profile - Same Row */}
-        <div className="flex justify-between items-center p-6 pr-8">
-          {/* Empty space for balance */}
-          <div className="w-16"></div>
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 sm:p-6 sm:pr-8">
+          {/* Empty space for balance - hidden on mobile */}
+          <div className="hidden sm:block w-16"></div>
           
           {/* SOS Button */}
           <motion.button
@@ -221,14 +221,14 @@ const Dashboard = ({ user, setUser }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowProfileModal(false)}
-            className="fixed inset-0 backdrop-blur-md z-40 flex items-center justify-center p-4"
+            className="fixed inset-0 backdrop-blur-md z-40 flex items-center justify-center p-4 overflow-y-auto">
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl"
+              className="bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-2xl my-auto"
             >
               <div className="flex flex-col items-center text-center mb-6">
                 <motion.div
@@ -277,7 +277,7 @@ const Dashboard = ({ user, setUser }) => {
         )}
 
         {/* Main content */}
-        <div className="flex-1 flex items-start justify-center px-4 pt-20 pb-8">
+        <div className="flex-1 flex items-start justify-center px-4 pt-8 sm:pt-20 pb-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
