@@ -200,20 +200,21 @@ const ProfileUpdatePage = ({ user, setUser }) => {
   };
 
   return (
-    <div className="min-h-screen py-8 px-6 bg-gray-50">
+    <div className="min-h-screen py-4 sm:py-8 px-4 sm:px-6 bg-gray-50">
       <div className="max-w-2xl mx-auto">
         {/* Back Button */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={() => navigate("/dashboard")}
-          className="flex items-center gap-2 mb-8 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold"
+          className="flex items-center gap-1 sm:gap-2 mb-4 sm:mb-8 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold text-sm sm:text-base"
         >
-          <MdArrowBack className="text-xl" />
-          Back to Dashboard
+          <MdArrowBack className="text-lg sm:text-xl" />
+          <span className="hidden sm:inline">Back to Dashboard</span>
+          <span className="sm:hidden">Back</span>
         </motion.button>
 
-        <div className="mb-4 text-sm text-gray-600">
+        <div className="mb-3 sm:mb-4 text-xs sm:text-sm text-gray-600">
           Dashboard / <span className="text-gray-900 font-semibold">Update Profile</span>
         </div>
 
@@ -221,12 +222,12 @@ const ProfileUpdatePage = ({ user, setUser }) => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-4 sm:mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">
             Update Profile
           </h1>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600">
             Update your email, phone, username, password, or gender
           </p>
         </motion.div>
@@ -235,7 +236,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl p-8 shadow-lg"
+          className="bg-white rounded-2xl p-5 sm:p-8 shadow-lg"
           style={{ boxShadow: "8px 8px 20px rgba(211, 46, 149, 0.1)" }}
         >
           {/* Floating Notifications */}
@@ -246,7 +247,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.98 }}
                 transition={{ duration: 0.2 }}
-                className="fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg bg-green-50 border border-green-200"
+                className="fixed top-4 left-4 right-4 sm:top-6 sm:right-6 sm:left-auto z-50 sm:w-80 p-4 rounded-xl shadow-lg bg-green-50 border border-green-200"
               >
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5 text-green-600">✔</div>
@@ -273,7 +274,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.98 }}
                 transition={{ duration: 0.2 }}
-                className="fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg bg-red-50 border border-red-200"
+                className="fixed top-4 left-4 right-4 sm:top-6 sm:right-6 sm:left-auto z-50 sm:w-80 p-4 rounded-xl shadow-lg bg-red-50 border border-red-200"
               >
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5 text-red-600">⚠</div>

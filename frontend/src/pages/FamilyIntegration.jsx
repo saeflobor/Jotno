@@ -223,20 +223,20 @@ const FamilyIntegration = ({ user, setUser }) => {
   };
 
   return (
-    <div className="min-h-screen py-8 px-6 bg-gray-50">
+    <div className="min-h-screen py-4 sm:py-8 px-4 sm:px-6 bg-gray-50">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-4 grid grid-cols-3 items-center">
-          <div className="text-sm text-gray-600">
+        <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          <div className="text-xs sm:text-sm text-gray-600 order-2 sm:order-1 sm:flex-1">
             Dashboard /{" "}
             <span className="text-gray-900 font-semibold">
               Family Management
             </span>
           </div>
-          <div className="flex justify-center">
+          <div className="flex justify-center order-1 sm:order-2">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative px-4 py-2 rounded-4xl border border-gray-300 text-gray-700 hover:bg-gray-100"
+              className="relative px-3 sm:px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 text-sm sm:text-base"
             >
               Pending Requests
               {pendingRequests.length > 0 && (
@@ -246,13 +246,14 @@ const FamilyIntegration = ({ user, setUser }) => {
               )}
             </button>
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-end order-3">
             <button
               onClick={() => navigate("/dashboard")}
-              className="flex items-center gap-2 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold"
+              className="flex items-center gap-1 sm:gap-2 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold text-sm sm:text-base"
             >
               <span className="text-lg">←</span>
-              Back to Dashboard
+              <span className="hidden sm:inline">Back to Dashboard</span>
+              <span className="sm:hidden">Back</span>
             </button>
           </div>
         </div>
@@ -278,7 +279,7 @@ const FamilyIntegration = ({ user, setUser }) => {
         </AnimatePresence>
 
         {/* Send Request Form */}
-        <div className="mx-4 md:mx-6 p-5 rounded-2xl bg-white shadow-lg border border-gray-200">
+        <div className="mx-0 sm:mx-4 md:mx-6 p-4 sm:p-5 rounded-2xl bg-white shadow-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-lg font-bold text-gray-900">
@@ -362,7 +363,7 @@ const FamilyIntegration = ({ user, setUser }) => {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.98 }}
                 transition={{ duration: 0.2 }}
-                className={`fixed top-6 right-6 z-50 w-80 p-4 rounded-xl shadow-lg ${
+                className={`fixed top-4 left-4 right-4 sm:top-6 sm:right-6 sm:left-auto z-50 sm:w-80 p-4 rounded-xl shadow-lg ${
                   toast.type === "success"
                     ? "bg-green-50 border border-green-200"
                     : "bg-red-50 border border-red-200"

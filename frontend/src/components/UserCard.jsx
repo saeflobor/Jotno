@@ -408,7 +408,7 @@ const UserCard = ({ user, onRemove }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
             style={{ background: "rgba(0, 0, 0, 0.5)" }}
             onClick={() => setShowHealthModal(false)}
           >
@@ -417,16 +417,16 @@ const UserCard = ({ user, onRemove }) => {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl bg-white"
+              className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl bg-white my-auto"
               style={{
                 maxHeight: "90vh",
               }}
             >
               {/* Header */}
-              <div className="p-6 border-b border-gray-200 bg-gray-50">
+              <div className="p-4 sm:p-6 border-b border-gray-200 bg-gray-50">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">
+                    <h2 className="text-lg sm:text-2xl font-bold text-gray-900">
                       {user.username}
                     </h2>
                     <p className="text-sm text-gray-600 mt-1">Health Details</p>
@@ -440,8 +440,8 @@ const UserCard = ({ user, onRemove }) => {
                 </div>
 
                 {/* Tabs */}
-                <div className="flex gap-4 mt-6 border-b border-gray-200 items-center justify-between">
-                  <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-4 sm:mt-6 border-b border-gray-200 sm:items-center sm:justify-between">
+                  <div className="flex gap-2 sm:gap-4 overflow-x-auto">
                     <button
                       onClick={() => setActiveTab("conditions")}
                       className={`pb-3 px-1 text-sm font-semibold transition-all ${

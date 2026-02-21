@@ -26,23 +26,23 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/20 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-gray-900/20 backdrop-blur-sm overflow-y-auto"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl transform transition-all"
+        className="bg-white rounded-2xl max-w-md w-full p-5 sm:p-8 shadow-2xl transform transition-all my-auto"
         onClick={(e) => e.stopPropagation()}
         style={{
           background: "linear-gradient(180deg, #ffffff 0%, #f9fafb 100%)",
           boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
         }}
       >
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
-              <Pill className="w-6 h-6 text-white" />
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
+              <Pill className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">Add Medication</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Add Medication</h3>
           </div>
           <button
             onClick={onClose}
@@ -68,7 +68,7 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Dosage
@@ -123,7 +123,7 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Schedule Times
               </label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {form.times.map((time, idx) => (
                   <input
                     key={idx}
