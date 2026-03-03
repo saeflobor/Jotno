@@ -1,11 +1,5 @@
 import axios from "axios";
 
-const WHATSAPP_API_URL =
-  process.env.WHATSAPP_API_URL ||
-  "https://graph.instagram.com/v18.0";
-const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID;
-const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-
 /**
  * Send a WhatsApp message using Meta's WhatsApp Business API
  * @param {string} recipientPhoneNumber - E.g., +8801312345678
@@ -14,6 +8,11 @@ const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
  */
 export const sendWhatsAppMessage = async (recipientPhoneNumber, message) => {
   try {
+    // Read from process.env at runtime, not at module load time
+    const WHATSAPP_API_URL = process.env.WHATSAPP_API_URL || "https://graph.facebook.com/v18.0";
+    const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID;
+    const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
+
     if (!WHATSAPP_PHONE_ID || !WHATSAPP_ACCESS_TOKEN) {
       console.error("❌ WhatsApp API credentials missing");
       console.error(`Phone ID: ${WHATSAPP_PHONE_ID ? "✓" : "✗"}`);
