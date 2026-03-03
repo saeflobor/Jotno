@@ -1,63 +1,51 @@
 import AppError from "../utils/AppError.js";
-import axios from "axios";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load medicines data once when the module is loaded
+let medicinesData = [];
+try {
+  const dataPath = path.join(__dirname, "../Data/bangladesh-medicines.json");
+  const data = fs.readFileSync(dataPath, "utf8");
+  medicinesData = JSON.parse(data);
+  console.log(`✅ Loaded ${medicinesData.length} Bangladesh medicines`);
+} catch (err) {
+  console.error("❌ Failed to load medicines data:", err.message);
+}
 
 export default async function getmedicines(req, res, next) {
   try {
-    const { name } = req.params; // user input (optional)
-    const apiKey = process.env.Medicine_API_KEY;
-    let searchQuery = "";
-    let limit = 10;
+    const { name } = req.params;
+    let filteredMedicines = [];
 
     if (!name) {
-      // No input → return random/default medicines
-      searchQuery = 'openfda.generic_name:*';
-    } else if (name.length === 1) {
-      // Single letter → medicines starting with that letter
-      // Use regex-like search: ^letter
-      searchQuery = `openfda.generic_name:${name}*+openfda.brand_name:${name}*+openfda.substance_name:${name}*`;
+      // No input → return first 20 medicines
+      filteredMedicines = medicinesData.slice(0, 20);
     } else {
-      // Full name input → exact match search (optional)
-      searchQuery = `openfda.generic_name:"${name}"+openfda.brand_name:"${name}"+openfda.substance_name:"${name}"`;
+      // Search by brand name or generic name (case-insensitive)
+      const searchTerm = name.toLowerCase();
+      filteredMedicines = medicinesData.filter(
+        (med) =>
+          med.brand_name?.toLowerCase().includes(searchTerm) ||
+          med.generic?.toLowerCase().includes(searchTerm)
+      );
+
+      // Limit to 50 results
+      filteredMedicines = filteredMedicines.slice(0, 50);
     }
-
-    const response = await axios.get("https://api.fda.gov/drug/label.json", {
-      params: {
-        search: searchQuery,
-        limit,
-        api_key: apiKey
-      }
-    });
-
-    const medicines = response.data.results.map((drug) => ({
-      brand_name: drug.openfda?.brand_name || [],
-      generic_name: drug.openfda?.generic_name || [],
-      purpose: drug.purpose || []
-    }));
 
     return res.status(200).json({
       success: true,
-      count: medicines.length,
-      data: medicines
+      count: filteredMedicines.length,
+      data: filteredMedicines,
     });
-
   } catch (err) {
-    // No matches found
-    if (err.response?.status === 404) {
-      return res.status(200).json({
-        success: false,
-        message: "No medicines found",
-        data: []
-      });
-    }
-
-    console.error("FDA ERROR:", err.response?.data || err.message);
-
-    return next(
-      new AppError(
-        "Failed to fetch medicine data",
-        err.response?.status || 500
-      )
-    );
+    console.error("Medicine lookup error:", err.message);
+    return next(new AppError("Failed to fetch medicine data", 500));
   }
 }
 

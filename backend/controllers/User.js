@@ -4,6 +4,7 @@ import { protect } from "../middleware/auth.js";
 import { sendEmail } from "../utils/emailverification.js";
 import AppError from "../utils/AppError.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { generateToken, generateverifyToken } from "../utils/generatetokens.js";
 
 const verifyemail = async (req, res, next) => {
@@ -131,6 +132,7 @@ const updateProfile = async (req, res, next) => {
       gender,
       private: isPrivate,
       timezone,
+      whatsappPhone,
     } = req.body;
     const userId = req.user._id;
 
@@ -146,7 +148,26 @@ const updateProfile = async (req, res, next) => {
       if (existingEmail) {
         return next(new AppError("Email already exists", 400));
       }
-      user.email = email;
+      // Store pending email and send verification
+      user.pendingEmail = email;
+      const verifytoken = generateverifyToken(user._id);
+      
+      // Send email with timeout to prevent hanging
+      try {
+        const emailPromise = sendEmail(email, verifytoken, true);
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Email timeout')), 10000)
+        );
+        
+        const sendemail = await Promise.race([emailPromise, timeoutPromise]);
+        
+        if (!sendemail.success) {
+          return next(new AppError("Verification email not sent, please try again", 500));
+        }
+      } catch (error) {
+        console.error('Email sending error:', error);
+        return next(new AppError("Email service temporarily unavailable. Your email change has been saved, but verification email could not be sent.", 500));
+      }
     }
 
     // Check if phone is being changed and if it's already taken
@@ -206,6 +227,15 @@ const updateProfile = async (req, res, next) => {
       user.timezone = timezone;
     }
 
+    // Update WhatsApp phone if provided
+    if (whatsappPhone) {
+      // Validate WhatsApp phone format - must be international format
+      if (!/^\+\d{1,15}$/.test(whatsappPhone)) {
+        return next(new AppError("Invalid WhatsApp number format. Use format: +8801XXXXXXXXX", 400));
+      }
+      user.whatsappPhone = whatsappPhone;
+    }
+
     // Save the updated user
     await user.save();
 
@@ -214,14 +244,144 @@ const updateProfile = async (req, res, next) => {
       .select("-password")
       .populate("family.father family.spouse family.mother family.children");
 
+    // Check if email change was requested
+    const emailChangeRequested = updatedUser.pendingEmail !== null;
+
     res.status(200).json({
       success: true,
-      message: "Profile updated successfully",
+      message: emailChangeRequested 
+        ? "Verification email sent. Please check your new email to confirm the change."
+        : "Profile updated successfully",
       user: updatedUser,
+      emailChangeRequested,
     });
   } catch (err) {
     return next(err);
   }
 };
 
-export { register, Login, UserDetails, verifyemail, updateProfile };
+// Verify Email Change route
+const verifyEmailChange = async (req, res, next) => {
+  try {
+    const { token } = req.body;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return next(new AppError("User not found", 404));
+    }
+
+    if (!user.pendingEmail) {
+      return next(new AppError("No pending email change found", 400));
+    }
+
+    // Update email and clear pendingEmail
+    user.email = user.pendingEmail;
+    user.pendingEmail = null;
+    await user.save();
+
+    const updatedUser = await User.findById(user._id)
+      .select("-password")
+      .populate("family.father family.spouse family.mother family.children");
+
+    const localStoragetoken = generateToken(user._id);
+    return res
+      .status(200)
+      .json({ success: true, user: updatedUser, token: localStoragetoken });
+  } catch (error) {
+    return next(new AppError("Invalid or expired token", 400));
+  }
+};
+
+// Forgot Password - sends reset email
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return next(new AppError("Please provide your email address", 400));
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Don't reveal whether the email exists — always return success message
+      return res.status(200).json({
+        success: true,
+        message: "If an account with that email exists, a password reset link has been sent.",
+      });
+    }
+
+    if (!user.verified) {
+      return next(new AppError("Please verify your email first", 400));
+    }
+
+    // Generate a random reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+    // Save hashed token and expiry (10 minutes) to user
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save();
+
+    // Build reset link
+    const resetLink = `http://localhost:5173/reset-password/${resetToken}`;
+
+    // Send email
+    const { sendPasswordResetEmail } = await import("../utils/emailverification.js");
+    const result = await sendPasswordResetEmail(email, resetLink);
+    if (!result.success) {
+      user.passwordResetToken = null;
+      user.passwordResetExpires = null;
+      await user.save();
+      return next(new AppError("Failed to send reset email. Please try again.", 500));
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "If an account with that email exists, a password reset link has been sent.",
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// Reset Password - validates token and sets new password
+const resetPassword = async (req, res, next) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      return next(new AppError("Token and new password are required", 400));
+    }
+
+    if (password.length < 6) {
+      return next(new AppError("Password must be at least 6 characters", 400));
+    }
+
+    // Hash the token from the URL to compare with stored hash
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return next(new AppError("Reset token is invalid or has expired", 400));
+    }
+
+    // Set new password (will be hashed by pre-save hook)
+    user.password = password;
+    user.passwordResetToken = null;
+    user.passwordResetExpires = null;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password has been reset successfully. You can now log in with your new password.",
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export { register, Login, UserDetails, verifyemail, updateProfile, verifyEmailChange, forgotPassword, resetPassword };

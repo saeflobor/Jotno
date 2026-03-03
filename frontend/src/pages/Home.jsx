@@ -13,16 +13,12 @@ import {
   FileText,
   Heart,
   UserRound,
-  Moon,
-  Sun,
   Pill,
+  Sparkles,
 } from "lucide-react";
 
 const Home = ({ user, error }) => {
-  console.log("User:", user); // Check the value of user
-
   const [showAllFeatures, setShowAllFeatures] = useState(false);
-  const [useDarkBackground, setUseDarkBackground] = useState(false);
 
   const features = [
     {
@@ -30,7 +26,7 @@ const Home = ({ user, error }) => {
       icon: Bell,
       title: "Medication Reminders",
       description:
-        "Timely alerts via notifications or SMS. Family can track if reminders were acknowledged.",
+        "Timely alerts via notifications or SMS. Never miss a dose again InshaAllah",
       visible: true,
     },
     {
@@ -38,7 +34,7 @@ const Home = ({ user, error }) => {
       icon: Users,
       title: "Family Supervision",
       description:
-        "Monitor medication adherence, access records (with permission), view health summaries.",
+        "Monitor medication adherence, access records (with permission), view health summaries",
       visible: true,
     },
     {
@@ -46,15 +42,15 @@ const Home = ({ user, error }) => {
       icon: AlertTriangle,
       title: "Emergency SOS",
       description:
-        "One-tap SOS button notifies family instantly with message and optional location.",
+        "One-tap SOS button notifies family instantly with email and optional location",
       visible: true,
     },
     {
       id: 4,
       icon: Calendar,
-      title: "Appointment Tracking",
+      title: "Appointment Tracking & Doctors List",
       description:
-        "Never miss a doctor's appointment with our smart scheduling system.",
+        "Never miss a doctor's appointment & find nearby healthcare professionals easily",
       visible: showAllFeatures,
     },
     {
@@ -62,7 +58,7 @@ const Home = ({ user, error }) => {
       icon: Activity,
       title: "Health Monitoring",
       description:
-        "Track vital signs and health metrics with easy-to-use tools.",
+        "Track vital signs and health metrics with easy-to-use tools",
       visible: showAllFeatures,
     },
     {
@@ -70,7 +66,7 @@ const Home = ({ user, error }) => {
       icon: FileText,
       title: "Medical Records",
       description:
-        "Secure digital storage for all your important medical documents.",
+        "Secure digital storage for all your important medical documents, accessible anytime, anywhere",
       visible: showAllFeatures,
     },
     {
@@ -78,7 +74,15 @@ const Home = ({ user, error }) => {
       icon: Pill,
       title: "Drug Lookup",
       description:
-        "Search comprehensive medicine information and drug interactions using MedEx API.",
+        "Search comprehensive medicine information and drug interactions",
+      visible: showAllFeatures,
+    },
+    {
+      id: 8,
+      icon: Sparkles,
+      title: "Smart Scanning (AI)",
+      description:
+        "Data inputs automatically retrieved from prescriptions & reports using AI",
       visible: showAllFeatures,
     },
   ];
@@ -108,57 +112,18 @@ const Home = ({ user, error }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
-          className={`absolute inset-0 bg-cover bg-center bg-no-repeat blur-md ${useDarkBackground ? 'bg-black' : 'bg-white'
-            }`}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat blur-md bg-white"
         />
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2 }}
-          className={`absolute inset-0 ${useDarkBackground ? 'bg-black/70' : 'bg-white/30'}`}
+          className="absolute inset-0 bg-white/30"
           aria-hidden="true"
         />
         <div className="relative">
-          <div className={`absolute top-6 left-6 z-30 text-sm ${useDarkBackground ? "text-white" : "text-gray-800"}`}>
-            Home / <span className="font-semibold">Home</span>
-          </div>
-          <motion.button
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.5 }}
-            whileHover={{ scale: 1.1, rotate: 15 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setUseDarkBackground(!useDarkBackground)}
-            className={`fixed top-5 right-4 z-50 p-2 rounded-full transition duration-300 transform hover:scale-90 hover:opacity-80 ${useDarkBackground
-                ? 'bg-black/50 hover:bg-white/50 text-white'
-                : 'bg-black/50 hover:bg-black/10 text-white'
-              }`}
-            title={useDarkBackground ? 'Switch to light background' : 'Switch to dark background'}
-          >
-            <AnimatePresence mode="wait">
-              {useDarkBackground ? (
-                <motion.div
-                  key="sun"
-                  initial={{ rotate: -90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: 90, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Sun className="w-8 h-5" />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="moon"
-                  initial={{ rotate: 90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: -90, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Moon className="w-8 h-5" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.button>
+
+
           <section className="container mx-auto px-4 py-16 md:py-24">
             <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-16">
               <motion.div
@@ -168,7 +133,7 @@ const Home = ({ user, error }) => {
                 transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
               >
                 <motion.h1
-                  className={`text-4xl md:text-5xl font-bold mb-4 ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}
+                  className="text-4xl md:text-5xl font-bold mb-4 text-gray-900"
                   initial={{ opacity: 0, y: -50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
@@ -176,7 +141,7 @@ const Home = ({ user, error }) => {
                   Peace of Mind for You,<br />Care for Your Loved Ones
                 </motion.h1>
                 <motion.p
-                  className={`text-lg mb-6 ${useDarkBackground ? 'text-gray-400' : 'text-gray-700'}`}
+                  className="text-lg mb-6 text-gray-700"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4 }}
@@ -195,7 +160,7 @@ const Home = ({ user, error }) => {
                   >
                     <Link
                       to="/register"
-                      className="bg-[rgb(211,46,149)] hover: text-white px-6 py-3 rounded-lg font-medium transition duration-300 transform hover:scale-90 hover:opacity-90 inline-block"
+                      className="bg-[rgb(211,46,149)] hover:bg-[rgb(180,36,126)] text-white px-6 py-3 rounded-lg font-medium transition duration-300 transform hover:scale-105 hover:opacity-90 inline-block"
                     >
                       Get Started
                     </Link>
@@ -206,7 +171,7 @@ const Home = ({ user, error }) => {
                   >
                     <Link
                       to="/login"
-                      className="border-2 border-[rgb(211,46,149)] text-[rgb(211,46,149)] hover: px-6 py-3 rounded-lg font-medium transition duration-300 transform hover:scale-90 hover:opacity-90 inline-block"
+                      className="border-2 border-[rgb(211,46,149)] text-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)] hover:text-white px-6 py-3 rounded-lg font-medium transition duration-300 transform hover:scale-105 hover:opacity-90 inline-block"
                     >
                       Login
                     </Link>
@@ -234,7 +199,7 @@ const Home = ({ user, error }) => {
 
           <section className="container mx-auto px-4 py-16">
             <motion.h2
-              className={`text-3xl font-bold text-center mb-12 ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}
+              className="text-3xl font-bold text-center mb-12 text-gray-900"
               initial={{ opacity: 0, scale: 0.5 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
@@ -268,26 +233,18 @@ const Home = ({ user, error }) => {
                         transition: { duration: 0.3 }
                       }}
                       whileHover={{
-                        scale: 1.08,
-                        y: -10,
-                        rotate: [0, -2, 2, 0],
                         boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)",
                         transition: { duration: 0.3 }
                       }}
-                      className={`${useDarkBackground ? 'bg-gray-800/80' : 'bg-gray-100/60'} backdrop-blur-[40px] p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300`}
+                      className="bg-gray-100/60 backdrop-blur-[40px] p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300"
                     >
                       <motion.div
                         className="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mb-4"
-                        whileHover={{
-                          rotate: 360,
-                          scale: 1.2
-                        }}
-                        transition={{ duration: 0.5 }}
                       >
                         <IconComponent className="text-black w-6 h-6" />
                       </motion.div>
-                      <h3 className={`text-xl font-semibold mb-2 ${useDarkBackground ? 'text-white' : 'text-gray-900'}`}>{feature.title}</h3>
-                      <p className={useDarkBackground ? 'text-gray-300' : 'text-gray-800'}>{feature.description}</p>
+                      <h3 className="text-xl font-semibold mb-2 text-gray-900">{feature.title}</h3>
+                      <p className="text-gray-800">{feature.description}</p>
                     </motion.div>
                   );
                 })}
@@ -303,7 +260,7 @@ const Home = ({ user, error }) => {
             >
               <motion.button
                 onClick={() => setShowAllFeatures(!showAllFeatures)}
-                className="bg-[rgb(211,46,149)] hover: text-white px-6 py-3 rounded-lg font-medium transition duration-300 transform hover:scale-90 hover:opacity-90 flex items-center gap-2"
+                className="bg-[rgb(211,46,149)] hover:bg-[rgb(180,36,126)] text-white px-6 py-3 rounded-lg font-medium transition duration-300 transform hover:scale-105 hover:opacity-90 flex items-center gap-2"
                 whileHover={{ scale: 1.05, y: -3 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -327,16 +284,14 @@ const Home = ({ user, error }) => {
           </section>
 
           <motion.section
-            className={`container mx-auto px-4 py-16  ${useDarkBackground ? "bg-gray-800/70" : "bg-white/70"
-              } backdrop-blur-[40px] rounded-xl`}
+            className="container mx-auto px-4 py-16 bg-white/70 backdrop-blur-[40px] rounded-xl"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6 }}
           >
             <motion.h2
-              className={`text-3xl font-bold text-center mb-12 ${useDarkBackground ? "text-white" : "text-gray-900"
-                }`}
+              className="text-3xl font-bold text-center mb-12 text-gray-900"
               initial={{ opacity: 0, y: -30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -364,8 +319,7 @@ const Home = ({ user, error }) => {
                 return (
                   <motion.div
                     key={testimonial.id}
-                    className={`${useDarkBackground ? "bg-gray-800/80" : "bg-gray-100/60"
-                      } backdrop-blur-[40px] p-6 rounded-lg shadow`}
+                    className="bg-gray-100/60 backdrop-blur-[40px] p-6 rounded-lg shadow"
                     variants={{
                       hidden: {
                         opacity: 0,
@@ -391,8 +345,7 @@ const Home = ({ user, error }) => {
                     }}
                   >
                     <motion.p
-                      className={`italic mb-4 ${useDarkBackground ? "text-gray-100" : "text-gray-900"
-                        }`}
+                      className="italic mb-4 text-gray-900"
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       viewport={{ once: true }}
@@ -419,16 +372,12 @@ const Home = ({ user, error }) => {
                       </motion.div>
                       <div>
                         <h4
-                          className={`font-semibold ${useDarkBackground ? "text-white" : "text-gray-900"
-                            }`}
+                          className="font-semibold text-gray-900"
                         >
                           {testimonial.author}
                         </h4>
                         <p
-                          className={`text-sm ${useDarkBackground
-                              ? "text-gray-300"
-                              : "text-gray-700"
-                            }`}
+                          className="text-sm text-gray-700"
                         >
                           {testimonial.relationship}
                         </p>
@@ -449,8 +398,7 @@ const Home = ({ user, error }) => {
             transition={{ duration: 0.6 }}
           >
             <motion.div
-              className={`bg-[rgb(211,46,149)]/60 rounded-xl p-8 text-center ${useDarkBackground ? "text-white" : "text-gray-900"
-                }`}
+              className="bg-[rgb(211,46,149)]/60 rounded-xl p-8 text-center text-gray-900"
               whileHover={{
                 scale: 1.02,
                 boxShadow: "0px 30px 60px rgba(211, 46, 149, 0.4)"
@@ -486,7 +434,7 @@ const Home = ({ user, error }) => {
               >
                 <Link
                   to="/register"
-                  className="inline-block bg-white text-[rgb(211,46,149)] hover: px-8 py-3 rounded-lg font-medium transition duration-300 transform hover:scale-90 hover:opacity-90"
+                  className="inline-block bg-white text-[rgb(211,46,149)] hover:bg-gray-100 px-8 py-3 rounded-lg font-medium transition duration-300 transform hover:scale-105 hover:opacity-90"
                 >
                   Sign Up Free
                 </Link>

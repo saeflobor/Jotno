@@ -60,15 +60,28 @@ const Dashboard = ({ user, setUser }) => {
     setSosMessage("");
     setSendingSOS(true);
     try {
-      await axios.post(
+      const response = await axios.post(
         "/api/family/sos",
         { message: "I need help" },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-      setSosMessage("SOS sent to your family members.");
+      console.log("SOS Response:", response.data);
+      
+      // Build detailed message
+      const emailCount = response.data?.sentTo?.emails?.length || 0;
+      const whatsappCount = response.data?.sentTo?.whatsapp?.length || 0;
+      const message = `SOS sent: ${emailCount} email(s), ${whatsappCount} WhatsApp(s)`;
+      
+      setSosMessage(message);
+      
+      // Show WhatsApp errors if any
+      if (response.data?.whatsappResults?.some(r => !r.success)) {
+        console.warn("WhatsApp errors:", response.data.whatsappResults);
+      }
     } catch (err) {
+      console.error("SOS Error:", err.response?.data);
       setSosMessage(err.response?.data?.message || "Failed to send SOS");
     } finally {
       setSendingSOS(false);
@@ -150,6 +163,15 @@ const Dashboard = ({ user, setUser }) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-pink-50 relative overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-50 blur-sm"
+        style={{
+          backgroundImage: "url('/Smiling_Old_Couple_Black.jpg')",
+          filter: "blur(8px)",
+        }}
+      />
+      
       {/* Animated background blobs */}
       <motion.div
         className="absolute top-0 right-0 w-96 h-96 bg-pink-200/20 rounded-full blur-3xl"
@@ -162,15 +184,33 @@ const Dashboard = ({ user, setUser }) => {
         transition={{ duration: 8, repeat: Infinity, delay: 1 }}
       />
 
-              <div className="px-6 pt-6">
-                <div className="text-sm text-gray-600">
-                  Dashboard / <span className="font-semibold text-gray-900">Dashboard</span>
+              <div className="px-4 sm:px-6 pt-4 sm:pt-6">
+                <div className="text-xs sm:text-sm text-gray-600">
+                  Home / <span className="font-semibold text-gray-900">Dashboard</span>
                 </div>
               </div>
 
       <div className="relative z-10 flex-1 flex flex-col">
-        {/* Top Right Profile */}
-        <div className="flex justify-end items-center p-6 pr-8">
+        {/* SOS Button & Profile - Same Row */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 sm:p-6 sm:pr-8">
+          {/* Empty space for balance - hidden on mobile */}
+          <div className="hidden sm:block w-16"></div>
+          
+          {/* SOS Button */}
+          <motion.button
+            onClick={sendSOS}
+            disabled={sendingSOS}
+            whileHover={{ scale: 1.08, boxShadow: "0px 12px 32px rgba(255, 31, 75, 0.4)" }}
+            whileTap={{ scale: 0.98 }}
+            className="px-10 py-4 rounded-full text-white font-bold text-lg shadow-lg transition disabled:opacity-60"
+            style={{
+              background: "linear-gradient(90deg,#ff1f4b,#ff5f6d)",
+            }}
+          >
+            {sendingSOS ? "Sending..." : "SOS"}
+          </motion.button>
+
+          {/* Profile Button */}
           <motion.button
             onClick={() => setShowProfileModal(!showProfileModal)}
             whileHover={{ scale: 1.1 }}
@@ -194,14 +234,14 @@ const Dashboard = ({ user, setUser }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowProfileModal(false)}
-            className="fixed inset-0 backdrop-blur-md z-40 flex items-center justify-center p-4"
+            className="fixed inset-0 backdrop-blur-md z-40 flex items-center justify-center p-4 overflow-y-auto">
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl"
+              className="bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-2xl my-auto"
             >
               <div className="flex flex-col items-center text-center mb-6">
                 <motion.div
@@ -249,24 +289,8 @@ const Dashboard = ({ user, setUser }) => {
           </motion.div>
         )}
 
-        {/* SOS Button */}
-        <div className="flex justify-center py-6">
-          <motion.button
-            onClick={sendSOS}
-            disabled={sendingSOS}
-            whileHover={{ scale: 1.08, boxShadow: "0px 12px 32px rgba(255, 31, 75, 0.4)" }}
-            whileTap={{ scale: 0.98 }}
-            className="px-10 py-4 rounded-full text-white font-bold text-lg shadow-lg transition disabled:opacity-60"
-            style={{
-              background: "linear-gradient(90deg,#ff1f4b,#ff5f6d)",
-            }}
-          >
-            {sendingSOS ? "Sending..." : "SOS"}
-          </motion.button>
-        </div>
-
         {/* Main content */}
-        <div className="flex-1 flex items-start justify-center px-4 pt-40 pb-8">
+        <div className="flex-1 flex items-start justify-center px-4 pt-8 sm:pt-20 pb-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -337,12 +361,12 @@ const Dashboard = ({ user, setUser }) => {
                 {/* Medical Records */}
                 <motion.button
                   onClick={() => navigate("/profile-activity")}
-                  whileHover={{ y: -4, boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)" }}
+                  whileHover={{ y: -4, boxShadow: "0px 40px 40px rgba(211, 46, 149, 0.5)" }}
                   whileTap={{ scale: 0.98 }}
-                  initial={{ opacity: 0, y: 20, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
-                  animate={{ opacity: 1, y: 0, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
+                  initial={{ opacity: 0, y: 20, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
+                  animate={{ opacity: 1, y: 0, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
                   // transition={{ duration: 0, delay: 0.5 }}
-                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition w-full h-50"
+                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition w-full h-50 shadow-lg"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="p-3 rounded-lg bg-purple-100">
@@ -357,12 +381,12 @@ const Dashboard = ({ user, setUser }) => {
                 {/* Family Management */}
                 <motion.button
                   onClick={() => navigate("/family-integration")}
-                  whileHover={{ y: -4, boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)" }}
+                  whileHover={{ y: -4, boxShadow: "0px 40px 40px rgba(211, 46, 149, 0.5)" }}
                   whileTap={{ scale: 0.98 }}
-                  initial={{ opacity: 0, y: 20, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
-                  animate={{ opacity: 1, y: 0, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
+                  initial={{ opacity: 0, y: 20, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
+                  animate={{ opacity: 1, y: 0, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
                   // transition={{ duration: 0, delay: 0.55 }}
-                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition w-full h-50"
+                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition w-full h-50 shadow-lg"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="p-3 rounded-lg bg-pink-100">
@@ -376,16 +400,13 @@ const Dashboard = ({ user, setUser }) => {
 
                 {/* Lookup Meds */}
                 <motion.button
-                  onClick={() => {
-                    setSosMessage("Lookup Meds feature is coming soon!");
-                    setTimeout(() => setSosMessage(""), 4000);
-                  }}
-                  whileHover={{ y: -4, boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)" }}
+                  onClick={() => navigate("/lookup-meds")}
+                  whileHover={{ y: -4, boxShadow: "0px 40px 40px rgba(211, 46, 149, 0.5)" }}
                   whileTap={{ scale: 0.98 }}
-                  initial={{ opacity: 0, y: 20, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
-                  animate={{ opacity: 1, y: 0, boxShadow: "0px 0px 0px rgba(211, 46, 149, 0)" }}
+                  initial={{ opacity: 0, y: 20, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
+                  animate={{ opacity: 1, y: 0, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }}
                   // transition={{ duration: 0, delay: 0.6 }}
-                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition opacity-50 cursor-not-allowed w-full h-50"
+                  className="relative rounded-4xl p-6 text-left bg-white border border-gray-200 transition w-full h-50 shadow-lg"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="p-3 rounded-lg bg-red-100">
@@ -394,7 +415,7 @@ const Dashboard = ({ user, setUser }) => {
                     <span className="text-2xl text-gray-300">→</span>
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-1">Lookup Meds</h3>
-                  <p className="text-sm text-gray-600">Coming soon</p>
+                  <p className="text-sm text-gray-600">Search and explore medicine information</p>
                 </motion.button>
             </div>
 

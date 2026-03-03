@@ -11,6 +11,12 @@ const Login = ({ setUser }) => {
   });
   const [error, setError] = useState("");
   const [typedText, setTypedText] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMessage, setForgotMessage] = useState("");
+  const [forgotError, setForgotError] = useState("");
+  const [hasLoginError, setHasLoginError] = useState(false);
   const navigate = useNavigate();
 
   const fullText = "->  যত্ন : Jotno";
@@ -48,15 +54,54 @@ const Login = ({ setUser }) => {
       setUser(profileRes.data);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      const msg = err.response?.data?.message || "Login failed";
+      setError(msg);
+      setHasLoginError(true);
+    }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setForgotError("");
+    setForgotMessage("");
+
+    if (!forgotEmail) {
+      setForgotError("Please enter your email address");
+      return;
+    }
+
+    setForgotLoading(true);
+    try {
+      const res = await axios.post("/api/users/forgot-password", { email: forgotEmail });
+      setForgotMessage(res.data.message);
+    } catch (err) {
+      setForgotError(err.response?.data?.message || "Something went wrong. Please try again.");
+    } finally {
+      setForgotLoading(false);
     }
   };
 
   return (
-    <div className='min-h-screen flex bg-white'>
-      {/* Left Section - 60% */}
+    <div className='min-h-screen flex flex-col lg:flex-row bg-white'>
+      {/* Mobile Header - Visible only on mobile */}
+      <div className='lg:hidden bg-gradient-to-r from-[rgb(211,46,149)] to-[rgb(255,95,109)] p-4'>
+        <div className='flex items-center justify-between'>
+          <motion.button
+            onClick={() => navigate("/")}
+            whileTap={{ scale: 0.95 }}
+            className='flex items-center gap-2 text-white/90 hover:text-white transition font-semibold'
+          >
+            <MdArrowBack className='text-xl' />
+            Back
+          </motion.button>
+          <span className='text-white text-xl font-bold'>যত্ন : Jotno</span>
+          <div className='w-16'></div>
+        </div>
+      </div>
+
+      {/* Left Section - Hidden on mobile, 60% on desktop */}
       <motion.div 
-        className='w-[60%] bg-gradient-to-b from-[rgb(211,46,149)] via-[rgb(235,80,160)] to-[rgb(255,150,190)] relative overflow-hidden flex flex-col justify-start pt-65 items-center p-16'
+        className='hidden lg:flex w-full lg:w-[60%] bg-gradient-to-b from-[rgb(211,46,149)] via-[rgb(235,80,160)] to-[rgb(255,150,190)] relative overflow-hidden flex-col justify-start pt-20 lg:pt-65 items-center p-8 lg:p-16'
         initial={{ opacity: 0, x: -100 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
@@ -110,10 +155,10 @@ const Login = ({ setUser }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <div className='text-3xl text-white/90 font-semibold tracking-wide'>Welcome to</div>
             <div className='flex items-baseline gap-3 mt-2 text-white'>
               <span className='text-6xl font-extrabold leading-none inline-flex items-center'>{typedText}<span className="animate-pulse font-normal">|</span></span>
             </div>
+            <div className='mt-10 text-3xl text-white/90 font-semibold tracking-wide'>Welcome back</div>
           </motion.div>
           
           <motion.p 
@@ -122,14 +167,14 @@ const Login = ({ setUser }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            Continue managing your health journey with our comprehensive platform designed for you and your family.
+            Continue managing your health journey with our comprehensive platform designed for you and your family
           </motion.p>
         </div>
       </motion.div>
 
-      {/* Right Section - 40% */}
+      {/* Right Section - Full width on mobile, 40% on desktop */}
       <motion.div 
-        className='w-[40%] flex items-center justify-center p-12 bg-gray-50'
+        className='w-full lg:w-[40%] flex items-center justify-center p-4 sm:p-8 lg:p-12 bg-gray-50 flex-1'
         initial={{ opacity: 0, x: 100 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
@@ -137,7 +182,7 @@ const Login = ({ setUser }) => {
         <div className='w-full max-w-md'>
           {/* Main form container */}
           <motion.div 
-            className='bg-white p-8 rounded-2xl shadow-xl'
+            className='bg-white p-6 sm:p-8 rounded-2xl shadow-xl'
             initial={{ opacity: 0, y: 50, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.3, type: "spring", stiffness: 100 }}
@@ -228,6 +273,31 @@ const Login = ({ setUser }) => {
                   autoComplete='current-password'
                   required
                 />
+                {/* Forgot Password link */}
+                <AnimatePresence>
+                  {hasLoginError && (
+                    <motion.div
+                      className="mt-2 text-right"
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowForgotPassword(true);
+                          setForgotEmail(formData.email);
+                          setForgotMessage("");
+                          setForgotError("");
+                        }}
+                        className="text-sm text-[rgb(211,46,149)] font-medium hover:underline transition"
+                      >
+                        Forgot Password?
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
 
               {/* Login button */}
@@ -262,6 +332,102 @@ const Login = ({ setUser }) => {
           </motion.div>
         </div>
       </motion.div>
+
+      {/* Forgot Password Modal */}
+      <AnimatePresence>
+        {showForgotPassword && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowForgotPassword(false)}
+          >
+            <motion.div
+              className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl"
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Reset Password</h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Enter your email address and we'll send you a link to reset your password.
+              </p>
+
+              {/* Success Message */}
+              <AnimatePresence>
+                {forgotMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="mb-4 p-4 rounded-xl bg-green-50 border border-green-200"
+                  >
+                    <p className="text-green-800 text-sm font-medium">{forgotMessage}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Error Message */}
+              <AnimatePresence>
+                {forgotError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="mb-4 p-4 rounded-xl bg-red-50 border border-red-200"
+                  >
+                    <p className="text-red-800 text-sm font-medium">{forgotError}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {!forgotMessage && (
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <div>
+                    <label className="block text-gray-700 text-sm font-semibold mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      placeholder="Enter your registered email"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition placeholder-gray-400 text-gray-900 bg-white"
+                      required
+                    />
+                  </div>
+                  <motion.button
+                    type="submit"
+                    disabled={forgotLoading}
+                    className="w-full bg-gradient-to-r from-[rgb(211,46,149)] to-[rgb(255,95,109)] text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    whileHover={{ scale: forgotLoading ? 1 : 1.02 }}
+                    whileTap={{ scale: forgotLoading ? 1 : 0.98 }}
+                  >
+                    {forgotLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Sending...
+                      </span>
+                    ) : (
+                      "Send Reset Link"
+                    )}
+                  </motion.button>
+                </form>
+              )}
+
+              <button
+                onClick={() => setShowForgotPassword(false)}
+                className="w-full mt-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition font-medium"
+              >
+                {forgotMessage ? "Close" : "Back to Sign In"}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
