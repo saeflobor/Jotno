@@ -34,6 +34,17 @@ const userSchema = new mongoose.Schema(
         message: (props) => `${props.value} is not a valid phone number!`,
       },
     },
+    whatsappPhone: {
+      type: String,
+      default: null,
+      validate: {
+        validator: function (v) {
+          if (!v) return true; // optional field
+          return /^\+\d{1,15}$/.test(v);
+        },
+        message: (props) => `${props.value} is not a valid WhatsApp number!`,
+      },
+    },
     family: {
       father: {
         type: mongoose.Schema.Types.ObjectId,

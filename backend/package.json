@@ -22,8 +22,7 @@
     "mongoose": "^9.0.1",
     "multer": "^2.0.2",
     "nodemailer": "^6.9.15",
-    "streamifier": "^0.1.1",
-    "twilio": "^5.11.1"
+    "streamifier": "^0.1.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.3",

@@ -60,15 +60,28 @@ const Dashboard = ({ user, setUser }) => {
     setSosMessage("");
     setSendingSOS(true);
     try {
-      await axios.post(
+      const response = await axios.post(
         "/api/family/sos",
         { message: "I need help" },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-      setSosMessage("SOS sent to your family members.");
+      console.log("SOS Response:", response.data);
+      
+      // Build detailed message
+      const emailCount = response.data?.sentTo?.emails?.length || 0;
+      const whatsappCount = response.data?.sentTo?.whatsapp?.length || 0;
+      const message = `SOS sent: ${emailCount} email(s), ${whatsappCount} WhatsApp(s)`;
+      
+      setSosMessage(message);
+      
+      // Show WhatsApp errors if any
+      if (response.data?.whatsappResults?.some(r => !r.success)) {
+        console.warn("WhatsApp errors:", response.data.whatsappResults);
+      }
     } catch (err) {
+      console.error("SOS Error:", err.response?.data);
       setSosMessage(err.response?.data?.message || "Failed to send SOS");
     } finally {
       setSendingSOS(false);

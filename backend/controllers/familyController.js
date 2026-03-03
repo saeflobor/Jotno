@@ -6,6 +6,7 @@ import ChronicCondition from "../models/ChronicCondition.js";
 import MedicalReport from "../models/MedicalReport.js";
 import FamilyRequest from "../models/FamilyRequest.js";
 import { logActivity } from "../utils/activityLogger.js";
+import { sendSOSWhatsApp } from "../utils/sendWhatsApp.js";
 
 // Create nodemailer transport
 function createMailTransport() {
@@ -183,16 +184,16 @@ export const removeFamilyMember = async (req, res, next) => {
 // SOS alert function (unchanged)
 export const sendSosAlert = async (req, res, next) => {
   const userId = req.user?._id;
-  const { message = "I need help" } = req.body || {};
+  const { message = "I need help", location } = req.body || {};
 
   if (!userId) return next(new AppError("Unauthorized", 401));
 
   try {
     const user = await User.findById(userId)
-      .select("username email family")
+      .select("username email phone whatsappPhone family")
       .populate(
         "family.father family.mother family.spouse family.children",
-        "email username",
+        "email username phone whatsappPhone",
       );
 
     if (!user) return next(new AppError("Current user not found", 404));
@@ -208,35 +209,68 @@ export const sendSosAlert = async (req, res, next) => {
       ...new Set(members.map((m) => m?.email).filter(Boolean)),
     ].filter((email) => email !== user.email);
 
-    if (recipientEmails.length === 0) {
+    const recipientWhatsAppNumbers = [
+      ...new Set(members.map((m) => m?.whatsappPhone).filter(Boolean)),
+    ];
+
+    if (recipientEmails.length === 0 && recipientWhatsAppNumbers.length === 0) {
       return next(
-        new AppError("No family members with email to send SOS", 400),
+        new AppError("No family members with email or WhatsApp to send SOS", 400),
       );
     }
 
-    const transporter = createMailTransport();
+    // Send Email
+    if (recipientEmails.length > 0) {
+      try {
+        const transporter = createMailTransport();
+        await transporter.sendMail({
+          from: process.env.SMTP_USER,
+          to: recipientEmails,
+          subject: `SOS alert from ${user.username}`,
+          text: message,
+        });
+        console.log("SOS emails sent");
+      } catch (emailErr) {
+        console.error("Email sending failed:", emailErr);
+      }
+    }
 
-    await transporter.sendMail({
-      from: process.env.SMTP_USER,
-      to: recipientEmails,
-      subject: `SOS alert from ${user.username}`,
-      text: message,
-    });
+    // Send WhatsApp Messages
+    const whatsappResults = [];
+    if (recipientWhatsAppNumbers.length > 0) {
+      for (const phoneNumber of recipientWhatsAppNumbers) {
+        const result = await sendSOSWhatsApp(phoneNumber, {
+          username: user.username,
+          location,
+        });
+        whatsappResults.push({ phone: phoneNumber, ...result });
+      }
+    }
 
     // Log activity
     await logActivity(
       userId,
       "sent_sos",
-      `Sent SOS alert to ${recipientEmails.length} family member(s)`,
-      { message, recipientCount: recipientEmails.length }
+      `Sent SOS alert to ${recipientEmails.length} email(s) and ${recipientWhatsAppNumbers.length} WhatsApp contact(s)`,
+      { 
+        message, 
+        recipientEmails: recipientEmails.length,
+        recipientWhatsApp: recipientWhatsAppNumbers.length,
+        location
+      }
     );
 
-    return res
-      .status(200)
-      .json({ message: "SOS email sent", sentTo: recipientEmails });
+    return res.status(200).json({ 
+      message: "SOS sent successfully", 
+      sentTo: {
+        emails: recipientEmails,
+        whatsapp: recipientWhatsAppNumbers
+      },
+      whatsappResults
+    });
   } catch (err) {
     console.error("SOS Alert Error:", err);
-    return next(new AppError("SOS email sending failed", 500));
+    return next(new AppError("SOS sending failed", 500));
   }
 };
 

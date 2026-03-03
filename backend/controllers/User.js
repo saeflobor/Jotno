@@ -132,6 +132,7 @@ const updateProfile = async (req, res, next) => {
       gender,
       private: isPrivate,
       timezone,
+      whatsappPhone,
     } = req.body;
     const userId = req.user._id;
 
@@ -224,6 +225,15 @@ const updateProfile = async (req, res, next) => {
     // Update timezone if provided
     if (timezone) {
       user.timezone = timezone;
+    }
+
+    // Update WhatsApp phone if provided
+    if (whatsappPhone) {
+      // Validate WhatsApp phone format - must be international format
+      if (!/^\+\d{1,15}$/.test(whatsappPhone)) {
+        return next(new AppError("Invalid WhatsApp number format. Use format: +8801XXXXXXXXX", 400));
+      }
+      user.whatsappPhone = whatsappPhone;
     }
 
     // Save the updated user
