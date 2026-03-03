@@ -21,6 +21,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     gender: user?.gender || "male",
     private: user?.private || false,
     timezone: user?.timezone || "UTC",
+    whatsappPhone: user?.whatsappPhone || "",
   });
 
   const handleChange = (e) => {
@@ -67,6 +68,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       formData.gender && formData.gender !== user?.gender;
     const privateChanged = formData.private !== user?.private;
     const timezoneChanged = formData.timezone && formData.timezone !== user?.timezone;
+    const whatsappChanged = formData.whatsappPhone && formData.whatsappPhone !== user?.whatsappPhone;
 
     if (
       !emailChanged &&
@@ -75,7 +77,8 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       !passwordChanged &&
       !genderChanged &&
       !privateChanged &&
-      !timezoneChanged
+      !timezoneChanged &&
+      !whatsappChanged
     ) {
       setErrorMessage("Please fill in at least one field to update");
       return false;
@@ -95,6 +98,15 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       const phoneRegex = /^\+88(013|014|015|016|017|018|019)\d{8}$/;
       if (!phoneRegex.test(formData.phone)) {
         setErrorMessage("Phone must be a valid Bangladeshi number (format: +8801XXXXXXXXX)");
+        return false;
+      }
+    }
+
+    // WhatsApp validation
+    if (whatsappChanged) {
+      const whatsappRegex = /^\+\d{1,15}$/;
+      if (!whatsappRegex.test(formData.whatsappPhone)) {
+        setErrorMessage("WhatsApp number must be in format: +8801XXXXXXXXX");
         return false;
       }
     }
@@ -157,6 +169,9 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       }
       if (formData.timezone && formData.timezone !== user?.timezone) {
         updatePayload.timezone = formData.timezone;
+      }
+      if (formData.whatsappPhone && formData.whatsappPhone !== user?.whatsappPhone) {
+        updatePayload.whatsappPhone = formData.whatsappPhone;
       }
 
       if (Object.keys(updatePayload).length === 0) {
@@ -228,7 +243,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
             Update Profile
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
-            Update your email, phone, username, password, or gender
+            Update your email, phone, WhatsApp number, username, password, or gender
           </p>
         </motion.div>
 
@@ -328,6 +343,27 @@ const ProfileUpdatePage = ({ user, setUser }) => {
               />
               <p className="text-xs text-gray-700 mt-3">
                 Current: {user?.phone}
+              </p>
+            </div>
+
+            {/* WhatsApp Phone */}
+            <div>
+              <label className="block text-xl font-semibold text-gray-700 mb-2">
+                WhatsApp Number (for SOS alerts)
+              </label>
+              <input
+                type="tel"
+                name="whatsappPhone"
+                value={formData.whatsappPhone}
+                onChange={handleChange}
+                placeholder="+8801xxxxxxxxx"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
+              />
+              <p className="text-xs text-gray-700 mt-3">
+                Current: {user?.whatsappPhone || "Not set"}
+              </p>
+              <p className="text-xs text-gray-500 mt-2">
+                ℹ️ This number will receive WhatsApp messages when SOS alerts are triggered
               </p>
             </div>
 
