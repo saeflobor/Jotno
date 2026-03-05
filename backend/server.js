@@ -17,6 +17,7 @@ cloudinary.config({
 });
 
 import express from "express";
+import cors from "cors";
 import authRoutes from "./routes/authroutes.js";
 import familyRoutes from "./routes/familyRoutes.js";
 import medicalReportRoutes from "./routes/medicalReportRoutes.js";
@@ -31,6 +32,27 @@ import { startScheduler } from "./utils/scheduler.js";
 const PORT = process.env.PORT || 5001;
 
 const app = express();
+
+// CORS
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:3000",
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // allow requests with no origin (mobile apps, curl, Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS: origin '${origin}' not allowed`));
+      }
+    },
+    credentials: true,
+  })
+);
 
 // Middleware
 app.use(express.json());
