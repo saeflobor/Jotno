@@ -214,42 +214,38 @@ const Dashboard = ({ user, setUser }) => {
     return new Date(date).toLocaleDateString();
   };
 
-  const statCards = [
+  const stats = [
     {
-      label: "Chronic Conditions",
+      label: "Conditions",
       value: healthSummary?.chronicConditionsCount ?? "—",
-      description: "Active conditions being tracked",
-      icon: <Heart className="w-5 h-5" />,
+      icon: <Heart className="w-4 h-4" />,
       color: "text-rose-600",
       bg: "bg-rose-50",
-      border: "border-rose-200",
+      accent: "border-rose-300",
     },
     {
       label: "Medications",
       value: healthSummary?.medicationsCount ?? "—",
-      description: "Current prescriptions",
-      icon: <Pill className="w-5 h-5" />,
+      icon: <Pill className="w-4 h-4" />,
       color: "text-orange-600",
       bg: "bg-orange-50",
-      border: "border-orange-200",
+      accent: "border-orange-300",
     },
     {
-      label: "Medical Reports",
+      label: "Reports",
       value: healthSummary?.medicalReportsCount ?? "—",
-      description: "Uploaded documents",
-      icon: <FileText className="w-5 h-5" />,
+      icon: <FileText className="w-4 h-4" />,
       color: "text-blue-600",
       bg: "bg-blue-50",
-      border: "border-blue-200",
+      accent: "border-blue-300",
     },
     {
-      label: "Family Members",
+      label: "Family",
       value: familyCount,
-      description: "Connected to your profile",
-      icon: <PiUsersBold className="w-5 h-5" />,
+      icon: <PiUsersBold className="w-4 h-4" />,
       color: "text-purple-600",
       bg: "bg-purple-50",
-      border: "border-purple-200",
+      accent: "border-purple-300",
     },
   ];
 
@@ -497,178 +493,150 @@ const Dashboard = ({ user, setUser }) => {
             </motion.div>
           )}
 
-        {/* Welcome Section */}
+        {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="mb-8"
+          className="mb-6"
         >
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             {getGreeting()}, {user.username}
           </h1>
-          <p className="text-gray-500 mt-1 text-sm sm:text-base">
-            Here&apos;s an overview of your health profile
+          <p className="text-gray-500 mt-1 text-sm">
+            Here&apos;s your health snapshot
           </p>
         </motion.div>
 
-        {/* Health Overview */}
+        {/* Health Overview — Stat Cards Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          {stats.map((stat, idx) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 + idx * 0.04 }}
+              className={`bg-white rounded-xl border border-gray-200 border-l-[3px] ${stat.accent} px-4 py-3.5 hover:shadow-md transition-shadow`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  {stat.label}
+                </span>
+                <div
+                  className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center ${stat.color}`}
+                >
+                  {stat.icon}
+                </div>
+              </div>
+              {loadingSummary ? (
+                <div className="w-8 h-6 bg-gray-100 rounded animate-pulse" />
+              ) : (
+                <p className="text-xl font-bold text-gray-900">
+                  {stat.value}
+                </p>
+              )}
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Main Feature Cards */}
+        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+          Quick Access
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          {navCards.map((card, idx) => (
+            <motion.button
+              key={card.title}
+              onClick={() => navigate(card.path)}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08 + idx * 0.06 }}
+              whileHover={{
+                y: -4,
+                boxShadow: "0 16px 48px rgba(0,0,0,0.08)",
+              }}
+              whileTap={{ scale: 0.98 }}
+              className="relative bg-white rounded-2xl p-6 text-left border border-gray-200 shadow-sm hover:border-gray-300 transition-all group"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div
+                  className={`w-12 h-12 rounded-xl ${card.iconBg} flex items-center justify-center ${card.iconColor} group-hover:scale-105 transition-transform`}
+                >
+                  {card.icon}
+                </div>
+                <FiChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500 group-hover:translate-x-0.5 transition-all mt-1" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-1">
+                {card.title}
+              </h3>
+              <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                {card.description}
+              </p>
+              {card.stat && (
+                <div className="pt-3 border-t border-gray-100">
+                  <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide">
+                    {card.stat}
+                  </span>
+                </div>
+              )}
+            </motion.button>
+          ))}
+        </div>
+
+        {/* Activity Feed */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8"
+          transition={{ delay: 0.3 }}
         >
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
-                  <Activity className="w-4 h-4 text-white" />
-                </div>
-                <h2 className="text-sm font-semibold text-gray-900">Health Overview</h2>
-              </div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+              Recent Activity
+            </h2>
+            {activities.length > 5 && (
               <button
                 onClick={() => navigate("/profile-activity")}
                 className="text-xs font-medium text-gray-400 hover:text-gray-600 transition flex items-center gap-1"
               >
-                View details
+                View all
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-100">
-              {statCards.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="p-4 sm:p-5 hover:bg-gray-50/50 transition"
-                >
-                  <div className="flex items-center gap-2.5 mb-3">
+            )}
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            {activities.length > 0 ? (
+              <div className="divide-y divide-gray-50">
+                {activities.slice(0, 6).map((activity) => (
+                  <div
+                    key={activity._id}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50/50 transition"
+                  >
                     <div
-                      className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center ${stat.color}`}
+                      className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${getActivityColor(activity.action)}`}
                     >
-                      {stat.icon}
+                      {getActivityIcon(activity.action)}
                     </div>
-                    <span className="text-xs font-medium text-gray-500">
-                      {stat.label}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] text-gray-700 leading-snug truncate">
+                        {activity.description}
+                      </p>
+                    </div>
+                    <span className="text-[11px] text-gray-400 flex-shrink-0">
+                      {formatTimeAgo(activity.createdAt)}
                     </span>
                   </div>
-                  {loadingSummary ? (
-                    <div className="w-10 h-7 bg-gray-100 rounded animate-pulse" />
-                  ) : (
-                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
-                      {stat.value}
-                    </p>
-                  )}
-                  <p className="text-[11px] text-gray-400">
-                    {stat.description}
-                  </p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-10 text-center">
+                <Clock className="w-5 h-5 text-gray-300 mx-auto mb-2" />
+                <p className="text-xs text-gray-400">
+                  Your recent actions will appear here
+                </p>
+              </div>
+            )}
           </div>
         </motion.div>
-
-        {/* Navigation Cards + Activity Feed */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left: Navigation Cards */}
-          <div className="lg:col-span-2 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-1">
-              Quick Access
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {navCards.map((card, idx) => (
-                <motion.button
-                  key={card.title}
-                  onClick={() => navigate(card.path)}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15 + idx * 0.05 }}
-                  whileHover={{ y: -3, boxShadow: "0 12px 40px rgba(0,0,0,0.08)" }}
-                  whileTap={{ scale: 0.98 }}
-                  className="relative bg-white rounded-xl p-5 text-left border border-gray-200 shadow-sm hover:border-pink-200 transition-all group"
-                >
-                  <div
-                    className={`w-12 h-12 rounded-xl ${card.iconBg} flex items-center justify-center ${card.iconColor} mb-4 group-hover:scale-110 transition-transform`}
-                  >
-                    {card.icon}
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-1 text-sm">
-                    {card.title}
-                  </h3>
-                  <p className="text-xs text-gray-400 leading-relaxed">
-                    {card.description}
-                  </p>
-                  {card.stat && (
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <span className="text-[11px] font-semibold text-gray-500 uppercase">
-                        {card.stat}
-                      </span>
-                    </div>
-                  )}
-                  <FiChevronRight className="absolute top-5 right-4 w-4 h-4 text-gray-300 group-hover:text-pink-400 group-hover:translate-x-0.5 transition-all" />
-                </motion.button>
-              ))}
-            </div>
-          </div>
-
-          {/* Right: Activity Feed */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="lg:col-span-1"
-          >
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-              Recent Activity
-            </h2>
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              {activities.length > 0 ? (
-                <div className="divide-y divide-gray-50">
-                  {activities.slice(0, 8).map((activity) => (
-                    <div
-                      key={activity._id}
-                      className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50/50 transition"
-                    >
-                      <div
-                        className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${getActivityColor(activity.action)}`}
-                      >
-                        {getActivityIcon(activity.action)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] text-gray-700 leading-snug line-clamp-2">
-                          {activity.description}
-                        </p>
-                        <p className="text-[11px] text-gray-400 mt-1">
-                          {formatTimeAgo(activity.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-8 text-center">
-                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                    <Clock className="w-5 h-5 text-gray-400" />
-                  </div>
-                  <p className="text-sm text-gray-500 font-medium">
-                    No activity yet
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Your recent actions will appear here
-                  </p>
-                </div>
-              )}
-              {activities.length > 8 && (
-                <button
-                  onClick={() => navigate("/profile-activity")}
-                  className="w-full px-4 py-3 text-xs font-semibold text-pink-600 hover:bg-pink-50/50 transition border-t border-gray-100 flex items-center justify-center gap-1"
-                >
-                  View all activity
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-          </motion.div>
-        </div>
       </div>
 
       {/* SOS Emergency Button — Fixed Bottom */}
