@@ -20,7 +20,7 @@ import ProfileUpdatePage from "./pages/ProfileUpdatePage";
 import LookupMeds from "./pages/LookupMeds";
 import ResetPassword from "./pages/ResetPassword";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "./lib/axios";
 
 function AppContent({ user, setUser, error, isLoading }) {
   const location = useLocation();

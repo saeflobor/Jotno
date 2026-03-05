@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import axios from "../lib/axios";
 import { MdArrowBack } from "react-icons/md";
 import { CheckCircle, AlertCircle, Eye, EyeOff } from "lucide-react";
 

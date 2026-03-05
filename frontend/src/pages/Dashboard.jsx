@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../lib/axios";
 import { FiFileText, FiChevronRight, FiLogOut, FiEdit2 } from "react-icons/fi";
 import {
   MdAccountCircle,

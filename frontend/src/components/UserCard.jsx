@@ -1,7 +1,7 @@
 // src/components/UserCard.jsx
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import api from "../lib/axios";
 import AddConditionModal from "./AddConditionModal";
 import AddMedicationModal from "./AddMedicationModal";
 import ConfirmationModal from "./ConfirmationModal";
@@ -13,13 +13,6 @@ const initials = (name = "") =>
     .slice(0, 2)
     .join("")
     .toUpperCase();
-
-const axiosInstance = axios.create();
-axiosInstance.interceptors.request.use((cfg) => {
-  const token = localStorage.getItem("token");
-  if (token) cfg.headers.Authorization = `Bearer ${token}`;
-  return cfg;
-});
 
 const UserCard = ({ user, onRemove }) => {
   const [showHealthModal, setShowHealthModal] = useState(false);
@@ -71,9 +64,9 @@ const UserCard = ({ user, onRemove }) => {
     setLoading(true);
     try {
       const [conditionsRes, medicationsRes, reportsRes] = await Promise.all([
-        axiosInstance.get(`/api/family/member/${user._id}/conditions`),
-        axiosInstance.get(`/api/family/member/${user._id}/medications`),
-        axiosInstance.get(`/api/family/member/${user._id}/reports`),
+        api.get(`/api/family/member/${user._id}/conditions`),
+        api.get(`/api/family/member/${user._id}/medications`),
+        api.get(`/api/family/member/${user._id}/reports`),
       ]);
 
       setHealthData({
@@ -106,7 +99,7 @@ const UserCard = ({ user, onRemove }) => {
         conditionName: data.conditionName,
         severityLevel: data.severityLevel,
       };
-      await axiosInstance.post(
+      await api.post(
         "/api/health/chronic-conditions-for-user",
         payload,
       );
@@ -130,7 +123,7 @@ const UserCard = ({ user, onRemove }) => {
         times: Array.isArray(data.times) ? data.times : [data.times],
         notificationType: data.notificationType,
       };
-      await axiosInstance.post("/api/health/medications-for-user", payload);
+      await api.post("/api/health/medications-for-user", payload);
       fetchHealthData();
     } catch (err) {
       setMedicationError(
@@ -190,7 +183,7 @@ const UserCard = ({ user, onRemove }) => {
       formData.append("notes", reportFormData.notes);
       formData.append("targetUserId", user._id);
 
-      await axiosInstance.post("/api/medical-report/for-user", formData, {
+      await api.post("/api/medical-report/for-user", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -635,7 +628,7 @@ const UserCard = ({ user, onRemove }) => {
                                       confirmText: "Delete",
                                       onConfirm: async () => {
                                         try {
-                                          await axiosInstance.delete(
+                                          await api.delete(
                                             `/api/health/chronic-conditions-for-user/${user._id}/${condition._id}`,
                                           );
                                           fetchHealthData();
@@ -917,7 +910,7 @@ const UserCard = ({ user, onRemove }) => {
                                       confirmText: "Delete",
                                       onConfirm: async () => {
                                         try {
-                                          await axiosInstance.delete(
+                                          await api.delete(
                                             `/api/health/medications-for-user/${user._id}/${medication._id}`,
                                           );
                                           fetchHealthData();
@@ -998,7 +991,7 @@ const UserCard = ({ user, onRemove }) => {
                                 <button
                                   onClick={async () => {
                                     try {
-                                      const response = await axiosInstance.get(
+                                      const response = await api.get(
                                         `/api/medical-report/${report._id}/download`,
                                         { responseType: "blob" }
                                       );
@@ -1037,7 +1030,7 @@ const UserCard = ({ user, onRemove }) => {
                                       confirmText: "Delete",
                                       onConfirm: async () => {
                                         try {
-                                          await axiosInstance.delete(
+                                          await api.delete(
                                             `/api/medical-report/for-user/${user._id}/${report._id}`,
                                           );
                                           fetchHealthData();

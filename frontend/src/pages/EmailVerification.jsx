@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../lib/axios";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 

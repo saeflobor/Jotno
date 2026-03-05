@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import axios from "axios";
+import axios from "../lib/axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import FamilyRequestNotifications from "../components/FamilyRequestNotifications";
