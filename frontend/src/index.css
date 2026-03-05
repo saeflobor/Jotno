@@ -1,2 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+:root {
+  --accent-1: #7c3aed; /* purple */
+  --accent-2: #06b6d4; /* teal */
+  --accent-3: #f97316; /* orange */
+  --brand-pink: 211, 46, 149;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
+  background: #f9fafb;
+  color: #111827;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better focus outlines for accessibility */
+*:focus-visible {
+  outline: 2px solid rgb(211, 46, 149);
+  outline-offset: 2px;
+}
