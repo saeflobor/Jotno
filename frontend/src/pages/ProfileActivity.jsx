@@ -759,76 +759,7 @@ const ProfileActivity = ({ user, setUser }) => {
           </button>
         </div>
 
-        {/* ============ NEW: HEALTH SUMMARY DASHBOARD ============ */}
-        {healthSummary && (
-          <div className="mb-6 sm:mb-8 bg-white rounded-2xl shadow-md p-4 sm:p-8 border border-gray-100">
-            <h2 className="text-xl sm:text-3xl font-bold mb-4 sm:mb-8 text-gray-900">
-              Health Summary
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
-              <div className="p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border-l-4 border-purple-500">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-2xl sm:text-4xl font-bold text-purple-600">
-                    {healthSummary.chronicConditionsCount}
-                  </span>
-                  <Pill className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
-                </div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">
-                  Chronic Conditions
-                </p>
-              </div>
-              <div className="p-4 sm:p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border-l-4 border-orange-500">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-2xl sm:text-4xl font-bold text-orange-600">
-                    {healthSummary.medicationsCount}
-                  </span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" />
-                  </svg>
-                </div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">
-                  Current Medications
-                </p>
-              </div>
-              <div className="p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-l-4 border-blue-500">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-2xl sm:text-4xl font-bold text-blue-600">
-                    {healthSummary.medicalReportsCount}
-                  </span>
-                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
-                </div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">
-                  Medical Reports
-                </p>
-              </div>
-              <div className="p-4 sm:p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-l-4 border-green-500">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm sm:text-lg font-bold text-green-600">
-                    {healthSummary.lastReportDate
-                      ? new Date(
-                          healthSummary.lastReportDate,
-                        ).toLocaleDateString()
-                      : "—"}
-                  </span>
-                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
-                </div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Last Report</p>
-                {healthSummary.lastReportCategory && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    {healthSummary.lastReportCategory}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ============ NEW: CHRONIC CONDITIONS & MEDICATIONS SECTION ============ */}
+        {/* ============ CHRONIC CONDITIONS & MEDICATIONS SECTION ============ */}
         <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Chronic Conditions Card */}
           <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
