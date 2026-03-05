@@ -20,6 +20,10 @@ build/
 
 # macOS system files
 .DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
+._.*
 
 # Local editor files
 .vscode/
@@ -28,3 +32,7 @@ build/
 # Cache
 *.cache
 .cache/
+
+# WhatsApp Web.js auth session data
+backend/.wwebjs_auth/
+backend/.wwebjs_cache/
