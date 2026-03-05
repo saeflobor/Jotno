@@ -216,32 +216,40 @@ const Dashboard = ({ user, setUser }) => {
 
   const statCards = [
     {
-      label: "Conditions",
+      label: "Chronic Conditions",
       value: healthSummary?.chronicConditionsCount ?? "—",
+      description: "Active conditions being tracked",
       icon: <Heart className="w-5 h-5" />,
       color: "text-rose-600",
       bg: "bg-rose-50",
+      border: "border-rose-200",
     },
     {
       label: "Medications",
       value: healthSummary?.medicationsCount ?? "—",
+      description: "Current prescriptions",
       icon: <Pill className="w-5 h-5" />,
       color: "text-orange-600",
       bg: "bg-orange-50",
+      border: "border-orange-200",
     },
     {
-      label: "Reports",
+      label: "Medical Reports",
       value: healthSummary?.medicalReportsCount ?? "—",
+      description: "Uploaded documents",
       icon: <FileText className="w-5 h-5" />,
       color: "text-blue-600",
       bg: "bg-blue-50",
+      border: "border-blue-200",
     },
     {
-      label: "Family",
+      label: "Family Members",
       value: familyCount,
+      description: "Connected to your profile",
       icon: <PiUsersBold className="w-5 h-5" />,
       color: "text-purple-600",
       bg: "bg-purple-50",
+      border: "border-purple-200",
     },
   ];
 
@@ -297,24 +305,8 @@ const Dashboard = ({ user, setUser }) => {
               </div>
             </div>
 
-            {/* Right: SOS + Profile */}
+            {/* Right: Profile */}
             <div className="flex items-center gap-3">
-              {/* SOS */}
-              <motion.button
-                onClick={sendSOS}
-                disabled={sendingSOS}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                className="relative px-5 py-2 rounded-full text-white font-bold text-sm shadow-md transition disabled:opacity-60 flex items-center gap-2"
-                style={{
-                  background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-                }}
-              >
-                <Shield className="w-4 h-4" />
-                {sendingSOS ? "Sending..." : "SOS"}
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-400 rounded-full animate-ping" />
-              </motion.button>
-
               {/* Profile */}
               <div className="relative" ref={profileRef}>
                 <motion.button
@@ -513,47 +505,66 @@ const Dashboard = ({ user, setUser }) => {
           className="mb-8"
         >
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            {getGreeting()},{" "}
-            <span className="bg-gradient-to-r from-[rgb(211,46,149)] to-[rgb(255,95,109)] bg-clip-text text-transparent">
-              {user.username}
-            </span>
+            {getGreeting()}, {user.username}
           </h1>
           <p className="text-gray-500 mt-1 text-sm sm:text-base">
             Here&apos;s an overview of your health profile
           </p>
         </motion.div>
 
-        {/* Health Stats */}
+        {/* Health Overview */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8"
+          className="mb-8"
         >
-          {statCards.map((stat, idx) => (
-            <div
-              key={stat.label}
-              className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div
-                  className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center ${stat.color}`}
-                >
-                  {stat.icon}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
+                  <Activity className="w-4 h-4 text-white" />
                 </div>
-                {loadingSummary ? (
-                  <div className="w-8 h-6 bg-gray-100 rounded animate-pulse" />
-                ) : (
-                  <span className="text-2xl font-bold text-gray-900">
-                    {stat.value}
-                  </span>
-                )}
+                <h2 className="text-sm font-semibold text-gray-900">Health Overview</h2>
               </div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                {stat.label}
-              </p>
+              <button
+                onClick={() => navigate("/profile-activity")}
+                className="text-xs font-medium text-gray-400 hover:text-gray-600 transition flex items-center gap-1"
+              >
+                View details
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
             </div>
-          ))}
+            <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-100">
+              {statCards.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="p-4 sm:p-5 hover:bg-gray-50/50 transition"
+                >
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div
+                      className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center ${stat.color}`}
+                    >
+                      {stat.icon}
+                    </div>
+                    <span className="text-xs font-medium text-gray-500">
+                      {stat.label}
+                    </span>
+                  </div>
+                  {loadingSummary ? (
+                    <div className="w-10 h-7 bg-gray-100 rounded animate-pulse" />
+                  ) : (
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
+                      {stat.value}
+                    </p>
+                  )}
+                  <p className="text-[11px] text-gray-400">
+                    {stat.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </motion.div>
 
         {/* Navigation Cards + Activity Feed */}
@@ -658,6 +669,31 @@ const Dashboard = ({ user, setUser }) => {
             </div>
           </motion.div>
         </div>
+      </div>
+
+      {/* SOS Emergency Button — Fixed Bottom */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <motion.button
+          onClick={sendSOS}
+          disabled={sendingSOS}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.92 }}
+          className="group relative flex items-center gap-2.5 bg-red-600 hover:bg-red-700 text-white pl-5 pr-6 py-3.5 rounded-full shadow-lg shadow-red-600/25 hover:shadow-xl hover:shadow-red-600/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+            <Shield className="w-4 h-4" />
+          </div>
+          <div className="text-left">
+            <span className="block text-sm font-bold leading-tight">
+              {sendingSOS ? "Sending..." : "Emergency SOS"}
+            </span>
+            <span className="block text-[10px] text-red-200 font-medium leading-tight">
+              Alert family members
+            </span>
+          </div>
+          <span className="absolute top-2 right-2 w-2 h-2 bg-red-300 rounded-full animate-ping" />
+          <span className="absolute top-2 right-2 w-2 h-2 bg-red-300 rounded-full" />
+        </motion.button>
       </div>
 
       {/* Confirmation Modal */}
