@@ -133,7 +133,7 @@ const Home = ({ user, error }) => {
                 transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
               >
                 <motion.h1
-                  className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-900"
+                  className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-900"
                   initial={{ opacity: 0, y: -50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
