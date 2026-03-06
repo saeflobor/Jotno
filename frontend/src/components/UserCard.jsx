@@ -257,11 +257,7 @@ const UserCard = ({ user, onRemove }) => {
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ scale: 1.02 }}
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
-        className="relative overflow-hidden rounded-2xl shadow-lg bg-white border border-gray-200"
-        style={{
-          minWidth: 260,
-          maxWidth: 320,
-        }}
+        className="relative overflow-hidden rounded-2xl shadow-lg bg-white border border-gray-200 w-full sm:max-w-[320px]"
       >
         {/* Pink gradient top bar */}
         <div
@@ -512,7 +508,7 @@ const UserCard = ({ user, onRemove }) => {
                         {/* Inline Add Condition Form */}
                         {showInlineConditionForm && canEdit && (
                           <div className="p-6 rounded-2xl bg-white border-2 border-gray-200">
-                            <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
                               Add Chronic Condition
                             </h3>
                             {conditionError && (
@@ -668,7 +664,7 @@ const UserCard = ({ user, onRemove }) => {
                         {/* Inline Add Medication Form */}
                         {showInlineMedicationForm && canEdit && (
                           <div className="p-6 rounded-2xl bg-white border-2 border-gray-200">
-                            <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
                               Add Medication
                             </h3>
                             {medicationError && (

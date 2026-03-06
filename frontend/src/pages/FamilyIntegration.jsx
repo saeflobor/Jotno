@@ -291,7 +291,7 @@ const FamilyIntegration = ({ user, setUser }) => {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-center">
             <select
               value={relationKey}
               onChange={(e) => setRelationKey(e.target.value)}

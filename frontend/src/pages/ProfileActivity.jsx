@@ -1139,7 +1139,7 @@ const ProfileActivity = ({ user, setUser }) => {
                       animate={{ opacity: 1, y: 0 }}
                       className="bg-white rounded-2xl border-2 border-gray-100 p-5 shadow-sm hover:shadow-md transition-all space-y-4"
                     >
-                      <div className="flex items-center space-x-5">
+                      <div className="flex items-center space-x-3 sm:space-x-5">
                         {/* Large Thumbnail/Icon for visibility */}
                         <div
                           className="w-20 h-20 rounded-xl overflow-hidden bg-gray-50 border-2 border-gray-100 flex items-center justify-center cursor-pointer hover:border-pink-300 transition-colors"
@@ -1162,7 +1162,7 @@ const ProfileActivity = ({ user, setUser }) => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between">
                             <h4
-                              className="text-lg font-bold text-gray-900 truncate cursor-pointer hover:text-pink-600 transition-colors"
+                              className="text-sm sm:text-lg font-bold text-gray-900 truncate cursor-pointer hover:text-pink-600 transition-colors"
                               onClick={() => openPreview(r)}
                             >
                               {name}

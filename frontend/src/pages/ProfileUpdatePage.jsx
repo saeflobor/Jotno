@@ -312,7 +312,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
-              <label className="block text-xl font-semibold text-gray-700 mb-2">
+              <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
                 Email
               </label>
               <input
@@ -330,7 +330,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
 
             {/* Phone */}
             <div>
-              <label className="block text-xl font-semibold text-gray-700 mb-2">
+              <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
                 Phone Number
               </label>
               <input
@@ -348,7 +348,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
 
             {/* WhatsApp Phone */}
             <div>
-              <label className="block text-xl font-semibold text-gray-700 mb-2">
+              <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
                 WhatsApp Number (for SOS alerts)
               </label>
               <input
@@ -369,7 +369,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
 
             {/* Username */}
             <div>
-              <label className="block text-xl font-semibold text-gray-700 mb-2">
+              <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
                 Username
               </label>
               <input
@@ -387,7 +387,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
 
             {/* Gender */}
             <div>
-              <label className="block text-xl font-semibold text-gray-700 mb-2">
+              <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
                 Gender
               </label>
               <select
@@ -407,7 +407,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
             {/* Timezone */}
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-xl font-semibold text-gray-700">
+                <label className="block text-base sm:text-xl font-semibold text-gray-700">
                   Timezone
                 </label>
                 <button
@@ -455,7 +455,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
 
             {/* Private Profile */}
             <div>
-              <label className="block text-xl font-semibold text-gray-700 mb-4">
+              <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-4">
                 Profile Privacy Settings
               </label>
               <div className="flex items-center gap-4">
@@ -511,7 +511,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xl font-semibold text-gray-700 mb-2">
+                  <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
                     New Password
                   </label>
                   <input
@@ -525,7 +525,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                 </div>
 
                 <div>
-                  <label className="block text-xl font-semibold text-gray-700 mb-2">
+                  <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
                     Confirm Password
                   </label>
                   <input

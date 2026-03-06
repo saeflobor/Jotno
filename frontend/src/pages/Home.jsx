@@ -124,8 +124,8 @@ const Home = ({ user, error }) => {
         <div className="relative">
 
 
-          <section className="container mx-auto px-4 py-16 md:py-24">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-16">
+          <section className="container mx-auto px-4 py-8 sm:py-16 md:py-24">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 mb-8 sm:mb-16">
               <motion.div
                 className="md:w-1/2"
                 initial={{ opacity: 0, x: -100 }}
@@ -133,7 +133,7 @@ const Home = ({ user, error }) => {
                 transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
               >
                 <motion.h1
-                  className="text-4xl md:text-5xl font-bold mb-4 text-gray-900"
+                  className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-900"
                   initial={{ opacity: 0, y: -50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
@@ -141,7 +141,7 @@ const Home = ({ user, error }) => {
                   Peace of Mind for You,<br />Care for Your Loved Ones
                 </motion.h1>
                 <motion.p
-                  className="text-lg mb-6 text-gray-700"
+                  className="text-base sm:text-lg mb-5 sm:mb-6 text-gray-700"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4 }}
@@ -149,7 +149,7 @@ const Home = ({ user, error }) => {
                   যত্ন : Jotno helps elderly users have their healthcare needs met, while keeping families connected and informed.
                 </motion.p>
                 <motion.div
-                  className="flex gap-4"
+                  className="flex flex-wrap gap-3 sm:gap-4"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.6 }}
@@ -197,9 +197,9 @@ const Home = ({ user, error }) => {
             </div>
           </section>
 
-          <section className="container mx-auto px-4 py-16">
+          <section className="container mx-auto px-4 py-10 sm:py-16">
             <motion.h2
-              className="text-3xl font-bold text-center mb-12 text-gray-900"
+              className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12 text-gray-900"
               initial={{ opacity: 0, scale: 0.5 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
@@ -284,14 +284,14 @@ const Home = ({ user, error }) => {
           </section>
 
           <motion.section
-            className="container mx-auto px-4 py-16 bg-white/70 backdrop-blur-[40px] rounded-xl"
+            className="container mx-auto px-4 py-10 sm:py-16 bg-white/70 backdrop-blur-[40px] rounded-xl"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6 }}
           >
             <motion.h2
-              className="text-3xl font-bold text-center mb-12 text-gray-900"
+              className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12 text-gray-900"
               initial={{ opacity: 0, y: -30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -300,7 +300,7 @@ const Home = ({ user, error }) => {
               What Families Say
             </motion.h2>
             <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8"
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 sm:p-8"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
@@ -391,14 +391,14 @@ const Home = ({ user, error }) => {
 
           {/* CTA Section */}
           <motion.section
-            className="container mx-auto px-4 py-16"
+            className="container mx-auto px-4 py-10 sm:py-16"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
             transition={{ duration: 0.6 }}
           >
             <motion.div
-              className="bg-[rgb(211,46,149)]/60 rounded-xl p-8 text-center text-gray-900"
+              className="bg-[rgb(211,46,149)]/60 rounded-xl p-5 sm:p-8 text-center text-gray-900"
               whileHover={{
                 scale: 1.02,
                 boxShadow: "0px 30px 60px rgba(211, 46, 149, 0.4)"
@@ -406,7 +406,7 @@ const Home = ({ user, error }) => {
               transition={{ duration: 0.3 }}
             >
               <motion.h2
-                className="text-3xl font-bold mb-4"
+                className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4"
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
@@ -415,7 +415,7 @@ const Home = ({ user, error }) => {
                 Ready to Get Started?
               </motion.h2>
               <motion.p
-                className="text-lg mb-6 max-w-2xl mx-auto"
+                className="text-base sm:text-lg mb-5 sm:mb-6 max-w-2xl mx-auto"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

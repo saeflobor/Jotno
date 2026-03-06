@@ -326,7 +326,7 @@ const Dashboard = ({ user, setUser }) => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.96 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50"
+                      className="absolute right-0 top-full mt-2 w-72 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50"
                     >
                       {/* User info */}
                       <div className="p-4 bg-gradient-to-r from-pink-50 to-purple-50 border-b border-gray-100">
@@ -646,16 +646,16 @@ const Dashboard = ({ user, setUser }) => {
           disabled={sendingSOS}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.92 }}
-          className="group relative flex items-center gap-2.5 bg-red-600 hover:bg-red-700 text-white pl-5 pr-6 py-3.5 rounded-full shadow-lg shadow-red-600/25 hover:shadow-xl hover:shadow-red-600/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+          className="group relative flex items-center gap-2 sm:gap-2.5 bg-red-600 hover:bg-red-700 text-white pl-4 sm:pl-5 pr-5 sm:pr-6 py-3 sm:py-3.5 rounded-full shadow-lg shadow-red-600/25 hover:shadow-xl hover:shadow-red-600/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/20 flex items-center justify-center">
             <Shield className="w-4 h-4" />
           </div>
           <div className="text-left">
-            <span className="block text-sm font-bold leading-tight">
+            <span className="block text-xs sm:text-sm font-bold leading-tight">
               {sendingSOS ? "Sending..." : "Emergency SOS"}
             </span>
-            <span className="block text-[10px] text-red-200 font-medium leading-tight">
+            <span className="hidden sm:block text-[10px] text-red-200 font-medium leading-tight">
               Alert family members
             </span>
           </div>
