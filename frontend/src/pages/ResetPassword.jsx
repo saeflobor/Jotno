@@ -4,10 +4,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "../lib/axios";
 import { MdArrowBack } from "react-icons/md";
 import { CheckCircle, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const ResetPassword = () => {
   const { token } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,12 +23,12 @@ const ResetPassword = () => {
     setError("");
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError(t('resetPassword.shortPassword'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t('resetPassword.passwordMismatch'));
       return;
     }
 
@@ -35,7 +37,7 @@ const ResetPassword = () => {
       await axios.post("/api/users/reset-password", { token, password });
       setSuccess(true);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to reset password. The link may have expired.");
+      setError(err.response?.data?.message || t('resetPassword.resetFailed'));
     } finally {
       setLoading(false);
     }
@@ -78,7 +80,7 @@ const ResetPassword = () => {
             className="flex items-center gap-2 mb-12 text-white/90 hover:text-white transition font-semibold"
           >
             <MdArrowBack className="text-xl" />
-            Back to Login
+            {t('resetPassword.backToLogin')}
           </motion.button>
 
           <motion.div
@@ -91,7 +93,7 @@ const ResetPassword = () => {
               যত্ন : Jotno
             </div>
             <div className="mt-10 text-3xl text-white/90 font-semibold tracking-wide">
-              Reset Your Password
+              {t('resetPassword.resetYourPassword')}
             </div>
           </motion.div>
 
@@ -101,7 +103,7 @@ const ResetPassword = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            Choose a strong new password to keep your account secure
+            {t('resetPassword.chooseSub')}
           </motion.p>
         </div>
       </motion.div>
@@ -136,9 +138,9 @@ const ResetPassword = () => {
                 >
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Password Reset Successful</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{t('resetPassword.successTitle')}</h3>
                 <p className="text-gray-600 text-sm mb-6">
-                  Your password has been updated. You can now sign in with your new password.
+                  {t('resetPassword.successMsg')}
                 </p>
                 <motion.button
                   onClick={() => navigate("/login")}
@@ -146,7 +148,7 @@ const ResetPassword = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Go to Sign In
+                  {t('resetPassword.goToSignIn')}
                 </motion.button>
               </motion.div>
             ) : (
@@ -158,7 +160,7 @@ const ResetPassword = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
                 >
-                  New Password
+                  {t('resetPassword.newPasswordTitle')}
                 </motion.h2>
                 <motion.p
                   className="text-gray-600 mb-6 text-sm"
@@ -166,7 +168,7 @@ const ResetPassword = () => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.5 }}
                 >
-                  Enter and confirm your new password below
+                  {t('resetPassword.enterConfirm')}
                 </motion.p>
 
                 {/* Error */}
@@ -195,7 +197,7 @@ const ResetPassword = () => {
                     transition={{ duration: 0.5, delay: 0.5 }}
                   >
                     <label className="block text-gray-700 text-sm font-semibold mb-2">
-                      New Password
+                      {t('resetPassword.newPasswordLabel')}
                     </label>
                     <div className="relative">
                       <input
@@ -203,7 +205,7 @@ const ResetPassword = () => {
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="At least 6 characters"
+                        placeholder={t('resetPassword.newPasswordPlaceholder')}
                         required
                         minLength={6}
                       />
@@ -224,7 +226,7 @@ const ResetPassword = () => {
                     transition={{ duration: 0.5, delay: 0.6 }}
                   >
                     <label className="block text-gray-700 text-sm font-semibold mb-2">
-                      Confirm Password
+                      {t('resetPassword.confirmPasswordLabel')}
                     </label>
                     <div className="relative">
                       <input
@@ -232,7 +234,7 @@ const ResetPassword = () => {
                         type={showConfirm ? "text" : "password"}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Re-enter your password"
+                        placeholder={t('resetPassword.confirmPasswordPlaceholder')}
                         required
                         minLength={6}
                       />
@@ -260,10 +262,10 @@ const ResetPassword = () => {
                     {loading ? (
                       <span className="flex items-center justify-center gap-2">
                         <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Resetting...
+                        {t('resetPassword.resetting')}
                       </span>
                     ) : (
-                      "Reset Password"
+                      t('resetPassword.resetBtn')
                     )}
                   </motion.button>
                 </form>
@@ -274,12 +276,12 @@ const ResetPassword = () => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.8 }}
                 >
-                  Remember your password?{" "}
+                  {t('resetPassword.rememberPassword')}{" "}
                   <button
                     onClick={() => navigate("/login")}
                     className="text-[rgb(211,46,149)] font-semibold hover:underline"
                   >
-                    Sign In
+                    {t('resetPassword.signIn')}
                   </button>
                 </motion.p>
               </>

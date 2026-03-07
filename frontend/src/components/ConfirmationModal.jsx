@@ -1,16 +1,22 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const ConfirmationModal = ({
   isOpen,
-  title = "Confirm Action",
-  message = "Are you sure?",
-  confirmText = "Yes, Confirm",
-  cancelText = "Cancel",
+  title,
+  message,
+  confirmText,
+  cancelText,
   onConfirm,
   onCancel,
   isDangerous = false,
 }) => {
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t('confirmModal.defaultTitle');
+  const resolvedMessage = message ?? t('confirmModal.defaultMessage');
+  const resolvedConfirmText = confirmText ?? t('confirmModal.defaultConfirm');
+  const resolvedCancelText = cancelText ?? t('confirmModal.defaultCancel');
   return (
     <AnimatePresence>
       {isOpen && (
@@ -53,7 +59,7 @@ const ConfirmationModal = ({
                         : "text-blue-900"
                     }`}
                   >
-                    {title}
+                    {resolvedTitle}
                   </h2>
                 </div>
               </div>
@@ -62,7 +68,7 @@ const ConfirmationModal = ({
             {/* Content */}
             <div className="p-6">
               <p className="text-gray-700 text-base leading-relaxed">
-                {message}
+                {resolvedMessage}
               </p>
             </div>
 
@@ -72,7 +78,7 @@ const ConfirmationModal = ({
                 onClick={onCancel}
                 className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 transition-all"
               >
-                {cancelText}
+                {resolvedCancelText}
               </button>
               <button
                 onClick={onConfirm}
@@ -82,7 +88,7 @@ const ConfirmationModal = ({
                     : "bg-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/80 active:bg-[rgb(211,46,149)]/90"
                 }`}
               >
-                {confirmText}
+                {resolvedConfirmText}
               </button>
             </div>
           </motion.div>

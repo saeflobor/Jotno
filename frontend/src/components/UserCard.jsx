@@ -5,6 +5,7 @@ import api from "../lib/axios";
 import AddConditionModal from "./AddConditionModal";
 import AddMedicationModal from "./AddMedicationModal";
 import ConfirmationModal from "./ConfirmationModal";
+import { useTranslation } from "react-i18next";
 
 const initials = (name = "") =>
   name
@@ -15,6 +16,7 @@ const initials = (name = "") =>
     .toUpperCase();
 
 const UserCard = ({ user, onRemove }) => {
+  const { t } = useTranslation();
   const [showHealthModal, setShowHealthModal] = useState(false);
   const [activeTab, setActiveTab] = useState("conditions");
   const [healthData, setHealthData] = useState({
@@ -107,7 +109,7 @@ const UserCard = ({ user, onRemove }) => {
       fetchHealthData();
     } catch (err) {
       setConditionError(
-        err.response?.data?.message || "Failed to add condition",
+        err.response?.data?.message || t('userCard.failedAddCond'),
       );
     }
   };
@@ -127,7 +129,7 @@ const UserCard = ({ user, onRemove }) => {
       fetchHealthData();
     } catch (err) {
       setMedicationError(
-        err.response?.data?.message || "Failed to add medication",
+        err.response?.data?.message || t('userCard.failedAddMed'),
       );
     }
   };
@@ -150,14 +152,14 @@ const UserCard = ({ user, onRemove }) => {
 
     if (invalidFiles.length > 0) {
       setReportUploadError(
-        `Invalid files: ${invalidFiles.join(", ")}. Only PNG, JPG or PDF files are allowed.`,
+        `${t('userCard.invalidFiles', { names: invalidFiles.join(", ") })}`,
       );
     } else {
       setReportUploadError("");
     }
 
     if (validFiles.length + reportFiles.length > 10) {
-      setReportUploadError("Maximum 10 files allowed per upload");
+      setReportUploadError(t('userCard.maxFiles'));
       return;
     }
 
@@ -166,7 +168,7 @@ const UserCard = ({ user, onRemove }) => {
 
   const handleUploadReports = async () => {
     if (reportFiles.length === 0) {
-      setReportUploadError("Please select at least one file first");
+      setReportUploadError(t('userCard.selectFirst'));
       return;
     }
 
@@ -195,7 +197,7 @@ const UserCard = ({ user, onRemove }) => {
       fetchHealthData();
     } catch (err) {
       setReportUploadError(
-        err.response?.data?.message || "Failed to upload reports",
+        err.response?.data?.message || t('userCard.failedUpload'),
       );
     } finally {
       setReportUploading(false);
@@ -205,7 +207,7 @@ const UserCard = ({ user, onRemove }) => {
   // Handle inline condition form submission
   const handleInlineAddCondition = async () => {
     if (!inlineConditionData.conditionName.trim()) {
-      setConditionError("Condition name is required");
+      setConditionError(t('userCard.conditionRequired'));
       return;
     }
     try {
@@ -214,7 +216,7 @@ const UserCard = ({ user, onRemove }) => {
       setShowInlineConditionForm(false);
       setConditionError("");
     } catch (err) {
-      setConditionError(err.message || "Failed to add condition");
+      setConditionError(err.message || t('userCard.failedAddCond'));
     }
   };
 
@@ -226,7 +228,7 @@ const UserCard = ({ user, onRemove }) => {
       !inlineMedicationData.frequency.trim() ||
       !inlineMedicationData.duration
     ) {
-      setMedicationError("All fields are required");
+      setMedicationError(t('userCard.allFieldsRequired'));
       return;
     }
     try {
@@ -242,7 +244,7 @@ const UserCard = ({ user, onRemove }) => {
       setShowInlineMedicationForm(false);
       setMedicationError("");
     } catch (err) {
-      setMedicationError(err.message || "Failed to add medication");
+      setMedicationError(err.message || t('userCard.failedAddMed'));
     }
   };
 
@@ -293,10 +295,10 @@ const UserCard = ({ user, onRemove }) => {
                     onClick={() =>
                       setConfirmation({
                         isOpen: true,
-                        title: "Remove Member",
-                        message: "Are you sure you want to remove this family member?",
+                        title: t('userCard.removeMember'),
+                        message: t('userCard.removeMessage'),
                         isDangerous: true,
-                        confirmText: "Remove",
+                        confirmText: t('userCard.removeBtn'),
                         onConfirm: () => {
                           onRemove();
                           setConfirmation((prev) => ({ ...prev, isOpen: false }));
@@ -304,7 +306,7 @@ const UserCard = ({ user, onRemove }) => {
                       })
                     }
                     className="ml-2 inline-flex items-center justify-center rounded-md px-2 py-1 text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 border border-red-300"
-                    title="Remove member"
+                    title={t('userCard.removeMemberTitle')}
                   >
                     ✕
                   </button>
@@ -323,7 +325,7 @@ const UserCard = ({ user, onRemove }) => {
 
           <div className="mt-4 grid grid-cols-1 gap-3 text-sm">
             <div className="py-2 px-3 rounded-lg bg-gray-50 border border-gray-200">
-              <div className="text-xs text-gray-600">Gender</div>
+              <div className="text-xs text-gray-600">{t('userCard.gender')}</div>
               <div className="mt-1 font-medium text-gray-900">
                 {user.gender}
               </div>
@@ -335,7 +337,7 @@ const UserCard = ({ user, onRemove }) => {
             <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-red-50 border border-red-200">
               <span className="text-red-600">❤️</span>
               <span className="text-xs text-red-700 font-medium">
-                Chronic Conditions
+                {t('userCard.chronicConditions')}
               </span>
               <span className="ml-auto text-xs font-bold text-red-700 bg-red-200 px-2 py-0.5 rounded-full">
                 {healthData.conditions.length}
@@ -345,7 +347,7 @@ const UserCard = ({ user, onRemove }) => {
             <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-purple-50 border border-purple-200">
               <span className="text-purple-600">💊</span>
               <span className="text-xs text-purple-700 font-medium">
-                Medications
+                {t('userCard.medications')}
               </span>
               <span className="ml-auto text-xs font-bold text-purple-700 bg-purple-200 px-2 py-0.5 rounded-full">
                 {healthData.medications.length}
@@ -355,7 +357,7 @@ const UserCard = ({ user, onRemove }) => {
             <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-blue-50 border border-blue-200">
               <span className="text-blue-600">📄</span>
               <span className="text-xs text-blue-700 font-medium">
-                Medical Reports
+                {t('userCard.medicalReports')}
               </span>
               <span className="ml-auto text-xs font-bold text-blue-700 bg-blue-200 px-2 py-0.5 rounded-full">
                 {healthData.reports.length}
@@ -364,9 +366,7 @@ const UserCard = ({ user, onRemove }) => {
 
             {!canEdit && (
               <div className="mt-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200">
-                <p className="text-xs text-amber-700">
-                  🔒 Member has privacy enabled
-                </p>
+                <p className="text-xs text-amber-700">{t('userCard.privacy')}</p>
               </div>
             )}
           </div>
@@ -376,11 +376,11 @@ const UserCard = ({ user, onRemove }) => {
             onClick={handleViewDetails}
             className="mt-4 w-full py-2.5 rounded-lg font-semibold text-sm bg-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/80 text-white transition-all"
           >
-            View All Details →
+            {t('userCard.viewAllDetails')}
           </button>
 
           <div className="mt-4 flex items-center justify-between gap-2">
-            <div className="text-xs text-gray-500">Member since</div>
+            <div className="text-xs text-gray-500">{t('userCard.memberSince')}</div>
             <div className="text-xs text-gray-700 font-medium">
               {user.createdAt
                 ? new Date(user.createdAt).toLocaleDateString()
@@ -418,7 +418,7 @@ const UserCard = ({ user, onRemove }) => {
                     <h2 className="text-lg sm:text-2xl font-bold text-gray-900">
                       {user.username}
                     </h2>
-                    <p className="text-sm text-gray-600 mt-1">Health Details</p>
+                    <p className="text-sm text-gray-600 mt-1">{t('userCard.healthDetails')}</p>
                   </div>
                   <button
                     onClick={() => setShowHealthModal(false)}
@@ -439,7 +439,7 @@ const UserCard = ({ user, onRemove }) => {
                           : "text-gray-500 hover:text-gray-700"
                       }`}
                     >
-                      ❤️ Conditions
+                      {t('userCard.conditionsTab')}
                     </button>
                     <button
                       onClick={() => setActiveTab("medications")}
@@ -449,7 +449,7 @@ const UserCard = ({ user, onRemove }) => {
                           : "text-gray-500 hover:text-gray-700"
                       }`}
                     >
-                      💊 Medications
+                      {t('userCard.medicationsTab')}
                     </button>
                     <button
                       onClick={() => setActiveTab("reports")}
@@ -459,7 +459,7 @@ const UserCard = ({ user, onRemove }) => {
                           : "text-gray-500 hover:text-gray-700"
                       }`}
                     >
-                      📄 Reports
+                      {t('userCard.reportsTab')}
                     </button>
                   </div>
                   <div className="flex gap-2">
@@ -468,7 +468,7 @@ const UserCard = ({ user, onRemove }) => {
                         onClick={() => setShowInlineConditionForm(true)}
                         className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[rgb(211,46,149)] text-white hover:bg-[rgb(211,46,149)]/80 transition-all"
                       >
-                        + Add Condition
+                        {t('userCard.addConditionBtn')}
                       </button>
                     )}
                     {canEdit && activeTab === "medications" && (
@@ -476,7 +476,7 @@ const UserCard = ({ user, onRemove }) => {
                         onClick={() => setShowInlineMedicationForm(true)}
                         className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[rgb(211,46,149)] text-white hover:bg-[rgb(211,46,149)]/80 transition-all"
                       >
-                        + Add Medication
+                        {t('userCard.addMedicationBtn')}
                       </button>
                     )}
                     {canEdit && activeTab === "reports" && (
@@ -484,7 +484,7 @@ const UserCard = ({ user, onRemove }) => {
                         onClick={() => setShowReportUploadModal(true)}
                         className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[rgb(211,46,149)] text-white hover:bg-[rgb(211,46,149)]/80 transition-all"
                       >
-                        + Add Report
+                        {t('userCard.addReportBtn')}
                       </button>
                     )}
                   </div>
@@ -498,7 +498,7 @@ const UserCard = ({ user, onRemove }) => {
               >
                 {loading ? (
                   <div className="text-center py-12 text-gray-500">
-                    Loading...
+                    {t('userCard.loading')}
                   </div>
                 ) : (
                   <>
@@ -509,7 +509,7 @@ const UserCard = ({ user, onRemove }) => {
                         {showInlineConditionForm && canEdit && (
                           <div className="p-6 rounded-2xl bg-white border-2 border-gray-200">
                             <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
-                              Add Chronic Condition
+                              {t('userCard.addChronicCond')}
                             </h3>
                             {conditionError && (
                               <div className="mb-4 p-3 rounded-lg bg-red-100 border-2 border-red-300 text-red-700 text-sm font-semibold">
@@ -519,7 +519,7 @@ const UserCard = ({ user, onRemove }) => {
                             <div className="space-y-5">
                               <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                  Condition Name
+                                  {t('userCard.conditionLabel')}
                                 </label>
                                 <input
                                   type="text"
@@ -530,13 +530,13 @@ const UserCard = ({ user, onRemove }) => {
                                       conditionName: e.target.value,
                                     }))
                                   }
-                                  placeholder="e.g., Diabetes, Hypertension"
+                                  placeholder={t('userCard.conditionPlaceholder')}
                                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none text-gray-900 placeholder-gray-400"
                                 />
                               </div>
                               <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                  Severity Level
+                                  {t('userCard.severityLabel')}
                                 </label>
                                 <select
                                   value={inlineConditionData.severityLevel}
@@ -548,9 +548,9 @@ const UserCard = ({ user, onRemove }) => {
                                   }
                                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none text-gray-900 bg-white"
                                 >
-                                  <option value="mild">Mild</option>
-                                  <option value="moderate">Moderate</option>
-                                  <option value="severe">Severe</option>
+                                  <option value="mild">{t('userCard.mild')}</option>
+                                  <option value="moderate">{t('userCard.moderate')}</option>
+                                  <option value="severe">{t('userCard.severe')}</option>
                                 </select>
                               </div>
                               <div className="flex gap-3 pt-3">
@@ -558,7 +558,7 @@ const UserCard = ({ user, onRemove }) => {
                                   onClick={handleInlineAddCondition}
                                   className="flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold rounded-xl shadow-lg shadow-purple-500/30 transition-all"
                                 >
-                                  Add Condition
+                                  {t('userCard.addConditionSubmit')}
                                 </button>
                                 <button
                                   onClick={() => {
@@ -571,7 +571,7 @@ const UserCard = ({ user, onRemove }) => {
                                   }}
                                   className="flex-1 py-3 px-4 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all"
                                 >
-                                  Cancel
+                                  {t('cancel')}
                                 </button>
                               </div>
                             </div>
@@ -581,7 +581,7 @@ const UserCard = ({ user, onRemove }) => {
                         {healthData.conditions.length === 0 &&
                         !showInlineConditionForm ? (
                           <div className="text-center py-12 text-gray-500">
-                            No chronic conditions
+                            {t('userCard.noConditions')}
                           </div>
                         ) : (
                           healthData.conditions.map((condition) => (
@@ -606,7 +606,7 @@ const UserCard = ({ user, onRemove }) => {
                                     {condition.severityLevel}
                                   </span>
                                   <span className="text-xs text-gray-600">
-                                    Diagnosed:{" "}
+                                    {t('userCard.diagnosed')}{" "}
                                     {new Date(
                                       condition.createdAt,
                                     ).toLocaleDateString()}
@@ -618,10 +618,10 @@ const UserCard = ({ user, onRemove }) => {
                                   onClick={() => {
                                     setConfirmation({
                                       isOpen: true,
-                                      title: "Delete Condition",
-                                      message: "Are you sure you want to delete this condition?",
+                                      title: t('userCard.deleteCondModal'),
+                                      message: t('userCard.deleteCondMsg'),
                                       isDangerous: true,
-                                      confirmText: "Delete",
+                                      confirmText: t('delete'),
                                       onConfirm: async () => {
                                         try {
                                           await api.delete(
@@ -635,7 +635,7 @@ const UserCard = ({ user, onRemove }) => {
                                           );
                                           setConditionError(
                                             err.response?.data?.message ||
-                                              "Failed to delete condition",
+                                              t('userCard.failedDelCond'),
                                           );
                                         } finally {
                                           setConfirmation((prev) => ({
@@ -647,7 +647,7 @@ const UserCard = ({ user, onRemove }) => {
                                     });
                                   }}
                                   className="ml-2 px-3 py-1.5 rounded-lg font-semibold text-sm bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 shrink-0"
-                                  title="Delete condition"
+                                  title={t('userCard.deleteCondTitle')}
                                 >
                                   🗑️
                                 </button>
@@ -665,7 +665,7 @@ const UserCard = ({ user, onRemove }) => {
                         {showInlineMedicationForm && canEdit && (
                           <div className="p-6 rounded-2xl bg-white border-2 border-gray-200">
                             <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
-                              Add Medication
+                              {t('userCard.addMedicationTitle')}
                             </h3>
                             {medicationError && (
                               <div className="mb-4 p-3 rounded-lg bg-red-100 border-2 border-red-300 text-red-700 text-sm font-semibold">
@@ -675,7 +675,7 @@ const UserCard = ({ user, onRemove }) => {
                             <div className="space-y-5">
                               <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                  Medication Name
+                                  {t('userCard.nameLabel')}
                                 </label>
                                 <input
                                   type="text"
@@ -686,14 +686,14 @@ const UserCard = ({ user, onRemove }) => {
                                       medicationName: e.target.value,
                                     }))
                                   }
-                                  placeholder="e.g., Metformin, Lisinopril"
+                                  placeholder={t('userCard.namePlaceholder')}
                                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 placeholder-gray-400"
                                 />
                               </div>
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
                                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Dosage
+                                    {t('userCard.dosageLabel')}
                                   </label>
                                   <input
                                     type="text"
@@ -704,13 +704,13 @@ const UserCard = ({ user, onRemove }) => {
                                         dosage: e.target.value,
                                       }))
                                     }
-                                    placeholder="e.g., 500mg, 10ml"
+                                    placeholder={t('userCard.dosagePlaceholder')}
                                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 placeholder-gray-400"
                                   />
                                 </div>
                                 <div>
                                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Frequency
+                                    {t('userCard.frequencyLabel')}
                                   </label>
                                   <select
                                     value={inlineMedicationData.frequency}
@@ -731,21 +731,21 @@ const UserCard = ({ user, onRemove }) => {
                                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 bg-white"
                                   >
                                     <option value="once-daily">
-                                      Once Daily
+                                      {t('userCard.onceDaily')}
                                     </option>
                                     <option value="twice-daily">
-                                      Twice Daily
+                                      {t('userCard.twiceDaily')}
                                     </option>
                                     <option value="three-times-daily">
-                                      Three Times Daily
+                                      {t('userCard.threeTimesDaily')}
                                     </option>
-                                    <option value="as-needed">As Needed</option>
+                                    <option value="as-needed">{t('userCard.asNeeded')}</option>
                                   </select>
                                 </div>
                               </div>
                               <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                  Duration (Days)
+                                  {t('userCard.durationLabel')}
                                 </label>
                                 <input
                                   type="number"
@@ -756,7 +756,7 @@ const UserCard = ({ user, onRemove }) => {
                                       duration: e.target.value,
                                     }))
                                   }
-                                  placeholder="e.g., 30"
+                                  placeholder={t('userCard.durationPlaceholder')}
                                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 placeholder-gray-400"
                                 />
                               </div>
@@ -764,7 +764,7 @@ const UserCard = ({ user, onRemove }) => {
                                 inlineMedicationData.times.length > 0 && (
                                   <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                      Reminder Times
+                                      {t('userCard.reminderTimes')}
                                     </label>
                                     <div className="grid gap-3">
                                       {inlineMedicationData.times.map(
@@ -794,7 +794,7 @@ const UserCard = ({ user, onRemove }) => {
                                 )}
                               <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                  Notification Receiver
+                                  {t('userCard.receiverLabel')}
                                 </label>
                                 <select
                                   value={inlineMedicationData.notificationType}
@@ -806,8 +806,8 @@ const UserCard = ({ user, onRemove }) => {
                                   }
                                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 bg-white"
                                 >
-                                  <option value="me">Only Me</option>
-                                  <option value="family">Me & My Family</option>
+                                  <option value="me">{t('userCard.onlyMe')}</option>
+                                  <option value="family">{t('userCard.meAndFamily')}</option>
                                 </select>
                               </div>
                               <div className="flex gap-3 pt-3">
@@ -815,7 +815,7 @@ const UserCard = ({ user, onRemove }) => {
                                   onClick={handleInlineAddMedication}
                                   className="flex-1 py-3 px-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/30 transition-all"
                                 >
-                                  Add Medication
+                                  {t('userCard.addMedicationSubmit')}
                                 </button>
                                 <button
                                   onClick={() => {
@@ -832,7 +832,7 @@ const UserCard = ({ user, onRemove }) => {
                                   }}
                                   className="flex-1 py-3 px-4 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all"
                                 >
-                                  Cancel
+                                  {t('cancel')}
                                 </button>
                               </div>
                             </div>
@@ -842,7 +842,7 @@ const UserCard = ({ user, onRemove }) => {
                         {healthData.medications.length === 0 &&
                         !showInlineMedicationForm ? (
                           <div className="text-center py-12 text-gray-500">
-                            No medications
+                            {t('userCard.noMedications')}
                           </div>
                         ) : (
                           healthData.medications.map((medication) => (
@@ -857,27 +857,27 @@ const UserCard = ({ user, onRemove }) => {
                                 <div className="mt-2 space-y-1 text-sm">
                                   <p className="text-gray-700">
                                     <span className="text-gray-600">
-                                      Dosage:
+                                      {t('userCard.dosageInfo')}
                                     </span>{" "}
                                     {medication.dosage}
                                   </p>
                                   <p className="text-gray-700">
                                     <span className="text-gray-600">
-                                      Frequency:
+                                      {t('userCard.frequencyInfo')}
                                     </span>{" "}
                                     {medication.frequency}
                                   </p>
                                   <p className="text-gray-700">
                                     <span className="text-gray-600">
-                                      Duration:
+                                      {t('userCard.durationInfo')}
                                     </span>{" "}
-                                    {medication.duration} days
+                                    {medication.duration} {t('userCard.days')}
                                   </p>
                                   {medication.times &&
                                     medication.times.length > 0 && (
                                       <p className="text-gray-700">
                                         <span className="text-gray-600">
-                                          Times:
+                                          {t('userCard.timesInfo')}
                                         </span>{" "}
                                         {medication.times
                                           .map((time) => {
@@ -900,10 +900,10 @@ const UserCard = ({ user, onRemove }) => {
                                   onClick={() => {
                                     setConfirmation({
                                       isOpen: true,
-                                      title: "Delete Medication",
-                                      message: "Are you sure you want to delete this medication?",
+                                      title: t('userCard.deleteMedModal'),
+                                      message: t('userCard.deleteMedMsg'),
                                       isDangerous: true,
-                                      confirmText: "Delete",
+                                      confirmText: t('delete'),
                                       onConfirm: async () => {
                                         try {
                                           await api.delete(
@@ -917,7 +917,7 @@ const UserCard = ({ user, onRemove }) => {
                                           );
                                           setMedicationError(
                                             err.response?.data?.message ||
-                                              "Failed to delete medication",
+                                              t('userCard.failedDelMed'),
                                           );
                                         } finally {
                                           setConfirmation((prev) => ({
@@ -929,7 +929,7 @@ const UserCard = ({ user, onRemove }) => {
                                     });
                                   }}
                                   className="ml-2 px-3 py-1.5 rounded-lg font-semibold text-sm bg-purple-100 hover:bg-purple-200 text-purple-700 border border-purple-300 shrink-0"
-                                  title="Delete medication"
+                                  title={t('userCard.deleteMedTitle')}
                                 >
                                   🗑️
                                 </button>
@@ -945,7 +945,7 @@ const UserCard = ({ user, onRemove }) => {
                       <div className="space-y-3">
                         {healthData.reports.length === 0 ? (
                           <div className="text-center py-12 text-gray-500">
-                            No medical reports
+                            {t('userCard.noReports')}
                           </div>
                         ) : (
                           healthData.reports.map((report) => (
@@ -955,11 +955,11 @@ const UserCard = ({ user, onRemove }) => {
                             >
                               <div className="flex-1">
                                 <h3 className="text-lg font-bold text-gray-900">
-                                  {report.category || "Medical Report"}
+                                  {report.category || t('userCard.medicalReport')}
                                 </h3>
                                 <div className="mt-1 space-y-1 text-sm">
                                   <p className="text-gray-600">
-                                    Report Date:{" "}
+                                    {t('userCard.reportDate')}{" "}
                                     {report.reportDate
                                       ? new Date(
                                           report.reportDate,
@@ -970,7 +970,7 @@ const UserCard = ({ user, onRemove }) => {
                                   </p>
                                   {report.notes && (
                                     <p className="text-gray-700">
-                                      Notes: {report.notes}
+                                      {t('userCard.notesLabel')} {report.notes}
                                     </p>
                                   )}
                                 </div>
@@ -982,7 +982,7 @@ const UserCard = ({ user, onRemove }) => {
                                   rel="noopener noreferrer"
                                   className="px-4 py-2 rounded-lg font-semibold text-sm bg-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/80 text-white"
                                 >
-                                  View 📄
+                                  {t('userCard.viewBtn')}
                                 </a>
                                 <button
                                   onClick={async () => {
@@ -1007,7 +1007,7 @@ const UserCard = ({ user, onRemove }) => {
                                       window.URL.revokeObjectURL(url);
                                     } catch (err) {
                                       console.error("Download failed:", err);
-                                      setReportUploadError("Failed to download report");
+                                      setReportUploadError(t('userCard.failedDownload'));
                                     }
                                   }}
                                   className="px-4 py-2 rounded-lg font-semibold text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 border border-blue-300"
@@ -1020,10 +1020,10 @@ const UserCard = ({ user, onRemove }) => {
                                   onClick={() => {
                                     setConfirmation({
                                       isOpen: true,
-                                      title: "Delete Report",
-                                      message: "Are you sure you want to delete this report?",
+                                      title: t('userCard.deleteReportModal'),
+                                      message: t('userCard.deleteReportMsg'),
                                       isDangerous: true,
-                                      confirmText: "Delete",
+                                      confirmText: t('delete'),
                                       onConfirm: async () => {
                                         try {
                                           await api.delete(
@@ -1037,7 +1037,7 @@ const UserCard = ({ user, onRemove }) => {
                                           );
                                           setReportUploadError(
                                             err.response?.data?.message ||
-                                              "Failed to delete report",
+                                              t('userCard.failedDelReport'),
                                           );
                                         } finally {
                                           setConfirmation((prev) => ({
@@ -1049,7 +1049,7 @@ const UserCard = ({ user, onRemove }) => {
                                     });
                                   }}
                                   className="px-4 py-2 rounded-lg font-semibold text-sm bg-red-100 hover:bg-red-200 text-red-700 border border-red-300"
-                                  title="Delete report"
+                                  title={t('userCard.deleteReportTitle')}
                                 >
                                   🗑️
                                 </button>
@@ -1112,7 +1112,7 @@ const UserCard = ({ user, onRemove }) => {
               <div className="p-6 border-b border-gray-200 bg-gray-50">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">
-                    Upload Medical Report
+                    {t('userCard.uploadReportTitle')}
                   </h2>
                   <button
                     onClick={() => setShowReportUploadModal(false)}
@@ -1134,7 +1134,7 @@ const UserCard = ({ user, onRemove }) => {
                 {/* File Input */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Select Files (PNG, JPG, PDF)
+                    {t('userCard.selectFiles')}
                   </label>
                   <input
                     type="file"
@@ -1161,7 +1161,7 @@ const UserCard = ({ user, onRemove }) => {
                             }
                             className="text-red-600 hover:text-red-800 text-sm font-semibold"
                           >
-                            Remove
+                            {t('userCard.removeFile')}
                           </button>
                         </div>
                       ))}
@@ -1169,10 +1169,9 @@ const UserCard = ({ user, onRemove }) => {
                   )}
                 </div>
 
-                {/* Category */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Category
+                    {t('userCard.categoryLabel')}
                   </label>
                   <select
                     value={reportFormData.category}
@@ -1184,18 +1183,18 @@ const UserCard = ({ user, onRemove }) => {
                     }
                     className="w-full p-2 border border-gray-300 rounded-lg"
                   >
-                    <option value="Other">Other</option>
-                    <option value="Lab Report">Lab Report</option>
-                    <option value="X-Ray">X-Ray</option>
-                    <option value="Prescription">Prescription</option>
-                    <option value="Doctor Notes">Doctor Notes</option>
+                    <option value="Other">{t('userCard.other')}</option>
+                    <option value="Lab Report">{t('userCard.labReport')}</option>
+                    <option value="X-Ray">{t('userCard.xray')}</option>
+                    <option value="Prescription">{t('userCard.prescription')}</option>
+                    <option value="Doctor Notes">{t('userCard.doctorNotes')}</option>
                   </select>
                 </div>
 
                 {/* Report Date */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Report Date
+                    {t('userCard.reportDateLabel')}
                   </label>
                   <input
                     type="date"
@@ -1213,7 +1212,7 @@ const UserCard = ({ user, onRemove }) => {
                 {/* Notes */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Notes
+                    {t('userCard.notesInput')}
                   </label>
                   <textarea
                     value={reportFormData.notes}
@@ -1223,7 +1222,7 @@ const UserCard = ({ user, onRemove }) => {
                         notes: e.target.value,
                       }))
                     }
-                    placeholder="Add any additional notes..."
+                    placeholder={t('userCard.notesPlaceholder')}
                     className="w-full p-2 border border-gray-300 rounded-lg text-sm"
                     rows="3"
                   />
@@ -1236,14 +1235,14 @@ const UserCard = ({ user, onRemove }) => {
                   onClick={() => setShowReportUploadModal(false)}
                   className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100"
                 >
-                  Cancel
+                  {t('userCard.cancelBtn')}
                 </button>
                 <button
                   onClick={handleUploadReports}
                   disabled={reportUploading || reportFiles.length === 0}
                   className="px-4 py-2 rounded-lg bg-[rgb(211,46,149)] text-white font-semibold hover:bg-[rgb(211,46,149)]/80 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {reportUploading ? "Uploading..." : "Upload Reports"}
+                  {reportUploading ? t('userCard.uploading') : t('userCard.uploadReports')}
                 </button>
               </div>
             </motion.div>

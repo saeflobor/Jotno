@@ -3,6 +3,7 @@ import axios from "../lib/axios";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MdArrowBack } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 
 const Login = ({ setUser }) => {
   const [formData, setFormData] = useState({
@@ -18,8 +19,9 @@ const Login = ({ setUser }) => {
   const [forgotError, setForgotError] = useState("");
   const [hasLoginError, setHasLoginError] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
-  const fullText = "->  যত্ন : Jotno";
+  const fullText = t('login.brand');
 
   useEffect(() => {
     let currentIndex = 0;
@@ -66,7 +68,7 @@ const Login = ({ setUser }) => {
     setForgotMessage("");
 
     if (!forgotEmail) {
-      setForgotError("Please enter your email address");
+      setForgotError(t('login.enterEmail'));
       return;
     }
 
@@ -75,7 +77,7 @@ const Login = ({ setUser }) => {
       const res = await axios.post("/api/users/forgot-password", { email: forgotEmail });
       setForgotMessage(res.data.message);
     } catch (err) {
-      setForgotError(err.response?.data?.message || "Something went wrong. Please try again.");
+      setForgotError(err.response?.data?.message || t('login.somethingWrong'));
     } finally {
       setForgotLoading(false);
     }
@@ -92,9 +94,9 @@ const Login = ({ setUser }) => {
             className='flex items-center gap-2 text-white/90 hover:text-white transition font-semibold'
           >
             <MdArrowBack className='text-xl' />
-            Back
+            {t('login.back')}
           </motion.button>
-          <span className='text-white text-xl font-bold'>যত্ন : Jotno</span>
+          <span className='text-white text-xl font-bold'>{t('brand')}</span>
           <div className='w-16'></div>
         </div>
       </div>
@@ -146,7 +148,7 @@ const Login = ({ setUser }) => {
             className='flex items-center gap-2 mb-12 text-white/90 hover:text-white transition font-semibold'
           >
             <MdArrowBack className='text-xl' />
-            Back to Home
+            {t('login.backToHome')}
           </motion.button>
 
           <motion.div
@@ -158,7 +160,7 @@ const Login = ({ setUser }) => {
             <div className='flex items-baseline gap-3 mt-2 text-white'>
               <span className='text-6xl font-extrabold leading-none inline-flex items-center'>{typedText}<span className="animate-pulse font-normal">|</span></span>
             </div>
-            <div className='mt-10 text-3xl text-white/90 font-semibold tracking-wide'>Welcome back</div>
+            <div className='mt-10 text-3xl text-white/90 font-semibold tracking-wide'>{t('login.welcomeBack')}</div>
           </motion.div>
           
           <motion.p 
@@ -167,7 +169,7 @@ const Login = ({ setUser }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            Continue managing your health journey with our comprehensive platform designed for you and your family
+            {t('login.welcomeSub')}
           </motion.p>
         </div>
       </motion.div>
@@ -193,7 +195,7 @@ const Login = ({ setUser }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
-              Sign In
+              {t('login.signIn')}
             </motion.h2>
             <motion.p 
               className='text-gray-600 mb-6 text-sm'
@@ -201,7 +203,7 @@ const Login = ({ setUser }) => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
-              Enter your credentials to access your account
+              {t('login.signInSub')}
             </motion.p>
 
             {/* Error Notification */}
@@ -223,7 +225,7 @@ const Login = ({ setUser }) => {
                       type="button"
                       onClick={() => setError("")}
                       className="text-red-700 hover:text-red-900 text-xl leading-none"
-                      aria-label="Dismiss error message"
+                      aria-label={t('login.dismissError')}
                     >
                       ×
                     </button>
@@ -240,7 +242,7 @@ const Login = ({ setUser }) => {
                 transition={{ duration: 0.5, delay: 0.5 }}
               >
                 <label className='block text-gray-700 text-sm font-semibold mb-2'>
-                  Email
+                  {t('login.emailLabel')}
                 </label>
                 <input 
                   className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition placeholder-gray-400 text-gray-900 bg-white'
@@ -248,7 +250,7 @@ const Login = ({ setUser }) => {
                   name='email'
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder='Enter your email'
+                  placeholder={t('login.emailPlaceholder')}
                   autoComplete='email'
                   required
                 />
@@ -261,7 +263,7 @@ const Login = ({ setUser }) => {
                 transition={{ duration: 0.5, delay: 0.6 }}
               >
                 <label className='block text-gray-700 text-sm font-semibold mb-2'>
-                  Password
+                  {t('login.passwordLabel')}
                 </label>
                 <input 
                   className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition placeholder-gray-400 text-gray-900 bg-white'
@@ -269,7 +271,7 @@ const Login = ({ setUser }) => {
                   name='password'
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder='Enter your password'
+                  placeholder={t('login.passwordPlaceholder')}
                   autoComplete='current-password'
                   required
                 />
@@ -293,7 +295,7 @@ const Login = ({ setUser }) => {
                         }}
                         className="text-sm text-[rgb(211,46,149)] font-medium hover:underline transition"
                       >
-                        Forgot Password?
+                        {t('login.forgotPassword')}
                       </button>
                     </motion.div>
                   )}
@@ -310,7 +312,7 @@ const Login = ({ setUser }) => {
                 whileHover={{ scale: 1.02, boxShadow: "0px 10px 30px rgba(211, 46, 149, 0.3)" }}
                 whileTap={{ scale: 0.98 }}
               >
-                Sign In
+                {t('login.signIn')}
               </motion.button>
             </form>
 
@@ -321,12 +323,12 @@ const Login = ({ setUser }) => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.8 }}
             >
-              Don't have an account?{' '}
+              {t('login.noAccount')}{' '}
               <button
                 onClick={() => navigate("/register")}
                 className='text-[rgb(211,46,149)] font-semibold hover:underline'
               >
-                Register here
+                {t('login.registerHere')}
               </button>
             </motion.p>
           </motion.div>
@@ -351,9 +353,9 @@ const Login = ({ setUser }) => {
               transition={{ type: "spring", stiffness: 200, damping: 20 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Reset Password</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">{t('login.resetTitle')}</h3>
               <p className="text-sm text-gray-600 mb-6">
-                Enter your email address and we'll send you a link to reset your password.
+                {t('login.resetSub')}
               </p>
 
               {/* Success Message */}
@@ -388,13 +390,13 @@ const Login = ({ setUser }) => {
                 <form onSubmit={handleForgotPassword} className="space-y-4">
                   <div>
                     <label className="block text-gray-700 text-sm font-semibold mb-2">
-                      Email Address
+                      {t('login.emailAddressLabel')}
                     </label>
                     <input
                       type="email"
                       value={forgotEmail}
                       onChange={(e) => setForgotEmail(e.target.value)}
-                      placeholder="Enter your registered email"
+                      placeholder={t('login.emailAddressPlaceholder')}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition placeholder-gray-400 text-gray-900 bg-white"
                       required
                     />
@@ -409,10 +411,10 @@ const Login = ({ setUser }) => {
                     {forgotLoading ? (
                       <span className="flex items-center justify-center gap-2">
                         <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Sending...
+                        {t('login.sending')}
                       </span>
                     ) : (
-                      "Send Reset Link"
+                      t('login.sendResetLink')
                     )}
                   </motion.button>
                 </form>
@@ -422,7 +424,7 @@ const Login = ({ setUser }) => {
                 onClick={() => setShowForgotPassword(false)}
                 className="w-full mt-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition font-medium"
               >
-                {forgotMessage ? "Close" : "Back to Sign In"}
+                {forgotMessage ? t('close') : t('login.backToSignIn')}
               </button>
             </motion.div>
           </motion.div>

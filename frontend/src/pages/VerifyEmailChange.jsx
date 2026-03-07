@@ -2,10 +2,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "../lib/axios";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export default function VerifyEmailChange({ setUser }) {
   const { token } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -20,13 +22,13 @@ export default function VerifyEmailChange({ setUser }) {
 
         setUser(res.data.user);
         setSuccess(true);
-        setMessage("Email changed successfully! Redirecting to dashboard...");
+        setMessage(t('verifyEmailChange.success'));
 
         setTimeout(() => {
           navigate("/dashboard");
         }, 2000);
       } catch (err) {
-        setMessage(err.response?.data?.message || "Verification link expired or invalid");
+        setMessage(err.response?.data?.message || t('verifyEmailChange.expired'));
         setSuccess(false);
       } finally {
         setLoading(false);
@@ -68,7 +70,7 @@ export default function VerifyEmailChange({ setUser }) {
                   type="button"
                   onClick={() => setMessage("")}
                   className={success ? "text-green-700 hover:text-green-900" : "text-red-700 hover:text-red-900"}
-                  aria-label="Dismiss message"
+                  aria-label={t('verifyEmailChange.dismissMessage')}
                 >
                   ×
                 </button>
@@ -83,15 +85,15 @@ export default function VerifyEmailChange({ setUser }) {
           className="bg-white rounded-2xl p-8 shadow-lg text-center"
         >
           <div className="mb-4 text-sm text-gray-600">
-            Home / <span className="text-gray-900 font-semibold">Email Change Verification</span>
+            {t('verifyEmailChange.breadcrumb')} <span className="text-gray-900 font-semibold">{t('verifyEmailChange.title')}</span>
           </div>
           
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Email Change Verification</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">{t('verifyEmailChange.title')}</h2>
 
           {loading && (
             <div className="flex flex-col items-center gap-4">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(211,46,149)]"></div>
-              <p className="text-gray-600">Verifying your new email...</p>
+              <p className="text-gray-600">{t('verifyEmailChange.verifying')}</p>
             </div>
           )}
 
@@ -101,7 +103,7 @@ export default function VerifyEmailChange({ setUser }) {
                 onClick={() => navigate("/dashboard")}
                 className="bg-[rgb(211,46,149)] text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
               >
-                Back to Dashboard
+                {t('verifyEmailChange.backToDashboard')}
               </button>
             </div>
           )}

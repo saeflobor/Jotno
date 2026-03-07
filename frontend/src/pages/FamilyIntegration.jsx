@@ -6,6 +6,7 @@ import FamilyRequestNotifications from "../components/FamilyRequestNotifications
 import FamilyMemberSection from "../components/FamilyMemberSection";
 import ConfirmationModal from "../components/ConfirmationModal";
 import { useFamilyRequests } from "../hooks/useFamilyRequests";
+import { useTranslation } from "react-i18next";
 
 const RELATIONS = [
   { key: "father", label: "Father", api: "father" },
@@ -25,6 +26,7 @@ const Pill = ({ children, className = "" }) => (
 
 const FamilyIntegration = ({ user, setUser }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const family = user?.family || {};
 
   const [relationKey, setRelationKey] = useState("father");
@@ -135,24 +137,24 @@ const FamilyIntegration = ({ user, setUser }) => {
     const trimmedPhone = memberPhone.trim();
 
     if (!trimmedEmail) {
-      return showToast("error", "Email is required");
+      return showToast("error", t('family.emailRequired'));
     }
 
     if (!trimmedPhone || trimmedPhone === "+88") {
-      return showToast("error", "Phone number is required");
+      return showToast("error", t('family.phoneRequired'));
     }
 
     const relationApi = relationMap[relationKey];
 
     // Check if relation is already filled
     if (relationApi === "father" && family.father) {
-      return showToast("error", "You already have a father added");
+      return showToast("error", t('family.alreadyHasFather'));
     }
     if (relationApi === "mother" && family.mother) {
-      return showToast("error", "You already have a mother added");
+      return showToast("error", t('family.alreadyHasMother'));
     }
     if (relationApi === "spouse" && family.spouse) {
-      return showToast("error", "You already have a spouse added");
+      return showToast("error", t('family.alreadyHasSpouse'));
     }
 
     // Check if there is already a pending request for Father or Mother
@@ -165,7 +167,7 @@ const FamilyIntegration = ({ user, setUser }) => {
     ) {
       return showToast(
         "error",
-        `You already have a pending request for a ${relationApi}`,
+        t('family.alreadyPending', { relation: relationApi }),
       );
     }
 
@@ -186,7 +188,7 @@ const FamilyIntegration = ({ user, setUser }) => {
     const result = await acceptRequest(requestId);
     if (result.success) {
       setUser(result.user);
-      showToast("success", "Family request accepted!");
+      showToast("success", t('family.requestAccepted'));
     } else {
       showToast("error", result.message);
     }
@@ -205,15 +207,15 @@ const FamilyIntegration = ({ user, setUser }) => {
   const handleRemove = async (memberId, relationType) => {
     setConfirmation({
       isOpen: true,
-      title: "Remove Family Member",
-      message: "Are you sure you want to remove this family member? This action cannot be undone.",
+      title: t('family.removeTitle'),
+      message: t('family.removeMessage'),
       isDangerous: true,
-      confirmText: "Remove",
+      confirmText: t('family.removeBtn'),
       onConfirm: async () => {
         const result = await removeFamily(memberId, relationType);
         if (result.success) {
           setUser(result.user);
-          showToast("success", "Member removed");
+          showToast("success", t('family.memberRemoved'));
         } else {
           showToast("error", result.message);
         }
@@ -228,9 +230,9 @@ const FamilyIntegration = ({ user, setUser }) => {
         {/* Header */}
         <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <div className="text-xs sm:text-sm text-gray-600 order-2 sm:order-1 sm:flex-1">
-            Dashboard /{" "}
+            {t('family.breadcrumb')}{" "}
             <span className="text-gray-900 font-semibold">
-              Family Management
+              {t('family.familyManagement')}
             </span>
           </div>
           <div className="flex justify-center order-1 sm:order-2">
@@ -238,8 +240,7 @@ const FamilyIntegration = ({ user, setUser }) => {
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative px-3 sm:px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 text-sm sm:text-base"
             >
-              Pending Requests
-              {pendingRequests.length > 0 && (
+              {t('family.pendingRequests')}
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {pendingRequests.length}
                 </span>
@@ -252,8 +253,8 @@ const FamilyIntegration = ({ user, setUser }) => {
               className="flex items-center gap-1 sm:gap-2 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold text-sm sm:text-base"
             >
               <span className="text-lg">←</span>
-              <span className="hidden sm:inline">Back to Dashboard</span>
-              <span className="sm:hidden">Back</span>
+              <span className="hidden sm:inline">{t('family.backToDashboard')}</span>
+              <span className="sm:hidden">{t('family.back')}</span>
             </button>
           </div>
         </div>
@@ -283,10 +284,10 @@ const FamilyIntegration = ({ user, setUser }) => {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-lg font-bold text-gray-900">
-                Send Family Request
+                {t('family.sendRequestTitle')}
               </div>
               <div className="text-sm text-gray-600">
-                Send a request to add as a family member. They will need to accept.
+                {t('family.sendRequestSub')}
               </div>
             </div>
           </div>
@@ -309,13 +310,13 @@ const FamilyIntegration = ({ user, setUser }) => {
 
                 return (
                   <option key={r.key} value={r.key} disabled={isDisabled}>
-                    {r.label}{" "}
+                    {t(`family.${r.key}`)}{" "}
                     {isTaken
-                      ? "(Already Added)"
+                      ? t('family.alreadyAdded')
                       : hasPending
                         ? ["father", "mother"].includes(r.api)
-                          ? "(Pending Request Sent)"
-                          : "(Request Already Sent)"
+                          ? t('family.pendingRequest')
+                          : t('family.requestSent')
                         : ""}
                   </option>
                 );
@@ -324,7 +325,7 @@ const FamilyIntegration = ({ user, setUser }) => {
 
             <input
               type="email"
-              placeholder="family@example.com"
+              placeholder={t('family.emailPlaceholder')}
               value={memberEmail}
               onChange={(e) => setMemberEmail(e.target.value)}
               className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900"
@@ -332,7 +333,7 @@ const FamilyIntegration = ({ user, setUser }) => {
 
             <input
               type="tel"
-              placeholder="+8801xxxxxxxxx"
+              placeholder={t('family.phonePlaceholder')}
               value={memberPhone}
               onChange={handlePhoneChange}
               className="p-3 rounded-lg border border-gray-300 bg-white text-gray-900"
@@ -344,13 +345,13 @@ const FamilyIntegration = ({ user, setUser }) => {
                 disabled={processing}
                 className="flex-1 py-3 rounded-lg font-semibold bg-[rgb(211,46,149)] text-white hover:bg-[rgb(211,46,149)]/80 disabled:opacity-50"
               >
-                {processing ? "Sending..." : "Send Request"}
+                {processing ? t('family.sending') : t('family.sendRequest')}
               </button>
               <button
                 onClick={resetForm}
                 className="px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200"
               >
-                Reset
+                {t('family.reset')}
               </button>
             </div>
           </div>
@@ -386,7 +387,7 @@ const FamilyIntegration = ({ user, setUser }) => {
                     type="button"
                     onClick={() => setToast({ type: "", text: "" })}
                     className={toast.type === "success" ? "text-green-700 hover:text-green-900" : "text-red-700 hover:text-red-900"}
-                    aria-label="Dismiss notification"
+                    aria-label={t('family.dismissNotification', { defaultValue: 'Dismiss notification' })}
                   >
                     ×
                   </button>
@@ -401,21 +402,21 @@ const FamilyIntegration = ({ user, setUser }) => {
             className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             <FamilyMemberSection
-              title="Father"
+              title={t('family.father')}
               member={family.father}
               onRemove={handleRemove}
               relationType="father"
             />
 
             <FamilyMemberSection
-              title="Mother"
+              title={t('family.mother')}
               member={family.mother}
               onRemove={handleRemove}
               relationType="mother"
             />
 
             <FamilyMemberSection
-              title="Spouse"
+              title={t('family.spouse')}
               member={family.spouse}
               onRemove={handleRemove}
               relationType="spouse"
@@ -423,7 +424,7 @@ const FamilyIntegration = ({ user, setUser }) => {
 
             <div className="lg:col-span-3">
               <div className="text-xs text-gray-600 font-semibold mb-2">
-                Children
+                {t('family.children')}
               </div>
               <div className="flex flex-wrap gap-4">
                 <AnimatePresence>
@@ -440,7 +441,7 @@ const FamilyIntegration = ({ user, setUser }) => {
                     ))
                   ) : (
                     <motion.div className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 w-full h-[160px] flex items-center justify-center">
-                      No children
+                      {t('family.noChildren')}
                     </motion.div>
                   )}
                 </AnimatePresence>

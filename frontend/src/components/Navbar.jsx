@@ -4,10 +4,12 @@ import { GoHomeFill } from 'react-icons/go';
 import { HiMenu, HiX } from 'react-icons/hi';
 import { motion, AnimatePresence } from 'framer-motion';
 import ConfirmationModal from './ConfirmationModal';
+import { useTranslation } from 'react-i18next';
 
 const Navbar = ({ user, setUser }) => {
 
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [confirmation, setConfirmation] = useState({
     isOpen: false,
@@ -17,14 +19,19 @@ const Navbar = ({ user, setUser }) => {
     onConfirm: null,
   });
 
+  const toggleLanguage = () => {
+    const next = i18n.language === 'en' ? 'bn' : 'en';
+    i18n.changeLanguage(next);
+  };
+
   const handleLogout = () => {
     setMobileMenuOpen(false);
     setConfirmation({
       isOpen: true,
-      title: "Logout",
-      message: "Are you sure you want to logout from your account?",
+      title: t('navbar.logoutTitle'),
+      message: t('navbar.logoutMessage'),
       isDangerous: true,
-      confirmText: "Logout",
+      confirmText: t('navbar.logout'),
       onConfirm: () => {
         localStorage.removeItem("token");
         setUser(null);
@@ -60,7 +67,9 @@ const Navbar = ({ user, setUser }) => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              Peace of Mind for You,<br />Care for Your Loved Ones
+              {t('navbar.tagline').split('\n').map((line, i, arr) => (
+                <React.Fragment key={i}>{line}{i < arr.length - 1 && <br />}</React.Fragment>
+              ))}
             </motion.p>
           </div>
 
@@ -90,11 +99,21 @@ const Navbar = ({ user, setUser }) => {
 
           {/* Right: Desktop menu */}
           <motion.div 
-            className='hidden sm:flex items-center'
+            className='hidden sm:flex items-center gap-2'
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
+            {/* Language toggle */}
+            <motion.button
+              onClick={toggleLanguage}
+              className='text-white border border-white/60 px-2.5 py-1 rounded-full text-xs sm:text-sm hover:bg-white/20 transition'
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              title={t('navbar.switchLangTitle')}
+            >
+              {t('navbar.switchLang')}
+            </motion.button>
             {user ? (
               <motion.button 
                 onClick={handleLogout}
@@ -103,7 +122,7 @@ const Navbar = ({ user, setUser }) => {
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
               >
-                Logout
+                {t('navbar.logout')}
               </motion.button>
             ) : (
               <motion.div 
@@ -129,7 +148,7 @@ const Navbar = ({ user, setUser }) => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Link className="text-white text-sm sm:text-base hover:underline" to="/login">
-                    Login
+                    {t('navbar.login')}
                   </Link>
                 </motion.div>
                 <motion.div
@@ -141,7 +160,7 @@ const Navbar = ({ user, setUser }) => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Link className="text-white text-sm sm:text-base hover:underline" to="/register">
-                    Register
+                    {t('navbar.register')}
                   </Link>
                 </motion.div>
               </motion.div>
@@ -152,7 +171,7 @@ const Navbar = ({ user, setUser }) => {
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className='sm:hidden text-white p-1'
-            aria-label="Toggle menu"
+            aria-label={t('navbar.toggleMenu')}
           >
             {mobileMenuOpen ? (
               <HiX className='text-2xl' />
@@ -178,7 +197,7 @@ const Navbar = ({ user, setUser }) => {
                   className='w-full text-white bg-red-500 px-4 py-2 rounded-full hover:bg-red-600 text-sm'
                   whileTap={{ scale: 0.95 }}
                 >
-                  Logout
+                  {t('navbar.logout')}
                 </motion.button>
               ) : (
                 <div className='flex flex-col gap-2'>
@@ -187,17 +206,23 @@ const Navbar = ({ user, setUser }) => {
                     className="text-white text-center py-2 hover:bg-white/10 rounded-lg transition"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Login
+                    {t('navbar.login')}
                   </Link>
                   <Link 
                     to="/register" 
                     className="text-white text-center py-2 hover:bg-white/10 rounded-lg transition"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Register
+                    {t('navbar.register')}
                   </Link>
                 </div>
               )}
+              <button
+                onClick={toggleLanguage}
+                className='w-full text-white border border-white/60 py-2 rounded-lg text-sm hover:bg-white/20 transition mt-1'
+              >
+                {t('navbar.switchLang')}
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -209,7 +234,7 @@ const Navbar = ({ user, setUser }) => {
         title={confirmation.title}
         message={confirmation.message}
         isDangerous={confirmation.isDangerous}
-        confirmText={confirmation.confirmText || "Confirm"}
+        confirmText={confirmation.confirmText || t('confirm')}
         onConfirm={() => {
           if (confirmation.onConfirm) {
             confirmation.onConfirm();

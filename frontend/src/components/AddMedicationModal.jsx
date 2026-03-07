@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Pill, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     medicationName: "",
     dosage: "",
@@ -16,7 +18,7 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
   const handleSubmit = () => {
     // Basic validation
     if (!form.medicationName.trim() || !form.dosage.trim() || !form.duration.trim()) {
-      alert("Please fill all required fields");
+      alert(t('addMedication.validation'));
       return;
     }
     onSave(form);
@@ -42,7 +44,7 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
               <Pill className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Add Medication</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{t('addMedication.title')}</h3>
           </div>
           <button
             onClick={onClose}
@@ -55,11 +57,11 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
         <div className="space-y-5">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Medication Name
+              {t('addMedication.nameLabel')}
             </label>
             <input
               type="text"
-              placeholder="e.g., Metformin, Lisinopril"
+              placeholder={t('addMedication.namePlaceholder')}
               value={form.medicationName}
               onChange={(e) =>
                 setForm({ ...form, medicationName: e.target.value })
@@ -71,11 +73,11 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Dosage
+                {t('addMedication.dosageLabel')}
               </label>
               <input
                 type="text"
-                placeholder="e.g., 500mg, 10ml"
+                placeholder={t('addMedication.dosagePlaceholder')}
                 value={form.dosage}
                 onChange={(e) =>
                   setForm({ ...form, dosage: e.target.value })
@@ -86,7 +88,7 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Frequency
+                {t('addMedication.frequencyLabel')}
               </label>
               <select
                 value={form.frequency}
@@ -110,10 +112,10 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
                 }}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 bg-white"
               >
-                <option value="once-daily">Once Daily</option>
-                <option value="twice-daily">Twice Daily</option>
-                <option value="three-times-daily">Three Times Daily</option>
-                <option value="as-needed">As Needed</option>
+                <option value="once-daily">{t('addMedication.onceDaily')}</option>
+                <option value="twice-daily">{t('addMedication.twiceDaily')}</option>
+                <option value="three-times-daily">{t('addMedication.threeTimesDaily')}</option>
+                <option value="as-needed">{t('addMedication.asNeeded')}</option>
               </select>
             </div>
           </div>
@@ -121,7 +123,7 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
           {form.times && form.times.length > 0 && (
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Schedule Times
+                {t('addMedication.scheduleLabel')}
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {form.times.map((time, idx) => (
@@ -143,11 +145,11 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Duration (Days)
+              {t('addMedication.durationLabel')}
             </label>
             <input
               type="number"
-              placeholder="e.g., 30"
+              placeholder={t('addMedication.durationPlaceholder')}
               value={form.duration}
               onChange={(e) =>
                 setForm({ ...form, duration: e.target.value })
@@ -158,7 +160,7 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Notification Receiver
+              {t('addMedication.receiverLabel')}
             </label>
             <select
               value={form.notificationType}
@@ -167,8 +169,8 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
               }
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 bg-white"
             >
-              <option value="me">Only Me</option>
-              <option value="family">Me & My Family</option>
+              <option value="me">{t('addMedication.onlyMe')}</option>
+              <option value="family">{t('addMedication.meAndFamily')}</option>
             </select>
           </div>
 
@@ -177,14 +179,14 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
               onClick={onClose}
               className="flex-1 py-3 px-4 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all"
             >
-              Cancel
+              {t('cancel')}
             </button>
             <button
               onClick={handleSubmit}
               disabled={isProcessing}
               className="flex-1 py-3 px-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-orange-500/30 transition-all"
             >
-              {isProcessing ? "Adding..." : "Add Medication"}
+              {isProcessing ? t('addMedication.adding') : t('addMedication.addBtn')}
             </button>
           </div>
         </div>

@@ -21,9 +21,11 @@ import LookupMeds from "./pages/LookupMeds";
 import ResetPassword from "./pages/ResetPassword";
 import { useEffect, useState } from "react";
 import axios from "./lib/axios";
+import { useTranslation } from "react-i18next";
 
 function AppContent({ user, setUser, error, isLoading }) {
   const location = useLocation();
+  const { t } = useTranslation();
   const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname.startsWith('/reset-password');
 
   if (isLoading) {
@@ -31,7 +33,7 @@ function AppContent({ user, setUser, error, isLoading }) {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-pink-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-4 border-pink-200 border-t-[rgb(211,46,149)] rounded-full animate-spin" />
-          <p className="text-gray-600 font-medium">Loading...</p>
+          <p className="text-gray-600 font-medium">{t('app.loading')}</p>
         </div>
       </div>
     );

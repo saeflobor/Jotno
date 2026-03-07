@@ -2,8 +2,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Home, AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 function NotFound() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-pink-50 px-6">
       <motion.div
@@ -22,10 +24,10 @@ function NotFound() {
         </motion.div>
         <h1 className="text-7xl font-extrabold text-gray-900 mb-2">404</h1>
         <h2 className="text-xl font-semibold text-gray-700 mb-3">
-          Page Not Found
+          {t('notFound.heading')}
         </h2>
         <p className="text-gray-500 mb-8">
-          The page you're looking for doesn't exist or has been moved.
+          {t('notFound.message')}
         </p>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Link
@@ -33,7 +35,7 @@ function NotFound() {
             className="inline-flex items-center gap-2 bg-[rgb(211,46,149)] text-white px-6 py-3 rounded-xl font-medium hover:opacity-90 transition"
           >
             <Home className="w-4 h-4" />
-            Back to Home
+            {t('notFound.backToHome')}
           </Link>
         </motion.div>
       </motion.div>
