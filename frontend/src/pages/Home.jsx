@@ -8,7 +8,6 @@ import {
   Bell,
   Users,
   AlertTriangle,
-  Calendar,
   Activity,
   FileText,
   Heart,
@@ -44,14 +43,6 @@ const Home = ({ user, error }) => {
       description:
         "One-tap SOS button notifies family instantly with email and optional location",
       visible: true,
-    },
-    {
-      id: 4,
-      icon: Calendar,
-      title: "Appointment Tracking & Doctors List",
-      description:
-        "Never miss a doctor's appointment & find nearby healthcare professionals easily",
-      visible: showAllFeatures,
     },
     {
       id: 5,

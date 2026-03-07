@@ -277,7 +277,7 @@ const Dashboard = ({ user, setUser }) => {
       iconBg: "bg-red-100",
       iconColor: "text-red-600",
       path: "/lookup-meds",
-      stat: "BD database",
+      stat: "Medex database",
     },
   ];
 
