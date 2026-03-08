@@ -73,7 +73,7 @@ const Home = ({ user, error }) => {
       icon: Sparkles,
       title: "Smart Scanning (AI)",
       description:
-        "Data inputs automatically retrieved from prescriptions & reports using AI",
+        "Data inputs automatically retrieved from prescriptions & reports using locally hosted AI (Ollama3.2)",
       visible: showAllFeatures,
     },
   ];

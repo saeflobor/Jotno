@@ -241,7 +241,7 @@ export const sendSosAlert = async (req, res, next) => {
       for (const phoneNumber of recipientWhatsAppNumbers) {
         const result = await sendSOSWhatsApp(phoneNumber, {
           username: user.username,
-          location,
+          phone: user.phone,
         });
         whatsappResults.push({ phone: phoneNumber, ...result });
       }

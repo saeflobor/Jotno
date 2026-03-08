@@ -9,9 +9,16 @@ import axios from "axios";
 export const sendWhatsAppMessage = async (recipientPhoneNumber, message) => {
   try {
     // Read from process.env at runtime, not at module load time
-    const WHATSAPP_API_URL = process.env.WHATSAPP_API_URL || "https://graph.facebook.com/v18.0";
+    const WHATSAPP_API_URL =
+      process.env.WHATSAPP_API_URL || "https://graph.facebook.com/v22.0";
     const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID;
     const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
+    const WHATSAPP_MESSAGE_MODE =
+      process.env.WHATSAPP_MESSAGE_MODE || "text"; // text | template
+    const WHATSAPP_TEMPLATE_NAME =
+      process.env.WHATSAPP_TEMPLATE_NAME || "hello_world";
+    const WHATSAPP_TEMPLATE_LANG =
+      process.env.WHATSAPP_TEMPLATE_LANG || "en_US";
 
     if (!WHATSAPP_PHONE_ID || !WHATSAPP_ACCESS_TOKEN) {
       console.error("❌ WhatsApp API credentials missing");
@@ -22,18 +29,37 @@ export const sendWhatsAppMessage = async (recipientPhoneNumber, message) => {
 
     const url = `${WHATSAPP_API_URL}/${WHATSAPP_PHONE_ID}/messages`;
 
-    const payload = {
-      messaging_product: "whatsapp",
-      recipient_type: "individual",
-      to: recipientPhoneNumber,
-      type: "text",
-      text: {
-        body: message,
-      },
-    };
+    // Remove + sign from phone number for API (convert +8801304855386 to 8801304855386)
+    const phoneForAPI = recipientPhoneNumber.replace(/^\+/, "");
 
-    console.log(`📤 Sending WhatsApp to: ${recipientPhoneNumber}`);
-    console.log(`📝 Message: ${message.substring(0, 50)}...`);
+    const payload =
+      WHATSAPP_MESSAGE_MODE === "template"
+        ? {
+            messaging_product: "whatsapp",
+            recipient_type: "individual",
+            to: phoneForAPI,
+            type: "template",
+            template: {
+              name: WHATSAPP_TEMPLATE_NAME,
+              language: {
+                code: WHATSAPP_TEMPLATE_LANG,
+              },
+            },
+          }
+        : {
+            messaging_product: "whatsapp",
+            recipient_type: "individual",
+            to: phoneForAPI,
+            type: "text",
+            text: {
+              body: message,
+            },
+          };
+
+    console.log(
+      `📤 Sending WhatsApp ${WHATSAPP_MESSAGE_MODE} message to: ${recipientPhoneNumber}`,
+    );
+    console.log(`📞 Phone for API: ${phoneForAPI}`);
     console.log(`🔗 URL: ${url}`);
 
     const response = await axios.post(url, payload, {
@@ -43,7 +69,9 @@ export const sendWhatsAppMessage = async (recipientPhoneNumber, message) => {
       },
     });
 
-    console.log(`✅ WhatsApp message sent successfully to ${recipientPhoneNumber}`);
+    console.log(
+      `✅ WhatsApp ${WHATSAPP_MESSAGE_MODE} sent successfully to ${recipientPhoneNumber}`,
+    );
     console.log(`📊 Response:`, response.data);
     return { success: true, data: response.data };
   } catch (error) {
@@ -58,13 +86,13 @@ export const sendWhatsAppMessage = async (recipientPhoneNumber, message) => {
 /**
  * Send SOS WhatsApp message with user info
  * @param {string} recipientPhoneNumber - Recipient's WhatsApp number
- * @param {object} userData - User info {username, location}
+ * @param {object} userData - User info {username, phone}
  * @returns {Promise<object>}
  */
 export const sendSOSWhatsApp = async (recipientPhoneNumber, userData) => {
-  const sosMessage = `🚨 *EMERGENCY SOS ALERT* 🚨\n\n*${userData.username}* needs immediate help!\n\n${
-    userData.location ? `📍 Location: ${userData.location}\n` : ""
-  }Please contact them immediately or call emergency services.\n\nTime: ${new Date().toLocaleString()}`;
+  const sosMessage = `🚨 *EMERGENCY SOS ALERT* 🚨\n\n*${userData.username}* needs immediate help!\n📞 Phone: ${
+    userData.phone || "Not provided"
+  }\n\nPlease contact them immediately or call emergency services.\n\nTime: ${new Date().toLocaleString()}`;
 
   return sendWhatsAppMessage(recipientPhoneNumber, sosMessage);
 };
