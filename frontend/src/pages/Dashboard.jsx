@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../lib/axios";
 import { FiFileText, FiChevronRight, FiLogOut, FiEdit2 } from "react-icons/fi";
 import {
   MdAccountCircle,
@@ -24,9 +24,11 @@ import {
   Bell,
 } from "lucide-react";
 import ConfirmationModal from "../components/ConfirmationModal";
+import { useTranslation } from "react-i18next";
 
 const Dashboard = ({ user, setUser }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [sendingSOS, setSendingSOS] = useState(false);
   const [sosMessage, setSosMessage] = useState("");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -51,7 +53,7 @@ const Dashboard = ({ user, setUser }) => {
           className="flex flex-col items-center gap-3"
         >
           <div className="w-10 h-10 border-3 border-pink-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">Loading your dashboard...</p>
+          <p className="text-sm text-gray-500">{t('dashboard.loading')}</p>
         </motion.div>
       </div>
     );
@@ -103,9 +105,9 @@ const Dashboard = ({ user, setUser }) => {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
+    if (hour < 12) return t('dashboard.goodMorning');
+    if (hour < 17) return t('dashboard.goodAfternoon');
+    return t('dashboard.goodEvening');
   };
 
   const sendSOS = async () => {
@@ -114,7 +116,7 @@ const Dashboard = ({ user, setUser }) => {
     try {
       const response = await axios.post(
         "/api/family/sos",
-        { message: "I need help" },
+        { message: t('dashboard.sosMessage') },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -124,10 +126,10 @@ const Dashboard = ({ user, setUser }) => {
       const emailCount = response.data?.sentTo?.emails?.length || 0;
       const whatsappCount = response.data?.sentTo?.whatsapp?.length || 0;
       setSosMessage(
-        `SOS alert sent successfully — ${emailCount} email(s), ${whatsappCount} WhatsApp message(s)`
+        t('dashboard.sosSent', { emailCount, whatsappCount })
       );
     } catch (err) {
-      setSosMessage(err.response?.data?.message || "Failed to send SOS alert");
+      setSosMessage(err.response?.data?.message || t('dashboard.sosFailed'));
     } finally {
       setSendingSOS(false);
       setTimeout(() => setSosMessage(""), 5000);
@@ -138,10 +140,10 @@ const Dashboard = ({ user, setUser }) => {
     setShowProfileDropdown(false);
     setConfirmation({
       isOpen: true,
-      title: "Sign Out",
-      message: "Are you sure you want to sign out from your account?",
+      title: t('dashboard.signOutTitle'),
+      message: t('dashboard.signOutMessage'),
       isDangerous: true,
-      confirmText: "Sign Out",
+      confirmText: t('dashboard.signOut'),
       onConfirm: () => {
         localStorage.removeItem("token");
         setUser(null);
@@ -202,21 +204,21 @@ const Dashboard = ({ user, setUser }) => {
 
   const formatTimeAgo = (date) => {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-    if (seconds < 60) return "Just now";
+    if (seconds < 60) return t('dashboard.justNow');
     const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
+    if (minutes < 60) return `${minutes}${t('dashboard.mAgo')}`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 24) return `${hours}${t('dashboard.hAgo')}`;
     const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d ago`;
+    if (days < 7) return `${days}${t('dashboard.dAgo')}`;
     const weeks = Math.floor(days / 7);
-    if (weeks < 4) return `${weeks}w ago`;
+    if (weeks < 4) return `${weeks}${t('dashboard.wAgo')}`;
     return new Date(date).toLocaleDateString();
   };
 
   const stats = [
     {
-      label: "Conditions",
+      label: t('dashboard.conditions'),
       value: healthSummary?.chronicConditionsCount ?? "—",
       icon: <Heart className="w-4 h-4" />,
       color: "text-rose-600",
@@ -224,7 +226,7 @@ const Dashboard = ({ user, setUser }) => {
       accent: "border-rose-300",
     },
     {
-      label: "Medications",
+      label: t('dashboard.medications'),
       value: healthSummary?.medicationsCount ?? "—",
       icon: <Pill className="w-4 h-4" />,
       color: "text-orange-600",
@@ -232,7 +234,7 @@ const Dashboard = ({ user, setUser }) => {
       accent: "border-orange-300",
     },
     {
-      label: "Reports",
+      label: t('dashboard.reportsLabel'),
       value: healthSummary?.medicalReportsCount ?? "—",
       icon: <FileText className="w-4 h-4" />,
       color: "text-blue-600",
@@ -240,7 +242,7 @@ const Dashboard = ({ user, setUser }) => {
       accent: "border-blue-300",
     },
     {
-      label: "Family",
+      label: t('dashboard.familyLabel'),
       value: familyCount,
       icon: <PiUsersBold className="w-4 h-4" />,
       color: "text-purple-600",
@@ -251,28 +253,28 @@ const Dashboard = ({ user, setUser }) => {
 
   const navCards = [
     {
-      title: "Medical Records",
-      description: "Conditions, medications, and reports",
+      title: t('dashboard.medicalRecords'),
+      description: t('dashboard.medicalRecordsSub'),
       icon: <Stethoscope className="w-6 h-6" />,
       iconBg: "bg-purple-100",
       iconColor: "text-purple-600",
       path: "/profile-activity",
       stat: healthSummary
-        ? `${healthSummary.chronicConditionsCount + healthSummary.medicationsCount + healthSummary.medicalReportsCount} records`
+        ? `${healthSummary.chronicConditionsCount + healthSummary.medicationsCount + healthSummary.medicalReportsCount} ${t('dashboard.records')}`
         : null,
     },
     {
-      title: "Family Management",
-      description: "Connect and manage your family",
+      title: t('dashboard.familyManagement'),
+      description: t('dashboard.familyManagementSub'),
       icon: <PiUsersBold className="w-6 h-6" />,
       iconBg: "bg-pink-100",
       iconColor: "text-pink-600",
       path: "/family-integration",
-      stat: familyCount > 0 ? `${familyCount} member${familyCount !== 1 ? "s" : ""}` : null,
+      stat: familyCount > 0 ? `${familyCount} ${t('dashboard.members')}` : null,
     },
     {
-      title: "Lookup Medicines",
-      description: "Search 21,000+ medicines",
+      title: t('dashboard.lookupMeds'),
+      description: t('dashboard.lookupMedsSub'),
       icon: <PiPillBold className="w-6 h-6" />,
       iconBg: "bg-red-100",
       iconColor: "text-red-600",
@@ -326,7 +328,7 @@ const Dashboard = ({ user, setUser }) => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.96 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50"
+                      className="absolute right-0 top-full mt-2 w-72 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50"
                     >
                       {/* User info */}
                       <div className="p-4 bg-gradient-to-r from-pink-50 to-purple-50 border-b border-gray-100">
@@ -352,7 +354,7 @@ const Dashboard = ({ user, setUser }) => {
                             {healthSummary?.medicationsCount ?? 0}
                           </p>
                           <p className="text-[10px] text-gray-400 font-medium uppercase">
-                            Meds
+                          {t('dashboard.meds')}
                           </p>
                         </div>
                         <div className="p-3 text-center border-x border-gray-100">
@@ -360,7 +362,7 @@ const Dashboard = ({ user, setUser }) => {
                             {healthSummary?.medicalReportsCount ?? 0}
                           </p>
                           <p className="text-[10px] text-gray-400 font-medium uppercase">
-                            Reports
+                            {t('dashboard.reports')}
                           </p>
                         </div>
                         <div className="p-3 text-center">
@@ -368,7 +370,7 @@ const Dashboard = ({ user, setUser }) => {
                             {familyCount}
                           </p>
                           <p className="text-[10px] text-gray-400 font-medium uppercase">
-                            Family
+                            {t('dashboard.family')}
                           </p>
                         </div>
                       </div>
@@ -384,7 +386,7 @@ const Dashboard = ({ user, setUser }) => {
                         >
                           <FiEdit2 className="w-4 h-4 text-gray-400" />
                           <span className="text-sm text-gray-700 font-medium">
-                            Edit Profile
+                          {t('dashboard.editProfile')}
                           </span>
                         </button>
                         <button
@@ -393,7 +395,7 @@ const Dashboard = ({ user, setUser }) => {
                         >
                           <FiLogOut className="w-4 h-4 text-red-500" />
                           <span className="text-sm text-red-600 font-medium">
-                            Sign Out
+                          {t('dashboard.signOut')}
                           </span>
                         </button>
                       </div>
@@ -449,11 +451,11 @@ const Dashboard = ({ user, setUser }) => {
                   <MdWarningAmber className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-semibold text-sm">Timezone Mismatch</p>
+                  <p className="font-semibold text-sm">{t('dashboard.timezoneMismatch')}</p>
                   <p className="text-xs mt-0.5">
-                    Account:{" "}
+                    {t('dashboard.timezoneAccount')}{" "}
                     <span className="font-semibold">{user.timezone}</span> —
-                    Current:{" "}
+                    {" "}{t('dashboard.timezoneCurrent')}{" "}
                     <span className="font-semibold">
                       {Intl.DateTimeFormat().resolvedOptions().timeZone}
                     </span>
@@ -477,17 +479,17 @@ const Dashboard = ({ user, setUser }) => {
                       );
                       if (res.data.success) {
                         setUser(res.data.user);
-                        setSosMessage("Timezone updated successfully!");
+                        setSosMessage(t('dashboard.timezoneUpdated'));
                         setTimeout(() => setSosMessage(""), 3000);
                       }
                     } catch {
-                      setSosMessage("Failed to update timezone");
+                      setSosMessage(t('dashboard.timezoneFailed'));
                       setTimeout(() => setSosMessage(""), 3000);
                     }
                   }}
                   className="px-3 py-1.5 bg-amber-600 text-white text-xs font-bold rounded-lg hover:bg-amber-700 transition whitespace-nowrap"
                 >
-                  Update Timezone
+                  {t('dashboard.updateTimezone')}
                 </button>
               </div>
             </motion.div>
@@ -504,7 +506,7 @@ const Dashboard = ({ user, setUser }) => {
             {getGreeting()}, {user.username}
           </h1>
           <p className="text-gray-500 mt-1 text-sm">
-            Here&apos;s your health snapshot
+            {t('dashboard.healthSnapshot')}
           </p>
         </motion.div>
 
@@ -541,7 +543,7 @@ const Dashboard = ({ user, setUser }) => {
 
         {/* Main Feature Cards */}
         <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-          Quick Access
+          {t('dashboard.quickAccess')}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {navCards.map((card, idx) => (
@@ -591,14 +593,14 @@ const Dashboard = ({ user, setUser }) => {
         >
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
-              Recent Activity
+            {t('dashboard.recentActivity')}
             </h2>
             {activities.length > 5 && (
               <button
                 onClick={() => navigate("/profile-activity")}
                 className="text-xs font-medium text-gray-400 hover:text-gray-600 transition flex items-center gap-1"
               >
-                View all
+                {t('dashboard.viewAll')}
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             )}
@@ -631,7 +633,7 @@ const Dashboard = ({ user, setUser }) => {
               <div className="py-10 text-center">
                 <Clock className="w-5 h-5 text-gray-300 mx-auto mb-2" />
                 <p className="text-xs text-gray-400">
-                  Your recent actions will appear here
+                  {t('dashboard.noActivity')}
                 </p>
               </div>
             )}
@@ -646,17 +648,17 @@ const Dashboard = ({ user, setUser }) => {
           disabled={sendingSOS}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.92 }}
-          className="group relative flex items-center gap-2.5 bg-red-600 hover:bg-red-700 text-white pl-5 pr-6 py-3.5 rounded-full shadow-lg shadow-red-600/25 hover:shadow-xl hover:shadow-red-600/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+          className="group relative flex items-center gap-2 sm:gap-2.5 bg-red-600 hover:bg-red-700 text-white pl-4 sm:pl-5 pr-5 sm:pr-6 py-3 sm:py-3.5 rounded-full shadow-lg shadow-red-600/25 hover:shadow-xl hover:shadow-red-600/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/20 flex items-center justify-center">
             <Shield className="w-4 h-4" />
           </div>
           <div className="text-left">
-            <span className="block text-sm font-bold leading-tight">
-              {sendingSOS ? "Sending..." : "Emergency SOS"}
+            <span className="block text-xs sm:text-sm font-bold leading-tight">
+              {sendingSOS ? t('dashboard.sending') : t('dashboard.emergencySOS')}
             </span>
-            <span className="block text-[10px] text-red-200 font-medium leading-tight">
-              Alert family members
+            <span className="hidden sm:block text-[10px] text-red-200 font-medium leading-tight">
+              {t('dashboard.alertFamily')}
             </span>
           </div>
           <span className="absolute top-2 right-2 w-2 h-2 bg-red-300 rounded-full animate-ping" />
@@ -670,7 +672,7 @@ const Dashboard = ({ user, setUser }) => {
         title={confirmation.title}
         message={confirmation.message}
         isDangerous={confirmation.isDangerous}
-        confirmText={confirmation.confirmText || "Confirm"}
+        confirmText={confirmation.confirmText || t('confirm')}
         onConfirm={() => {
           if (confirmation.onConfirm) {
             confirmation.onConfirm();

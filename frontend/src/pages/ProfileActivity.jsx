@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useTranslation } from "react-i18next";
+import axios from "../lib/axios";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Pill,
@@ -20,6 +21,7 @@ import ConfirmationModal from "../components/ConfirmationModal";
 
 const ProfileActivity = ({ user, setUser }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // ============ EXISTING MEDICAL REPORT STATE ============
   const [files, setFiles] = useState([]);
@@ -144,15 +146,13 @@ const ProfileActivity = ({ user, setUser }) => {
     });
 
     if (invalidFiles.length > 0) {
-      setError(
-        `Invalid files: ${invalidFiles.join(", ")}. Only PNG, JPG or PDF files are allowed.`,
-      );
+      setError(t('profileActivity.invalidFiles', { names: invalidFiles.join(', ') }));
     } else {
       setError("");
     }
 
     if (validFiles.length + files.length > 10) {
-      setError("Maximum 10 files allowed per upload");
+      setError(t('profileActivity.maxFiles'));
       return;
     }
 
@@ -161,7 +161,7 @@ const ProfileActivity = ({ user, setUser }) => {
 
   const handleUpload = async () => {
     if (files.length === 0) {
-      setError("Please select at least one file first");
+      setError(t('profileActivity.selectFile'));
       return;
     }
 
@@ -237,13 +237,13 @@ const ProfileActivity = ({ user, setUser }) => {
         setActivities(activitiesRes.data.activities);
       }
 
-      setSuccess(`${uploadedCount} file(s) uploaded successfully`);
+      setSuccess(t('profileActivity.uploadedSuccess', { count: uploadedCount }));
       // Auto-dismiss success message after 4 seconds
       setTimeout(() => setSuccess(""), 4000);
       // give time for progress bar to reach 100%
       setTimeout(() => setUploadProgress(0), 400);
     } catch (err) {
-      const errorMsg = err?.response?.data?.message || "Upload failed";
+      const errorMsg = err?.response?.data?.message || t('profileActivity.uploadFailed');
       setError(errorMsg);
       // Auto-dismiss error message after 5 seconds
       setTimeout(() => setError(""), 5000);
@@ -254,10 +254,10 @@ const ProfileActivity = ({ user, setUser }) => {
   const handleRemove = async (id) => {
     setConfirmation({
       isOpen: true,
-      title: "Delete Document",
-      message: "Are you sure you want to delete this document? This action cannot be undone.",
+      title: t('profileActivity.deleteDocTitle'),
+      message: t('profileActivity.deleteDocMessage'),
       isDangerous: true,
-      confirmText: "Delete",
+      confirmText: t('delete'),
       onConfirm: async () => {
         try {
           setDeletingIds((p) => [...p, id]);
@@ -334,13 +334,11 @@ const ProfileActivity = ({ user, setUser }) => {
               : r,
           ),
         );
-        setSuccess(
-          `Report is now ${res.data.isPrivate ? "Private" : "Public"}`,
-        );
+        setSuccess(res.data.isPrivate ? t('profileActivity.reportPrivate') : t('profileActivity.reportPublic'));
         setTimeout(() => setSuccess(""), 3000);
       }
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to toggle privacy");
+      setError(err?.response?.data?.message || t('profileActivity.toggleFailed'));
     }
   };
 
@@ -362,13 +360,13 @@ const ProfileActivity = ({ user, setUser }) => {
       <div className="space-y-3">
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm font-medium text-gray-700">
-            Selected Files ({files.length})
+            {t('profileActivity.selectedFiles', { count: files.length })}
           </p>
           <button
             onClick={() => setFiles([])}
             className="text-xs text-red-600 hover:text-red-700 font-medium"
           >
-            Clear All
+            {t('profileActivity.clearAll')}
           </button>
         </div>
         {files.map((file, index) => {
@@ -410,9 +408,9 @@ const ProfileActivity = ({ user, setUser }) => {
                   setFiles((prev) => prev.filter((_, i) => i !== index));
                 }}
                 className="text-sm text-gray-400 hover:text-gray-600"
-                aria-label="Remove file"
+                aria-label={t('profileActivity.removeFile')}
               >
-                Remove
+                {t('remove')}
               </button>
             </div>
           );
@@ -433,7 +431,7 @@ const ProfileActivity = ({ user, setUser }) => {
 
       if (res?.data?.condition) {
         setChronicConditions((p) => [res.data.condition, ...p]);
-        setHealthSuccess("Chronic condition added");
+        setHealthSuccess(t('profileActivity.conditionAdded'));
         setShowConditionModal(false);
 
         
@@ -464,10 +462,10 @@ const ProfileActivity = ({ user, setUser }) => {
   const handleDeleteCondition = async (id) => {
     setConfirmation({
       isOpen: true,
-      title: "Delete Condition",
-      message: "Are you sure you want to delete this condition?",
+      title: t('profileActivity.deleteCondTitle'),
+      message: t('profileActivity.deleteCondMessage'),
       isDangerous: true,
-      confirmText: "Delete",
+      confirmText: t('delete'),
       onConfirm: async () => {
         try {
           const token = localStorage.getItem("token");
@@ -476,7 +474,7 @@ const ProfileActivity = ({ user, setUser }) => {
           });
 
           setChronicConditions((p) => p.filter((c) => c._id !== id));
-          setHealthSuccess("Condition deleted");
+          setHealthSuccess(t('profileActivity.conditionDeleted'));
 
           // Refresh health summary and activities
           const summaryRes = await axios.get("/api/health/summary", {
@@ -495,7 +493,7 @@ const ProfileActivity = ({ user, setUser }) => {
 
           setTimeout(() => setHealthSuccess(""), 3000);
         } catch (err) {
-          setHealthError(err?.response?.data?.message || "Failed to delete");
+          setHealthError(err?.response?.data?.message || t('profileActivity.deleteFailed'));
         } finally {
           setConfirmation((prev) => ({ ...prev, isOpen: false }));
         }
@@ -514,7 +512,7 @@ const ProfileActivity = ({ user, setUser }) => {
 
       if (res?.data?.medication) {
         setMedications((p) => [res.data.medication, ...p]);
-        setHealthSuccess("Medication added");
+        setHealthSuccess(t('profileActivity.medicationAdded'));
         setShowMedicationModal(false);
 
         
@@ -547,10 +545,10 @@ const ProfileActivity = ({ user, setUser }) => {
   const handleDeleteMedication = async (id) => {
     setConfirmation({
       isOpen: true,
-      title: "Delete Medication",
-      message: "Are you sure you want to delete this medication?",
+      title: t('profileActivity.deleteMedTitle'),
+      message: t('profileActivity.deleteMedMessage'),
       isDangerous: true,
-      confirmText: "Delete",
+      confirmText: t('delete'),
       onConfirm: async () => {
         try {
           const token = localStorage.getItem("token");
@@ -559,7 +557,7 @@ const ProfileActivity = ({ user, setUser }) => {
           });
 
           setMedications((p) => p.filter((m) => m._id !== id));
-          setHealthSuccess("Medication deleted");
+          setHealthSuccess(t('profileActivity.medicationDeleted'));
 
           // Refresh health summary and activities
           const summaryRes = await axios.get("/api/health/summary", {
@@ -578,7 +576,7 @@ const ProfileActivity = ({ user, setUser }) => {
 
           setTimeout(() => setHealthSuccess(""), 3000);
         } catch (err) {
-          setHealthError(err?.response?.data?.message || "Failed to delete");
+          setHealthError(err?.response?.data?.message || t('profileActivity.deleteFailed'));
         } finally {
           setConfirmation((prev) => ({ ...prev, isOpen: false }));
         }
@@ -602,13 +600,13 @@ const ProfileActivity = ({ user, setUser }) => {
   const getFrequencyLabel = (frequency) => {
     switch (frequency) {
       case "once-daily":
-        return "Once Daily";
+        return t('profileActivity.onceDaily');
       case "twice-daily":
-        return "Twice Daily";
+        return t('profileActivity.twiceDaily');
       case "three-times-daily":
-        return "Three Times Daily";
+        return t('profileActivity.threeTimesDaily');
       case "as-needed":
-        return "As Needed";
+        return t('profileActivity.asNeeded');
       default:
         return frequency;
     }
@@ -676,15 +674,15 @@ const ProfileActivity = ({ user, setUser }) => {
 
   const formatTimeAgo = (date) => {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-    if (seconds < 60) return "Just now";
+    if (seconds < 60) return t('dashboard.justNow');
     const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
+    if (minutes < 60) return `${minutes}${t('dashboard.mAgo')}`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 24) return `${hours}${t('dashboard.hAgo')}`;
     const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d ago`;
+    if (days < 7) return `${days}${t('dashboard.dAgo')}`;
     const weeks = Math.floor(days / 7);
-    if (weeks < 4) return `${weeks}w ago`;
+    if (weeks < 4) return `${weeks}${t('dashboard.wAgo')}`;
     return new Date(date).toLocaleDateString();
   };
 
@@ -709,7 +707,7 @@ const ProfileActivity = ({ user, setUser }) => {
                 type="button"
                 onClick={() => setError("")}
                 className="text-red-700 hover:text-red-900"
-                aria-label="Dismiss error message"
+                aria-label={t('profileActivity.dismissError')}
               >
                 ×
               </button>
@@ -737,7 +735,7 @@ const ProfileActivity = ({ user, setUser }) => {
                 type="button"
                 onClick={() => setSuccess("")}
                 className="text-green-700 hover:text-green-900"
-                aria-label="Dismiss success message"
+                aria-label={t('profileActivity.dismissSuccess')}
               >
                 ×
               </button>
@@ -754,8 +752,8 @@ const ProfileActivity = ({ user, setUser }) => {
             className="flex items-center gap-1 sm:gap-2 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold text-sm sm:text-base"
           >
             <span className="text-lg">←</span>
-            <span className="hidden sm:inline">Back to Dashboard</span>
-            <span className="sm:hidden">Back</span>
+            <span className="hidden sm:inline">{t('profileActivity.backToDashboard')}</span>
+            <span className="sm:hidden">{t('profileActivity.back')}</span>
           </button>
         </div>
 
@@ -769,21 +767,21 @@ const ProfileActivity = ({ user, setUser }) => {
                   <Pill className="w-5 h-5 text-purple-600" />
                 </div>
                 <h2 className="text-lg font-semibold text-gray-900">
-                  Chronic Conditions
+                  {t('profileActivity.chronicConditions')}
                 </h2>
               </div>
               <button
                 onClick={() => setShowConditionModal(true)}
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition"
               >
-                + Add
+                {t('profileActivity.addBtn')}
               </button>
             </div>
 
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {chronicConditions.length === 0 ? (
                 <p className="text-gray-400 text-sm italic text-center py-8">
-                  No conditions added yet.
+                  {t('profileActivity.noConditions')}
                 </p>
               ) : (
                 chronicConditions.map((condition) => (
@@ -833,21 +831,21 @@ const ProfileActivity = ({ user, setUser }) => {
                   </svg>
                 </div>
                 <h2 className="text-lg font-semibold text-gray-900">
-                  Current Medications
+                  {t('profileActivity.currentMedications')}
                 </h2>
               </div>
               <button
                 onClick={() => setShowMedicationModal(true)}
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition"
               >
-                + Add
+                {t('profileActivity.addBtn')}
               </button>
             </div>
 
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {medications.length === 0 ? (
                 <p className="text-gray-400 text-sm italic text-center py-8">
-                  No medications added yet.
+                  {t('profileActivity.noMedications')}
                 </p>
               ) : (
                 medications.map((medication) => (
@@ -900,10 +898,10 @@ const ProfileActivity = ({ user, setUser }) => {
           <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">
-                Profile Activity
+                {t('profileActivity.profileActivity')}
               </h2>
               <div className="text-xs text-gray-500">
-                Manage your medical documents
+                {t('profileActivity.manageDocuments')}
               </div>
             </div>
 
@@ -911,7 +909,7 @@ const ProfileActivity = ({ user, setUser }) => {
             <div className="mb-4 space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
+                  {t('profileActivity.category')}
                 </label>
                 <select
                   value={uploadFormData.category}
@@ -923,21 +921,21 @@ const ProfileActivity = ({ user, setUser }) => {
                   }
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm text-gray-900"
                 >
-                  <option value="Lab Results">Lab Results</option>
-                  <option value="Prescription">Prescription</option>
-                  <option value="X-Ray">X-Ray</option>
-                  <option value="CT Scan">CT Scan</option>
-                  <option value="MRI">MRI</option>
-                  <option value="Ultrasound">Ultrasound</option>
-                  <option value="Blood Test">Blood Test</option>
-                  <option value="Doctor's Note">Doctor's Note</option>
-                  <option value="Insurance">Insurance</option>
-                  <option value="Other">Other</option>
+                  <option value="Lab Results">{t('profileActivity.labResults')}</option>
+                  <option value="Prescription">{t('profileActivity.prescription')}</option>
+                  <option value="X-Ray">{t('profileActivity.xray')}</option>
+                  <option value="CT Scan">{t('profileActivity.ctScan')}</option>
+                  <option value="MRI">{t('profileActivity.mri')}</option>
+                  <option value="Ultrasound">{t('profileActivity.ultrasound')}</option>
+                  <option value="Blood Test">{t('profileActivity.bloodTest')}</option>
+                  <option value="Doctor's Note">{t('profileActivity.doctorsNote')}</option>
+                  <option value="Insurance">{t('profileActivity.insurance')}</option>
+                  <option value="Other">{t('profileActivity.other')}</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Report Date (Optional)
+                  {t('profileActivity.reportDate')}
                 </label>
                 <input
                   type="date"
@@ -953,7 +951,7 @@ const ProfileActivity = ({ user, setUser }) => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Notes (Optional)
+                  {t('profileActivity.notes')}
                 </label>
                 <textarea
                   value={uploadFormData.notes}
@@ -963,7 +961,7 @@ const ProfileActivity = ({ user, setUser }) => {
                       notes: e.target.value,
                     })
                   }
-                  placeholder="Add any notes about this report..."
+                  placeholder={t('profileActivity.notesPlaceholder')}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm resize-none text-gray-900 placeholder-gray-400"
                   rows="2"
                   maxLength="500"
@@ -1010,11 +1008,11 @@ const ProfileActivity = ({ user, setUser }) => {
                 />
               </svg>
               <div className="text-sm text-gray-700 mb-2">
-                Drag & drop files here, or
+                {t('profileActivity.dragDrop')}
               </div>
 
               <label className="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-md text-sm font-medium text-gray-700 shadow-sm cursor-pointer hover:bg-gray-50">
-                Choose files
+                {t('profileActivity.chooseFiles')}
                 <input
                   type="file"
                   accept=".png,.jpg,.jpeg,.pdf"
@@ -1035,8 +1033,8 @@ const ProfileActivity = ({ user, setUser }) => {
                   className="mt-4 w-full py-2 rounded-lg text-white font-semibold disabled:opacity-60 bg-linear-to-r from-pink-500 to-purple-500 shadow"
                 >
                   {uploading
-                    ? `Uploading ${uploadProgress}%`
-                    : `Upload ${files.length} File${files.length !== 1 ? "s" : ""}`}
+                    ? t('profileActivity.uploadingPercent', { percent: uploadProgress })
+                    : t('profileActivity.uploadFiles', { count: files.length })}
                 </button>
 
                 {uploadProgress > 0 && (
@@ -1051,8 +1049,7 @@ const ProfileActivity = ({ user, setUser }) => {
             </div>
 
             <div className="mt-6 text-xs text-gray-400">
-              Supported: PNG, JPG, JPEG, PDF • Max size: depends on server
-              settings
+              {t('profileActivity.supported')}
             </div>
           </div>
 
@@ -1060,11 +1057,10 @@ const ProfileActivity = ({ user, setUser }) => {
           <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-md font-semibold text-gray-900">
-                Your Documents
+                {t('profileActivity.yourDocuments')}
               </h3>
               <div className="text-xs text-gray-500">
-                {filteredReports.length} file
-                {filteredReports.length !== 1 ? "s" : ""}
+                {t('profileActivity.files', { count: filteredReports.length })}
               </div>
             </div>
 
@@ -1074,7 +1070,7 @@ const ProfileActivity = ({ user, setUser }) => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search reports..."
+                  placeholder={t('profileActivity.searchReports')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none text-sm text-gray-900 placeholder-gray-400"
@@ -1089,7 +1085,7 @@ const ProfileActivity = ({ user, setUser }) => {
                 >
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>
-                      {cat === "All" ? "All Categories" : cat}
+                      {cat === "All" ? t('profileActivity.allCategories') : cat}
                     </option>
                   ))}
                 </select>
@@ -1114,8 +1110,8 @@ const ProfileActivity = ({ user, setUser }) => {
                 </svg>
                 <div className="text-sm text-gray-500">
                   {searchQuery || categoryFilter !== "All"
-                    ? "No matching documents found."
-                    : "No documents uploaded yet. Upload to see them here."}
+                    ? t('profileActivity.noMatchingDocs')
+                    : t('profileActivity.noDocuments')}
                 </div>
               </div>
             ) : (
@@ -1139,7 +1135,7 @@ const ProfileActivity = ({ user, setUser }) => {
                       animate={{ opacity: 1, y: 0 }}
                       className="bg-white rounded-2xl border-2 border-gray-100 p-5 shadow-sm hover:shadow-md transition-all space-y-4"
                     >
-                      <div className="flex items-center space-x-5">
+                      <div className="flex items-center space-x-3 sm:space-x-5">
                         {/* Large Thumbnail/Icon for visibility */}
                         <div
                           className="w-20 h-20 rounded-xl overflow-hidden bg-gray-50 border-2 border-gray-100 flex items-center justify-center cursor-pointer hover:border-pink-300 transition-colors"
@@ -1162,7 +1158,7 @@ const ProfileActivity = ({ user, setUser }) => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between">
                             <h4
-                              className="text-lg font-bold text-gray-900 truncate cursor-pointer hover:text-pink-600 transition-colors"
+                              className="text-sm sm:text-lg font-bold text-gray-900 truncate cursor-pointer hover:text-pink-600 transition-colors"
                               onClick={() => openPreview(r)}
                             >
                               {name}
@@ -1176,8 +1172,8 @@ const ProfileActivity = ({ user, setUser }) => {
                               }`}
                               title={
                                 r.isPrivate
-                                  ? "Only you can see this"
-                                  : "Family can see this"
+                                  ? t('profileActivity.privateTitle')
+                                  : t('profileActivity.publicTitle')
                               }
                             >
                               {r.isPrivate ? (
@@ -1213,7 +1209,7 @@ const ProfileActivity = ({ user, setUser }) => {
                           className="flex flex-col items-center justify-center p-3 text-gray-700 hover:text-pink-600 hover:bg-pink-50 rounded-xl border border-gray-100 transition-all font-semibold text-sm"
                         >
                           <Search className="w-6 h-6 mb-1" />
-                          <span>View</span>
+                          <span>{t('profileActivity.viewBtn')}</span>
                         </button>
 
                         <a
@@ -1235,7 +1231,7 @@ const ProfileActivity = ({ user, setUser }) => {
                             <polyline points="7 10 12 15 17 10" />
                             <line x1="12" y1="15" x2="12" y2="3" />
                           </svg>
-                          <span>Save</span>
+                          <span>{t('profileActivity.saveBtn')}</span>
                         </a>
 
                         <button
@@ -1248,7 +1244,7 @@ const ProfileActivity = ({ user, setUser }) => {
                           ) : (
                             <X className="w-6 h-6 mb-1" />
                           )}
-                          <span>Delete</span>
+                          <span>{t('profileActivity.deleteBtn')}</span>
                         </button>
                       </div>
 
@@ -1300,7 +1296,7 @@ const ProfileActivity = ({ user, setUser }) => {
                   <div className="mt-3 space-y-2 text-sm">
                     {selectedReport.reportDate && (
                       <div className="text-gray-600">
-                        <span className="font-medium">Date:</span>{" "}
+                        <span className="font-medium">{t('profileActivity.dateLabel')}</span>{" "}
                         {new Date(
                           selectedReport.reportDate,
                         ).toLocaleDateString()}
@@ -1308,7 +1304,7 @@ const ProfileActivity = ({ user, setUser }) => {
                     )}
                     {selectedReport.notes && (
                       <div className="text-gray-600">
-                        <span className="font-medium">Notes:</span>{" "}
+                        <span className="font-medium">{t('profileActivity.notesLabel')}</span>{" "}
                         {selectedReport.notes}
                       </div>
                     )}
@@ -1321,7 +1317,7 @@ const ProfileActivity = ({ user, setUser }) => {
                     rel="noreferrer"
                     className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 text-sm font-medium"
                   >
-                    Open in New Tab
+                    {t('profileActivity.openNewTab')}
                   </a>
                   <button
                     onClick={() =>
@@ -1333,7 +1329,7 @@ const ProfileActivity = ({ user, setUser }) => {
                     }
                     className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm font-medium"
                   >
-                    Delete
+                    {t('profileActivity.deleteBtn')}
                   </button>
                 </div>
               </div>

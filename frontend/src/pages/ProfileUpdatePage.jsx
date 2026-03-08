@@ -1,12 +1,14 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../lib/axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { MdArrowBack } from "react-icons/md";
 import ConfirmationModal from "../components/ConfirmationModal";
 
 const ProfileUpdatePage = ({ user, setUser }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -80,7 +82,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       !timezoneChanged &&
       !whatsappChanged
     ) {
-      setErrorMessage("Please fill in at least one field to update");
+      setErrorMessage(t('profileUpdate.fillAtLeastOne'));
       return false;
     }
 
@@ -88,7 +90,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     if (emailChanged) {
       const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
       if (!emailRegex.test(formData.email)) {
-        setErrorMessage("Invalid email format");
+        setErrorMessage(t('profileUpdate.invalidEmail'));
         return false;
       }
     }
@@ -97,7 +99,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     if (phoneChanged) {
       const phoneRegex = /^\+88(013|014|015|016|017|018|019)\d{8}$/;
       if (!phoneRegex.test(formData.phone)) {
-        setErrorMessage("Phone must be a valid Bangladeshi number (format: +8801XXXXXXXXX)");
+        setErrorMessage(t('profileUpdate.invalidPhone'));
         return false;
       }
     }
@@ -106,7 +108,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     if (whatsappChanged) {
       const whatsappRegex = /^\+\d{1,15}$/;
       if (!whatsappRegex.test(formData.whatsappPhone)) {
-        setErrorMessage("WhatsApp number must be in format: +8801XXXXXXXXX");
+        setErrorMessage(t('profileUpdate.invalidWhatsapp'));
         return false;
       }
     }
@@ -114,18 +116,18 @@ const ProfileUpdatePage = ({ user, setUser }) => {
     // Password validation
     if (passwordChanged) {
       if (formData.password.length < 6) {
-        setErrorMessage("Password must be at least 6 characters long");
+        setErrorMessage(t('profileUpdate.shortPassword'));
         return false;
       }
       if (formData.password !== formData.confirmPassword) {
-        setErrorMessage("Passwords do not match");
+        setErrorMessage(t('profileUpdate.passwordMismatch'));
         return false;
       }
     }
 
     // Gender validation
     if (formData.gender && !["male", "female"].includes(formData.gender)) {
-      setErrorMessage("Invalid gender selection");
+      setErrorMessage(t('profileUpdate.invalidGender'));
       return false;
     }
 
@@ -175,7 +177,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       }
 
       if (Object.keys(updatePayload).length === 0) {
-        setErrorMessage("No changes detected");
+        setErrorMessage(t('profileUpdate.noChanges'));
         setIsLoading(false);
         return;
       }
@@ -207,7 +209,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       const errorMsg =
         err.response?.data?.message ||
         err.message ||
-        "Failed to update profile";
+        t('profileUpdate.updateFailed');
       setErrorMessage(errorMsg);
     } finally {
       setIsLoading(false);
@@ -225,12 +227,12 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           className="flex items-center gap-1 sm:gap-2 mb-4 sm:mb-8 text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition font-semibold text-sm sm:text-base"
         >
           <MdArrowBack className="text-lg sm:text-xl" />
-          <span className="hidden sm:inline">Back to Dashboard</span>
-          <span className="sm:hidden">Back</span>
+          <span className="hidden sm:inline">{t('profileUpdate.backToDashboard')}</span>
+          <span className="sm:hidden">{t('profileUpdate.back')}</span>
         </motion.button>
 
         <div className="mb-3 sm:mb-4 text-xs sm:text-sm text-gray-600">
-          Dashboard / <span className="text-gray-900 font-semibold">Update Profile</span>
+          {t('profileUpdate.breadcrumb')} <span className="text-gray-900 font-semibold">{t('profileUpdate.updateProfile')}</span>
         </div>
 
         {/* Header */}
@@ -240,10 +242,10 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           className="mb-4 sm:mb-8"
         >
           <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">
-            Update Profile
+            {t('profileUpdate.updateProfile')}
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
-            Update your email, phone, WhatsApp number, username, password, or gender
+            {t('profileUpdate.subtitle')}
           </p>
         </motion.div>
 
@@ -273,7 +275,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                     type="button"
                     onClick={() => setSuccessMessage("")}
                     className="text-green-700 hover:text-green-900"
-                    aria-label="Dismiss success message"
+                    aria-label={t('profileUpdate.dismissSuccess')}
                   >
                     ×
                   </button>
@@ -300,7 +302,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                     type="button"
                     onClick={() => setErrorMessage("")}
                     className="text-red-700 hover:text-red-900"
-                    aria-label="Dismiss error message"
+                    aria-label={t('profileUpdate.dismissError')}
                   >
                     ×
                   </button>
@@ -312,8 +314,8 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
-              <label className="block text-xl font-semibold text-gray-700 mb-2">
-                Email
+              <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
+                {t('profileUpdate.emailLabel')}
               </label>
               <input
                 type="email"
@@ -330,15 +332,15 @@ const ProfileUpdatePage = ({ user, setUser }) => {
 
             {/* Phone */}
             <div>
-              <label className="block text-xl font-semibold text-gray-700 mb-2">
-                Phone Number
+              <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
+                {t('profileUpdate.phoneLabel')}
               </label>
               <input
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="+8801xxxxxxxxx"
+                placeholder={t('profileUpdate.phonePlaceholder')}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
               />
               <p className="text-xs text-gray-700 mt-3">
@@ -348,29 +350,29 @@ const ProfileUpdatePage = ({ user, setUser }) => {
 
             {/* WhatsApp Phone */}
             <div>
-              <label className="block text-xl font-semibold text-gray-700 mb-2">
-                WhatsApp Number (for SOS alerts)
+              <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
+                {t('profileUpdate.whatsappLabel')}
               </label>
               <input
                 type="tel"
                 name="whatsappPhone"
                 value={formData.whatsappPhone}
                 onChange={handleChange}
-                placeholder="+8801xxxxxxxxx"
+                placeholder={t('profileUpdate.whatsappPlaceholder')}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
               />
               <p className="text-xs text-gray-700 mt-3">
-                Current: {user?.whatsappPhone || "Not set"}
+                Current: {user?.whatsappPhone || t('profileUpdate.whatsappNotSet')}
               </p>
               <p className="text-xs text-gray-500 mt-2">
-                ℹ️ This number will receive WhatsApp messages when SOS alerts are triggered
+                {t('profileUpdate.whatsappInfo')}
               </p>
             </div>
 
             {/* Username */}
             <div>
-              <label className="block text-xl font-semibold text-gray-700 mb-2">
-                Username
+              <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
+                {t('profileUpdate.usernameLabel')}
               </label>
               <input
                 type="text"
@@ -387,8 +389,8 @@ const ProfileUpdatePage = ({ user, setUser }) => {
 
             {/* Gender */}
             <div>
-              <label className="block text-xl font-semibold text-gray-700 mb-2">
-                Gender
+              <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
+                {t('profileUpdate.genderLabel')}
               </label>
               <select
                 name="gender"
@@ -396,8 +398,8 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                 placeholder={user?.gender || "Select gender"}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition text-gray-900 bg-white appearance-none cursor-pointer"
               >
-                <option value="male">male</option>
-                <option value="female">female</option>
+                <option value="male">{t('profileUpdate.male')}</option>
+                <option value="female">{t('profileUpdate.female')}</option>
               </select>
               <p className="text-xs text-gray-700 mt-3">
                 Current: {user?.gender}
@@ -407,8 +409,8 @@ const ProfileUpdatePage = ({ user, setUser }) => {
             {/* Timezone */}
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-xl font-semibold text-gray-700">
-                  Timezone
+                <label className="block text-base sm:text-xl font-semibold text-gray-700">
+                  {t('profileUpdate.timezoneLabel')}
                 </label>
                 <button
                   type="button"
@@ -418,7 +420,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                   }}
                   className="text-xs font-semibold text-[rgb(211,46,149)] hover:text-[rgb(190,35,130)] transition underline decoration-dotted underline-offset-4"
                 >
-                  Detect Current
+                  {t('profileUpdate.detectCurrent')}
                 </button>
               </div>
               <div className="relative">
@@ -455,8 +457,8 @@ const ProfileUpdatePage = ({ user, setUser }) => {
 
             {/* Private Profile */}
             <div>
-              <label className="block text-xl font-semibold text-gray-700 mb-4">
-                Profile Privacy Settings
+              <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-4">
+                {t('profileUpdate.privacyLabel')}
               </label>
               <div className="flex items-center gap-4">
                 <button
@@ -478,25 +480,22 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                   />
                 </button>
                 <span className="text-gray-600 font-medium">
-                  {formData.private ? "Private" : "Public"}
+                  {formData.private ? t('profileUpdate.private') : t('profileUpdate.public')}
                 </span>
               </div>
               <div className="mt-4 p-4 rounded-lg bg-blue-50 border border-blue-200">
                 <p className="text-sm text-blue-900 mb-2">
-                  <span className="font-semibold">Public Profile:</span> Family
-                  members can view your health information and add medications
-                  and medical reports.
+                  <span className="font-semibold">{t('profileUpdate.publicInfo')}</span> {t('profileUpdate.publicInfoDetail')}
                 </p>
                 <p className="text-sm text-blue-900">
-                  <span className="font-semibold">Private Profile:</span> Only
-                  you can manage your health information.
+                  <span className="font-semibold">{t('profileUpdate.privateInfo')}</span> {t('profileUpdate.privateInfoDetail')}
                 </p>
               </div>
               <p className="text-xs text-gray-700 mt-3">
                 Current:{" "}
                 {user?.private
-                  ? "Private - Only you manage your data"
-                  : "Public - Family members can add info"}
+                  ? t('profileUpdate.currentPrivate')
+                  : t('profileUpdate.currentPublic')}
               </p>
             </div>
 
@@ -504,36 +503,36 @@ const ProfileUpdatePage = ({ user, setUser }) => {
             <div className="pt-4 border-t border-gray-200">
               <p className="text-sm text-gray-600 mb-4">
                 <span className="font-semibold">
-                  Password Change (Optional)
+                  {t('profileUpdate.passwordSection')}
                 </span>{" "}
-                - Leave blank to keep password unchanged
+                - {t('profileUpdate.passwordHint')}
               </p>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xl font-semibold text-gray-700 mb-2">
-                    New Password
+                  <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
+                    {t('profileUpdate.newPasswordLabel')}
                   </label>
                   <input
                     type="password"
                     name="password"
                     // value={formData.password}
                     onChange={handleChange}
-                    placeholder="Enter new password (min 6 characters)"
+                    placeholder={t('profileUpdate.newPasswordPlaceholder')}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xl font-semibold text-gray-700 mb-2">
-                    Confirm Password
+                  <label className="block text-base sm:text-xl font-semibold text-gray-700 mb-2">
+                    {t('profileUpdate.confirmPasswordLabel')}
                   </label>
                   <input
                     type="password"
                     name="confirmPassword"
                     // value={formData.confirmPassword}
                     onChange={handleChange}
-                    placeholder="Confirm new password"
+                    placeholder={t('profileUpdate.confirmPasswordPlaceholder')}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] transition placeholder-black/50 text-black"
                   />
                 </div>
@@ -552,14 +551,14 @@ const ProfileUpdatePage = ({ user, setUser }) => {
                     : "linear-gradient(90deg, rgb(211, 46, 149), rgb(255, 95, 109))",
                 }}
               >
-                {isLoading ? "Updating..." : "Update Profile"}
+                {isLoading ? t('profileUpdate.updating') : t('profileUpdate.updateBtn')}
               </button>
               <button
                 type="button"
                 onClick={() => navigate("/dashboard")}
                 className="flex-1 py-3 rounded-4xl font-semibold border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition"
               >
-                Cancel
+                {t('profileUpdate.cancelBtn')}
               </button>
             </div>
           </form>
@@ -573,7 +572,7 @@ const ProfileUpdatePage = ({ user, setUser }) => {
           className="mt-8 p-4 rounded-lg bg-blue-50 border border-blue-200"
         >
           <p className="text-sm text-blue-700 text-center">
-            <span className="font-semibold">Note:</span> Please keep your profile information up to date.
+            <span className="font-semibold">{t('profileUpdate.note').split(':')[0]}:</span> {t('profileUpdate.note').split(': ').slice(1).join(': ')}
           </p>
         </motion.div>
       </div>
@@ -581,9 +580,9 @@ const ProfileUpdatePage = ({ user, setUser }) => {
       {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={showConfirmation}
-        title="Update Profile"
-        message="Are you sure you want to update your profile information?"
-        confirmText="Yes, Update"
+        title={t('profileUpdate.confirmTitle')}
+        message={t('profileUpdate.confirmMessage')}
+        confirmText={t('profileUpdate.confirmYes')}
         onConfirm={handleConfirmUpdate}
         onCancel={() => setShowConfirmation(false)}
       />

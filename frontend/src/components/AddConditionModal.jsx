@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Pill, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const AddConditionModal = ({ isOpen, onClose, onSave, isProcessing }) => {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     conditionName: "",
     severityLevel: "mild",
@@ -11,7 +13,7 @@ const AddConditionModal = ({ isOpen, onClose, onSave, isProcessing }) => {
 
   const handleSubmit = () => {
     if (!form.conditionName.trim()) {
-      alert("Please enter a condition name");
+      alert(t('addCondition.validation'));
       return;
     }
     onSave(form);
@@ -36,7 +38,7 @@ const AddConditionModal = ({ isOpen, onClose, onSave, isProcessing }) => {
               <Pill className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <h3 className="text-lg sm:text-2xl font-bold text-gray-900">
-              Add Chronic Condition
+              {t('addCondition.title')}
             </h3>
           </div>
           <button
@@ -50,11 +52,11 @@ const AddConditionModal = ({ isOpen, onClose, onSave, isProcessing }) => {
         <div className="space-y-5">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Condition Name
+              {t('addCondition.conditionLabel')}
             </label>
             <input
               type="text"
-              placeholder="e.g., Diabetes, Hypertension"
+              placeholder={t('addCondition.conditionPlaceholder')}
               value={form.conditionName}
               onChange={(e) =>
                 setForm({ ...form, conditionName: e.target.value })
@@ -65,7 +67,7 @@ const AddConditionModal = ({ isOpen, onClose, onSave, isProcessing }) => {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Severity Level
+              {t('addCondition.severityLabel')}
             </label>
             <select
               value={form.severityLevel}
@@ -74,9 +76,9 @@ const AddConditionModal = ({ isOpen, onClose, onSave, isProcessing }) => {
               }
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none text-gray-900 bg-white"
             >
-              <option value="mild">Mild</option>
-              <option value="moderate">Moderate</option>
-              <option value="severe">Severe</option>
+              <option value="mild">{t('addCondition.mild')}</option>
+              <option value="moderate">{t('addCondition.moderate')}</option>
+              <option value="severe">{t('addCondition.severe')}</option>
             </select>
           </div>
 
@@ -85,14 +87,14 @@ const AddConditionModal = ({ isOpen, onClose, onSave, isProcessing }) => {
               onClick={onClose}
               className="flex-1 py-3 px-4 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all"
             >
-              Cancel
+              {t('cancel')}
             </button>
             <button
               onClick={handleSubmit}
               disabled={isProcessing}
               className="flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30 transition-all"
             >
-              {isProcessing ? "Adding..." : "Add Condition"}
+              {isProcessing ? t('addCondition.adding') : t('addCondition.addBtn')}
             </button>
           </div>
         </div>

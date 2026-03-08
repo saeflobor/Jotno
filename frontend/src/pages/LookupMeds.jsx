@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../lib/axios";
 import {
   MdArrowBack,
   MdClose,
@@ -53,6 +54,7 @@ function HighlightText({ text, query }) {
 
 const LookupMeds = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const inputRef = useRef(null);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -179,10 +181,10 @@ const LookupMeds = () => {
                   </div>
                   <div>
                     <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
-                      Lookup Meds
+                      {t('lookupMeds.title')}
                     </h1>
                     <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">
-                      Search and explore medicine information
+                      {t('lookupMeds.subtitle')}
                     </p>
                   </div>
                 </div>
@@ -206,7 +208,7 @@ const LookupMeds = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by brand name, generic name, or manufacturer..."
+                placeholder={t('lookupMeds.searchPlaceholder')}
                 autoFocus
                 className="w-full pl-12 pr-24 py-3.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-white shadow-sm text-gray-900 placeholder-gray-400 text-base font-medium transition"
               />
@@ -217,7 +219,7 @@ const LookupMeds = () => {
                     animate={{ scale: 1 }}
                     onClick={handleClear}
                     className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition"
-                    title="Clear all"
+                    title={t('lookupMeds.clearAll')}
                   >
                     <X className="w-4 h-4" />
                   </motion.button>
@@ -230,7 +232,7 @@ const LookupMeds = () => {
                       ? "bg-pink-100 text-pink-600"
                       : "hover:bg-gray-100 text-gray-400 hover:text-gray-600"
                   }`}
-                  title="Toggle filters"
+                  title={t('lookupMeds.toggleFilters')}
                 >
                   <MdFilterList className="text-xl" />
                   {activeFilterCount > 0 && (
@@ -245,7 +247,7 @@ const LookupMeds = () => {
             {/* Live search hint */}
             {!searchQuery && !hasActiveFilters && (
               <p className="text-xs text-gray-400 mt-2 ml-1">
-                Start typing to search across 21,000+ medicines instantly
+                {t('lookupMeds.searchHint')}
               </p>
             )}
           </motion.div>
@@ -263,7 +265,7 @@ const LookupMeds = () => {
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                       <MdFilterList className="text-lg" />
-                      Filters
+                      {t('lookupMeds.filters')}
                     </h3>
                     {hasActiveFilters && (
                       <button
@@ -273,7 +275,7 @@ const LookupMeds = () => {
                         }}
                         className="text-xs text-pink-600 hover:text-pink-700 font-medium"
                       >
-                        Clear filters
+                        {t('lookupMeds.clearFilters')}
                       </button>
                     )}
                   </div>
@@ -281,7 +283,7 @@ const LookupMeds = () => {
                     {/* Dosage Form Filter */}
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">
-                        Dosage Form
+                        {t('lookupMeds.dosageForm')}
                       </label>
                       <div className="relative">
                         <select
@@ -289,7 +291,7 @@ const LookupMeds = () => {
                           onChange={(e) => setSelectedDosage(e.target.value)}
                           className="w-full appearance-none px-3 py-2 pr-8 rounded-lg border border-gray-300 bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                         >
-                          <option value="">All Forms</option>
+                          <option value="">{t('lookupMeds.allForms')}</option>
                           {dosageForms.map((form) => (
                             <option key={form} value={form}>
                               {form}
@@ -303,7 +305,7 @@ const LookupMeds = () => {
                     {/* Manufacturer Filter */}
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">
-                        Manufacturer
+                        {t('lookupMeds.manufacturer')}
                       </label>
                       <div className="relative">
                         <select
@@ -313,7 +315,7 @@ const LookupMeds = () => {
                           }
                           className="w-full appearance-none px-3 py-2 pr-8 rounded-lg border border-gray-300 bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                         >
-                          <option value="">All Manufacturers</option>
+                          <option value="">{t('lookupMeds.allManufacturers')}</option>
                           {manufacturers.map((mfg) => (
                             <option key={mfg} value={mfg}>
                               {mfg}
@@ -335,29 +337,15 @@ const LookupMeds = () => {
               <p className="text-sm text-gray-500">
                 {totalCount > 0 ? (
                   <>
-                    Showing{" "}
-                    <span className="font-semibold text-gray-700">
-                      {(page - 1) * LIMIT + 1}–
-                      {Math.min(page * LIMIT, totalCount)}
-                    </span>{" "}
-                    of{" "}
-                    <span className="font-semibold text-gray-700">
-                      {totalCount.toLocaleString()}
-                    </span>{" "}
-                    result{totalCount !== 1 ? "s" : ""}
-                    {searchQuery && (
-                      <>
-                        {" "}
-                        for &ldquo;
-                        <span className="font-semibold text-gray-700">
-                          {searchQuery}
-                        </span>
-                        &rdquo;
-                      </>
-                    )}
+                    {t('lookupMeds.showing', {
+                      from: (page - 1) * LIMIT + 1,
+                      to: Math.min(page * LIMIT, totalCount),
+                      total: totalCount.toLocaleString(),
+                      query: searchQuery,
+                    })}
                   </>
                 ) : (
-                  "No results found"
+                  t('lookupMeds.noResults')
                 )}
               </p>
               {/* Active filter badges */}
@@ -409,7 +397,7 @@ const LookupMeds = () => {
           {loading && (
             <div className="flex flex-col justify-center items-center py-20 gap-3">
               <Loader2 className="w-8 h-8 text-pink-500 animate-spin" />
-              <p className="text-sm text-gray-400">Searching medicines...</p>
+              <p className="text-sm text-gray-400">{t('lookupMeds.searching')}</p>
             </div>
           )}
 
@@ -472,7 +460,7 @@ const LookupMeds = () => {
                       {medicine.manufacturer && (
                         <div className="pt-2.5 border-t border-gray-100">
                           <p className="text-xs text-gray-400 mb-0.5 font-medium uppercase tracking-wider">
-                            Manufacturer
+                            {t('lookupMeds.manufacturerLabel')}
                           </p>
                           <p className="text-sm text-gray-700">
                             <HighlightText
@@ -487,7 +475,7 @@ const LookupMeds = () => {
                       {medicine.package && (
                         <div className="pt-2.5 mt-2.5 border-t border-gray-100">
                           <p className="text-xs text-gray-400 mb-0.5 font-medium uppercase tracking-wider">
-                            Package & Price
+                            {t('lookupMeds.packagePrice')}
                           </p>
                           <p className="text-sm text-gray-700">
                             {medicine.package}
@@ -509,7 +497,7 @@ const LookupMeds = () => {
                     className="flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
                   >
                     <MdNavigateBefore className="text-lg" />
-                    Previous
+                    {t('lookupMeds.previous')}
                   </motion.button>
 
                   {/* Page numbers */}
@@ -551,7 +539,7 @@ const LookupMeds = () => {
                     disabled={page >= totalPages}
                     className="flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
                   >
-                    Next
+                    {t('lookupMeds.next')}
                     <MdNavigateNext className="text-lg" />
                   </motion.button>
                 </div>
@@ -570,12 +558,12 @@ const LookupMeds = () => {
                 <PiPillBold className="text-4xl text-gray-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                No Medicines Found
+                {t('lookupMeds.noMedicinesFound')}
               </h3>
               <p className="text-gray-500 mb-6 max-w-md mx-auto">
                 {searchQuery
-                  ? `No results for "${searchQuery}". Try a different spelling or a more general term.`
-                  : "Try searching with a different medicine name."}
+                  ? t('lookupMeds.noResultsFor', { query: searchQuery })
+                  : t('lookupMeds.tryDifferent')}
               </p>
               <motion.button
                 onClick={handleClear}
@@ -583,7 +571,7 @@ const LookupMeds = () => {
                 whileTap={{ scale: 0.95 }}
                 className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium text-sm"
               >
-                Clear Search
+                {t('lookupMeds.clearSearch')}
               </motion.button>
             </motion.div>
           )}
@@ -598,14 +586,9 @@ const LookupMeds = () => {
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-blue-800">
-                <p className="font-semibold mb-1">Information Source</p>
+                <p className="font-semibold mb-1">{t('lookupMeds.infoTitle')}</p>
                 <p>
-                  Medicine information is from the Bangladesh medicine dataset
-                  containing over 21,000 medicines. Data includes brand names,
-                  generic names, manufacturers, dosage forms, and pricing. This
-                  is for informational purposes only and should not be considered
-                  medical advice. Always consult with a healthcare professional
-                  before taking any medication.
+                  {t('lookupMeds.infoText')}
                 </p>
               </div>
             </div>

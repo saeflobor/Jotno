@@ -1,11 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../lib/axios";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export default function VerifyEmail({ setUser }) {
   const { token } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -21,7 +23,7 @@ export default function VerifyEmail({ setUser }) {
 
         navigate("/dashboard");
       } catch (err) {
-        setMessage("Verification link expired or invalid");
+        setMessage(t('emailVerification.expired'));
       } finally {
         setLoading(false);
       }
@@ -53,7 +55,7 @@ export default function VerifyEmail({ setUser }) {
                 type="button"
                 onClick={() => setMessage("")}
                 className="text-red-700 hover:text-red-900"
-                aria-label="Dismiss error message"
+                aria-label={t('emailVerification.dismissError')}
               >
                 ×
               </button>
@@ -63,11 +65,11 @@ export default function VerifyEmail({ setUser }) {
       </AnimatePresence>
 
       <div style={{ marginBottom: "12px", color: "#4b5563", fontSize: "14px" }}>
-        Home / <span style={{ color: "#111827", fontWeight: 600 }}>Email Verification</span>
+        {t('emailVerification.breadcrumb')} <span style={{ color: "#111827", fontWeight: 600 }}>{t('emailVerification.title')}</span>
       </div>
-      <h2>Email Verification</h2>
+      <h2>{t('emailVerification.title')}</h2>
 
-      {loading && <p>Verifying your email...</p>}
+      {loading && <p>{t('emailVerification.verifying')}</p>}
     </div>
   );
 }

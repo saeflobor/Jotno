@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios from "../lib/axios";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MdArrowBack } from "react-icons/md";
 import { FileText, AlertTriangle, Users, Bell } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -18,8 +19,9 @@ const Register = () => {
   const navigate = useNavigate();
   const [success, setSuccess] = useState("");
   const [typedText, setTypedText] = useState("");
+  const { t } = useTranslation();
 
-  const fullText = "->  যত্ন : Jotno";
+  const fullText = t('register.brand');
 
   useEffect(() => {
     let currentIndex = 0;
@@ -68,7 +70,7 @@ const Register = () => {
       setSuccess(res.data.message);
       console.log(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      setError(err.response?.data?.message || t('register.registrationFailed'));
       setSuccess("");
     }
   };
@@ -84,9 +86,9 @@ const Register = () => {
             className='flex items-center gap-2 text-white/90 hover:text-white transition font-semibold'
           >
             <MdArrowBack className='text-xl' />
-            Back
+            {t('back')}
           </motion.button>
-          <span className='text-white text-xl font-bold'>যত্ন : Jotno</span>
+          <span className='text-white text-xl font-bold'>{t('brand')}</span>
           <div className='w-16'></div>
         </div>
       </div>
@@ -138,7 +140,7 @@ const Register = () => {
             className='flex items-center gap-2 mb-12 text-white/90 hover:text-white transition font-semibold'
           >
             <MdArrowBack className='text-xl' />
-            Back to Home
+            {t('register.backToHome')}
           </motion.button>
 
           <motion.div
@@ -147,7 +149,7 @@ const Register = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <div className='text-3xl text-white/90 font-semibold tracking-wide'>Welcome to</div>
+            <div className='text-3xl text-white/90 font-semibold tracking-wide'>{t('register.welcomeTo')}</div>
             <div className='flex items-baseline gap-3 mt-2 text-white'>
               <span className='text-6xl font-extrabold leading-none inline-flex items-center'>{typedText}<span className="animate-pulse font-normal">|</span></span>
             </div>
@@ -159,7 +161,7 @@ const Register = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            Join our community and start managing your health journey with our comprehensive platform designed for you and your family
+            {t('register.welcomeSub')}
           </motion.p>
 
           {/* Feature Cards */}
@@ -173,8 +175,8 @@ const Register = () => {
               <div className='flex items-center gap-4'>
                 <FileText className='text-2xl text-white flex-shrink-0' strokeWidth={1.5} />
                 <div>
-                  <h3 className='text-white font-semibold text-xl mb-1'>Medical Records</h3>
-                  <p className='text-white/80 text-xs'>Secure digital storage for all your important medical documents.</p>
+                  <h3 className='text-white font-semibold text-xl mb-1'>{t('register.featureMedTitle')}</h3>
+                  <p className='text-white/80 text-xs'>{t('register.featureMedDesc')}</p>
                 </div>
               </div>
             </motion.div>
@@ -188,8 +190,8 @@ const Register = () => {
               <div className='flex items-center gap-4'>
                 <AlertTriangle className='text-2xl text-white flex-shrink-0' strokeWidth={1.5} />
                 <div>
-                  <h3 className='text-white font-semibold text-xl mb-1'>Emergency SOS</h3>
-                  <p className='text-white/80 text-xs'>One-tap SOS button notifies family instantly with message and optional location.</p>
+                  <h3 className='text-white font-semibold text-xl mb-1'>{t('register.featureSOSTitle')}</h3>
+                  <p className='text-white/80 text-xs'>{t('register.featureSOSDesc')}</p>
                 </div>
               </div>
             </motion.div>
@@ -203,8 +205,8 @@ const Register = () => {
               <div className='flex items-center gap-4'>
                 <Users className='text-2xl text-white flex-shrink-0' strokeWidth={1.5} />
                 <div>
-                  <h3 className='text-white font-semibold text-xl mb-1'>Family Management</h3>
-                  <p className='text-white/80 text-xs'>Monitor medication adherence, access records (with permission), view health summaries.</p>
+                  <h3 className='text-white font-semibold text-xl mb-1'>{t('register.featureFamilyTitle')}</h3>
+                  <p className='text-white/80 text-xs'>{t('register.featureFamilyDesc')}</p>
                 </div>
               </div>
             </motion.div>
@@ -218,8 +220,8 @@ const Register = () => {
               <div className='flex items-center gap-4'>
                 <Bell className='text-2xl text-white flex-shrink-0' strokeWidth={1.5} />
                 <div>
-                  <h3 className='text-white font-semibold text-xl mb-1'>Medication Reminders</h3>
-                  <p className='text-white/80 text-xs'>Timely alerts via notifications or SMS. Family can track if reminders were acknowledged.</p>
+                  <h3 className='text-white font-semibold text-xl mb-1'>{t('register.featureRemTitle')}</h3>
+                  <p className='text-white/80 text-xs'>{t('register.featureRemDesc')}</p>
                 </div>
               </div>
             </motion.div>
@@ -248,7 +250,7 @@ const Register = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
-              Create Account
+              {t('register.createAccount')}
             </motion.h2>
             <motion.p 
               className='text-gray-600 mb-6 text-sm'
@@ -256,7 +258,7 @@ const Register = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
-              Join us to get started
+              {t('register.joinUs')}
             </motion.p>
 
             {/* Floating Success Notification */}
@@ -278,7 +280,7 @@ const Register = () => {
                       type="button"
                       onClick={() => setSuccess("")}
                       className="text-green-700 hover:text-green-900 text-xl leading-none"
-                      aria-label="Dismiss success message"
+                      aria-label={t('register.dismissSuccess')}
                     >
                       ×
                     </button>
@@ -306,7 +308,7 @@ const Register = () => {
                       type="button"
                       onClick={() => setError("")}
                       className="text-red-700 hover:text-red-900 text-xl leading-none"
-                      aria-label="Dismiss error message"
+                      aria-label={t('register.dismissError')}
                     >
                       ×
                     </button>
@@ -323,7 +325,7 @@ const Register = () => {
                 transition={{ duration: 0.5, delay: 0.5 }}
               >
                 <label className='block text-gray-700 text-sm font-semibold mb-2'>
-                  Username
+                  {t('register.usernameLabel')}
                 </label>
                 <input 
                   className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition placeholder-gray-400 text-gray-900 bg-white'
@@ -331,7 +333,7 @@ const Register = () => {
                   name='username'
                   value={formData.username}
                   onChange={handleChange}
-                  placeholder='Enter username'
+                  placeholder={t('register.usernamePlaceholder')}
                   autoComplete='off'
                   required
                 />
@@ -345,7 +347,7 @@ const Register = () => {
                   transition={{ duration: 0.5, delay: 0.55 }}
                 >
                   <label className='block text-gray-700 text-sm font-semibold mb-2'>
-                    Phone Number
+                    {t('register.phoneLabel')}
                   </label>
                   <input 
                     className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition placeholder-gray-400 text-gray-900 bg-white'
@@ -353,7 +355,7 @@ const Register = () => {
                     name='phone'
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder='Enter phone number'
+                    placeholder={t('register.phonePlaceholder')}
                     autoComplete='off'
                     required
                   />
@@ -364,7 +366,7 @@ const Register = () => {
                   transition={{ duration: 0.5, delay: 0.55 }}
                 >
                   <label className='block text-gray-700 text-sm font-semibold mb-2'>
-                    Gender
+                    {t('register.genderLabel')}
                   </label>
                   <select
                     className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition text-gray-900 bg-white appearance-none cursor-pointer'
@@ -372,8 +374,8 @@ const Register = () => {
                     value={formData.gender}
                     onChange={handleChange}
                   >
-                    <option value='male'>Male</option>
-                    <option value='female'>Female</option>
+                    <option value='male'>{t('register.male')}</option>
+                    <option value='female'>{t('register.female')}</option>
                   </select>
                 </motion.div>
               </div>
@@ -385,7 +387,7 @@ const Register = () => {
                 transition={{ duration: 0.5, delay: 0.6 }}
               >
                 <label className='block text-gray-700 text-sm font-semibold mb-2'>
-                  Timezone
+                  {t('register.timezoneLabel')}
                 </label>
                 <select
                   className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition text-gray-900 bg-white appearance-none cursor-pointer'
@@ -417,7 +419,7 @@ const Register = () => {
                 transition={{ duration: 0.5, delay: 0.65 }}
               >
                 <label className='block text-gray-700 text-sm font-semibold mb-2'>
-                  Email
+                  {t('register.emailLabel')}
                 </label>
                 <input 
                   className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition placeholder-gray-400 text-gray-900 bg-white'
@@ -425,7 +427,7 @@ const Register = () => {
                   name='email'
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder='Enter your email'
+                  placeholder={t('register.emailPlaceholder')}
                   autoComplete='email'
                   required
                 />
@@ -438,7 +440,7 @@ const Register = () => {
                 transition={{ duration: 0.5, delay: 0.7 }}
               >
                 <label className='block text-gray-700 text-sm font-semibold mb-2'>
-                  Password
+                  {t('register.passwordLabel')}
                 </label>
                 <input 
                   className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-transparent transition placeholder-gray-400 text-gray-900 bg-white'
@@ -446,7 +448,7 @@ const Register = () => {
                   name='password'
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder='Enter your password'
+                  placeholder={t('register.passwordPlaceholder')}
                   autoComplete='new-password'
                   required
                 />
@@ -462,7 +464,7 @@ const Register = () => {
                 whileHover={{ scale: 1.02, boxShadow: "0px 10px 30px rgba(211, 46, 149, 0.3)" }}
                 whileTap={{ scale: 0.98 }}
               >
-                Register
+                {t('register.registerBtn')}
               </motion.button>
             </form>
 
@@ -473,12 +475,12 @@ const Register = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.8 }}
             >
-              Already have an account?{' '}
+              {t('register.alreadyAccount')}{' '}
               <button
                 onClick={() => navigate("/login")}
                 className='text-[rgb(211,46,149)] font-semibold hover:underline'
               >
-                Login here
+                {t('register.loginHere')}
               </button>
             </motion.p>
           </motion.div>
