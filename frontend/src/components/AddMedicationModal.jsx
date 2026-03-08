@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { Pill, X } from "lucide-react";
 
+const DEFAULT_REMINDER_TIMES = {
+  "once-daily": ["12:00"],
+  "twice-daily": ["10:00", "22:00"],
+  "three-times-daily": ["08:00", "15:00", "22:00"],
+};
+
 const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
   const [form, setForm] = useState({
     medicationName: "",
@@ -13,13 +19,31 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
 
   if (!isOpen) return null;
 
+  const getResolvedTimes = (frequency, times) => {
+    const cleanedTimes = (Array.isArray(times) ? times : [times])
+      .map((time) => (typeof time === "string" ? time.trim() : ""))
+      .filter(Boolean);
+
+    if (cleanedTimes.length > 0) return cleanedTimes;
+
+    return DEFAULT_REMINDER_TIMES[frequency] || [];
+  };
+
   const handleSubmit = () => {
     // Basic validation
     if (!form.medicationName.trim() || !form.dosage.trim() || !form.duration.trim()) {
       alert("Please fill all required fields");
       return;
     }
-    onSave(form);
+
+    const resolvedTimes = getResolvedTimes(form.frequency, form.times);
+    const isCustomSchedule = form.frequency === "as-needed";
+    if (isCustomSchedule && resolvedTimes.length === 0) {
+      alert("For custom schedule, please specify at least one reminder time.");
+      return;
+    }
+
+    onSave({ ...form, times: resolvedTimes });
     // Reset handled by parent or manual reset here if needed
     // setForm({...}) usually after success
   };
@@ -96,6 +120,7 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
                   if (newFreq === "once-daily") count = 1;
                   else if (newFreq === "twice-daily") count = 2;
                   else if (newFreq === "three-times-daily") count = 3;
+                  else if (newFreq === "as-needed") count = 1;
 
                   // Resize times array
                   const currentTimes = [...(form.times || [])];
@@ -113,7 +138,7 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
                 <option value="once-daily">Once Daily</option>
                 <option value="twice-daily">Twice Daily</option>
                 <option value="three-times-daily">Three Times Daily</option>
-                <option value="as-needed">As Needed</option>
+                <option value="as-needed">Custom</option>
               </select>
             </div>
           </div>

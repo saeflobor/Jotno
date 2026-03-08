@@ -45,7 +45,7 @@ const UserCard = ({ user, onRemove }) => {
     dosage: "",
     frequency: "once-daily",
     duration: "",
-    times: ["08:00"],
+    times: [""],
     notificationType: "me",
   });
   const [reportFiles, setReportFiles] = useState([]);
@@ -236,6 +236,15 @@ const UserCard = ({ user, onRemove }) => {
       setMedicationError("All fields are required");
       return;
     }
+
+    const hasCustomTimes = (inlineMedicationData.times || []).some(
+      (time) => typeof time === "string" && time.trim(),
+    );
+    if (inlineMedicationData.frequency === "as-needed" && !hasCustomTimes) {
+      setMedicationError("For custom schedule, please specify at least one reminder time");
+      return;
+    }
+
     try {
       await handleAddMedication(inlineMedicationData);
       setInlineMedicationData({
@@ -243,7 +252,7 @@ const UserCard = ({ user, onRemove }) => {
         dosage: "",
         frequency: "once-daily",
         duration: "",
-        times: ["08:00"],
+        times: [""],
         notificationType: "me",
       });
       setShowInlineMedicationForm(false);
@@ -732,7 +741,7 @@ const UserCard = ({ user, onRemove }) => {
                                       else if (newFreq === "three-times-daily")
                                         count = 3;
                                       const newTimes =
-                                        Array(count).fill("08:00");
+                                        Array(count).fill("");
                                       setInlineMedicationData((prev) => ({
                                         ...prev,
                                         frequency: newFreq,
@@ -750,7 +759,7 @@ const UserCard = ({ user, onRemove }) => {
                                     <option value="three-times-daily">
                                       Three Times Daily
                                     </option>
-                                    <option value="as-needed">As Needed</option>
+                                    <option value="as-needed">Custom</option>
                                   </select>
                                 </div>
                               </div>
@@ -837,7 +846,7 @@ const UserCard = ({ user, onRemove }) => {
                                       dosage: "",
                                       frequency: "once-daily",
                                       duration: "",
-                                      times: ["08:00"],
+                                      times: [""],
                                       notificationType: "me",
                                     });
                                   }}

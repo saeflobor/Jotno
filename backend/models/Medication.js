@@ -36,6 +36,16 @@ const medicationSchema = new mongoose.Schema(
       type: [String],
       default: []
     },
+    remindersSent: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    maxReminders: {
+      type: Number,
+      default: 1,
+      min: 1,
+    },
     notificationType: {
       type: String,
       enum: ["me", "family"],

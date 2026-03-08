@@ -7,6 +7,42 @@ import { logActivity } from "../utils/activityLogger.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { sendWhatsAppMessage } from "../utils/sendWhatsApp.js";
 
+const DEFAULT_REMINDER_TIMES = {
+  "once-daily": ["12:00"],
+  "twice-daily": ["10:00", "22:00"],
+  "three-times-daily": ["08:00", "15:00", "22:00"],
+};
+
+const resolveMedicationTimes = (frequency, times) => {
+  const cleanedTimes = (Array.isArray(times) ? times : [times])
+    .map((time) => (typeof time === "string" ? time.trim() : ""))
+    .filter(Boolean);
+
+  if (cleanedTimes.length > 0) {
+    return { times: cleanedTimes };
+  }
+
+  if (frequency === "as-needed") {
+    return {
+      error: "For custom schedule, please specify at least one reminder time",
+    };
+  }
+
+  return { times: DEFAULT_REMINDER_TIMES[frequency] || [] };
+};
+
+const getRemindersPerDay = (frequency, times) => {
+  if (frequency === "once-daily") return 1;
+  if (frequency === "twice-daily") return 2;
+  if (frequency === "three-times-daily") return 3;
+  return Math.max((times || []).length, 1);
+};
+
+const getMaxReminderCount = (durationInDays, frequency, times) => {
+  const remindersPerDay = getRemindersPerDay(frequency, times);
+  return Math.max(durationInDays * remindersPerDay, 1);
+};
+
 // Get health summary (counts and stats)
 export const getHealthSummary = async (req, res, next) => {
   try {
@@ -158,14 +194,23 @@ export const addMedication = async (req, res, next) => {
       return next(new AppError("Duration must be a positive number", 400));
     }
 
-    const expiryDate = new Date(Date.now() + durationNum * 60 * 1000); // days to milliseconds
+    const { times: resolvedTimes, error: timesError } =
+      resolveMedicationTimes(frequency, times);
+    if (timesError) {
+      return next(new AppError(timesError, 400));
+    }
+
+    const expiryDate = new Date(Date.now() + durationNum * 24 * 60 * 60 * 1000); // days to milliseconds
+    const maxReminders = getMaxReminderCount(durationNum, frequency, resolvedTimes);
     const medication = await Medication.create({
       medicationName,
       dosage,
       frequency,
       duration,
       expiryDate,
-      times,
+      times: resolvedTimes,
+      remindersSent: 0,
+      maxReminders,
       notificationType,
       owner: userId,
     });
@@ -325,14 +370,22 @@ export const addMedicationForUser = async (req, res, next) => {
       return next(new AppError("Duration must be a positive number", 400));
     }
 
-    const expiryDate = new Date(Date.now() + durationNum * 60 * 1000); // days to milliseconds
+    const { times: resolvedTimes, error: timesError } =
+      resolveMedicationTimes(frequency, times);
+    if (timesError) {
+      return next(new AppError(timesError, 400));
+    }
+    const expiryDate = new Date(Date.now() + durationNum * 24 * 60 * 60 * 1000); // days to milliseconds
+    const maxReminders = getMaxReminderCount(durationNum, frequency, resolvedTimes);
     const medication = await Medication.create({
       medicationName,
       dosage,
       frequency,
       duration,
       expiryDate,
-      times,
+      times: resolvedTimes,
+      remindersSent: 0,
+      maxReminders,
       notificationType,
       owner: ownerUserId,
     });
@@ -615,6 +668,7 @@ export const checkMedicationReminders = async (req, res, next) => {
         success: emailSuccess > 0 || whatsappSuccess > 0,
         emailSuccess,
         whatsappSuccess,
+        medicationId: med._id,
       };
     };
 
@@ -623,6 +677,7 @@ export const checkMedicationReminders = async (req, res, next) => {
     let sentCount = 0;
     let emailSentCount = 0;
     let whatsappSentCount = 0;
+    let completedCount = 0;
 
     for (let i = 0; i < medicationsToNotify.length; i += BATCH_SIZE) {
       const batch = medicationsToNotify.slice(i, i + BATCH_SIZE);
@@ -650,12 +705,44 @@ export const checkMedicationReminders = async (req, res, next) => {
       emailSentCount += batchEmailSent;
       whatsappSentCount += batchWhatsAppSent;
 
+      for (let j = 0; j < results.length; j += 1) {
+        const settledResult = results[j];
+        if (settledResult.status !== "fulfilled") continue;
+
+        const result = settledResult.value;
+        const med = batch[j];
+        if (!result?.medicationId || !med) continue;
+
+        const fallbackMaxReminders = getMaxReminderCount(
+          Number(med.duration) || 1,
+          med.frequency,
+          med.times,
+        );
+        const maxReminders = Math.max(Number(med.maxReminders) || 0, fallbackMaxReminders);
+        const nextSentCount = (Number(med.remindersSent) || 0) + 1;
+
+        if (nextSentCount >= maxReminders) {
+          await Medication.deleteOne({ _id: result.medicationId });
+          completedCount += 1;
+        } else {
+          await Medication.updateOne(
+            { _id: result.medicationId },
+            {
+              $set: {
+                remindersSent: nextSentCount,
+                maxReminders,
+              },
+            },
+          );
+        }
+      }
+
       // Optional: small delay between batches if needed to respect rate limits
       // await new Promise(r => setTimeout(r, 100));
     }
 
     console.log(
-      `Processed ${sentCount}/${medicationsToNotify.length} reminder(s). Email notifications sent: ${emailSentCount}. WhatsApp notifications sent: ${whatsappSentCount}.`,
+      `Processed ${sentCount}/${medicationsToNotify.length} reminder(s). Email notifications sent: ${emailSentCount}. WhatsApp notifications sent: ${whatsappSentCount}. Completed medications removed: ${completedCount}.`,
     );
 
     if (res) {
@@ -667,6 +754,7 @@ export const checkMedicationReminders = async (req, res, next) => {
           sentCount,
           emailSentCount,
           whatsappSentCount,
+          completedCount,
         });
     } else {
       return sentCount;
