@@ -178,6 +178,9 @@
     "lookupMeds": "Lookup Medicines",
     "lookupMedsSub": "Search 21,000+ medicines",
     "bdDatabase": "BD database",
+    "smartScanning": "Smart Scanning",
+    "smartScanningSub": "Extract prescriptions from PDFs using AI",
+    "aiPowered": "AI Powered",
     "recentActivity": "Recent Activity",
     "viewAll": "View all",
     "justNow": "Just now",
@@ -231,6 +234,7 @@
     "addBtn": "+ Add",
     "noConditions": "No conditions added yet.",
     "currentMedications": "Current Medications",
+    "scanPrescription": "Scan PDF",
     "noMedications": "No medications added yet.",
     "profileActivity": "Profile Activity",
     "manageDocuments": "Manage your medical documents",
@@ -589,5 +593,40 @@
 
   "app": {
     "loading": "Loading..."
+  },
+
+  "extractPrescription": {
+    "title": "Smart Prescription Scanner",
+    "subtitle": "Upload a prescription PDF and let AI extract the medication data",
+    "back": "Back to Medical Records",
+    "dragDrop": "Drag & drop your prescription PDF here, or",
+    "chooseFile": "Choose file",
+    "pdfOnly": "Supported: PDF files only (digital/text-based)",
+    "onlyPdf": "Only PDF files are supported",
+    "selectFile": "Please select a PDF file first",
+    "extracting": "Extracting...",
+    "extractBtn": "Extract Prescription Data",
+    "analyzing": "AI is reading your prescription...",
+    "mayTakeMoment": "This may take a moment on first run",
+    "extractedMeds": "Extracted Medications",
+    "foundCount": "{{count}} medication(s) found",
+    "saveAll": "Save All to Profile",
+    "saving": "Saving...",
+    "savedSuccess": "{{count}} medication(s) saved to your profile!",
+    "extractFailed": "Failed to extract prescription data. Make sure Ollama is running.",
+    "noMedsFound": "No medications found in this document",
+    "medName": "Medication name",
+    "dosage": "Dosage",
+    "days": "days",
+    "onceDaily": "Once Daily",
+    "twiceDaily": "Twice Daily",
+    "threeTimesDaily": "Three Times Daily",
+    "asNeeded": "As Needed",
+    "edit": "Edit",
+    "remove": "Remove",
+    "model": "Model",
+    "pages": "page(s)",
+    "disclaimerTitle": "Disclaimer:",
+    "disclaimerText": "AI-extracted data may not be 100% accurate. Please review all medications before saving. Always consult your doctor."
   }
 }

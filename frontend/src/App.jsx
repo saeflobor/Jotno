@@ -18,6 +18,7 @@ import Footer from "./components/Footer";
 import ProfileActivity from "./pages/ProfileActivity";
 import ProfileUpdatePage from "./pages/ProfileUpdatePage";
 import LookupMeds from "./pages/LookupMeds";
+import ExtractPrescription from "./pages/ExtractPrescription";
 import ResetPassword from "./pages/ResetPassword";
 import { useEffect, useState } from "react";
 import axios from "./lib/axios";
@@ -116,6 +117,18 @@ function AppContent({ user, setUser, error, isLoading }) {
           element={
             user ? (
               <LookupMeds />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        {/* Protected Extract Prescription page */}
+        <Route
+          path="/extract-prescription"
+          element={
+            user ? (
+              <ExtractPrescription user={user} />
             ) : (
               <Navigate to="/login" />
             )

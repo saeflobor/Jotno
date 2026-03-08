@@ -867,12 +867,21 @@ const ProfileActivity = ({ user, setUser }) => {
                   {t('profileActivity.currentMedications')}
                 </h2>
               </div>
-              <button
-                onClick={() => setShowMedicationModal(true)}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition"
-              >
-                {t('profileActivity.addBtn')}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => navigate('/extract-prescription')}
+                  className="px-4 py-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white text-sm font-medium rounded-lg transition flex items-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {t('profileActivity.scanPrescription')}
+                </button>
+                <button
+                  onClick={() => setShowMedicationModal(true)}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition"
+                >
+                  {t('profileActivity.addBtn')}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-2 max-h-64 overflow-y-auto">
