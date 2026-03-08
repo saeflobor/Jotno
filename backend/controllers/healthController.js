@@ -5,6 +5,7 @@ import User from "../models/User.js";
 import AppError from "../utils/AppError.js";
 import { logActivity } from "../utils/activityLogger.js";
 import { sendEmail } from "../utils/sendEmail.js";
+import { sendWhatsAppMessage } from "../utils/sendWhatsApp.js";
 
 // Get health summary (counts and stats)
 export const getHealthSummary = async (req, res, next) => {
@@ -518,36 +519,48 @@ export const checkMedicationReminders = async (req, res, next) => {
 
     console.log(`Found ${medicationsToNotify.length} timezone-matched reminders to send.`);
 
-    // Helper function to send a single email wrapper
-    const sendReminderEmail = async (med) => {
-      if (!med.owner || !med.owner.email) return null;
+    // Helper function to send reminder notifications (email + WhatsApp)
+    const sendReminderNotifications = async (med) => {
+      if (!med.owner) {
+        return { success: false, emailSuccess: 0, whatsappSuccess: 0 };
+      }
 
-      // Determine recipients
-      const recipients = [med.owner.email];
+      const emailRecipients = [];
+      const whatsappRecipients = [];
+
+      if (med.owner.email) emailRecipients.push(med.owner.email);
+      // WhatsApp reminders should only go to the medication owner.
+      if (med.owner.whatsappPhone) whatsappRecipients.push(med.owner.whatsappPhone);
+      else if (med.owner.phone) whatsappRecipients.push(med.owner.phone);
 
       if (med.notificationType === "family" && med.owner.family) {
         const family = med.owner.family;
-        if (family.father && family.father.email)
-          recipients.push(family.father.email);
-        if (family.mother && family.mother.email)
-          recipients.push(family.mother.email);
-        if (family.spouse && family.spouse.email)
-          recipients.push(family.spouse.email);
+
+        if (family.father?.email) emailRecipients.push(family.father.email);
+
+        if (family.mother?.email) emailRecipients.push(family.mother.email);
+
+        if (family.spouse?.email) emailRecipients.push(family.spouse.email);
+
         if (Array.isArray(family.children)) {
           family.children.forEach((child) => {
-            if (child && child.email) recipients.push(child.email);
+            if (child?.email) emailRecipients.push(child.email);
           });
         }
       }
 
-      // Unique emails only
-      const uniqueRecipients = [...new Set(recipients)];
+      const uniqueEmailRecipients = [...new Set(emailRecipients)];
+      const uniqueWhatsAppRecipients = [...new Set(whatsappRecipients)];
 
-      const mailOptions = {
-        to: uniqueRecipients, // Nodemailer accepts array
-        subject: `Medication Reminder: ${med.medicationName}`,
-        text: `It's time to take your medication: ${med.medicationName} (${med.dosage}).`,
-        html: `
+      let emailSuccess = 0;
+      let whatsappSuccess = 0;
+
+      if (uniqueEmailRecipients.length > 0) {
+        const mailOptions = {
+          to: uniqueEmailRecipients,
+          subject: `Medication Reminder: ${med.medicationName}`,
+          text: `It's time to take your medication: ${med.medicationName} (${med.dosage}).`,
+          html: `
           <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
             <h2 style="color: #e91e63;">Medication Reminder</h2>
             <p>Hello ${med.owner.username || "User"} ${med.notificationType === "family" ? "& Family" : ""},</p>
@@ -560,52 +573,101 @@ export const checkMedicationReminders = async (req, res, next) => {
             <p style="font-size: 12px; color: #888;">Jotno Health App</p>
           </div>
         `,
-      };
+        };
 
-      try {
-        await sendEmail(mailOptions);
-        console.log(
-          `Sent email to ${uniqueRecipients.join(", ")} for ${med.medicationName}`,
-        );
-        return true;
-      } catch (e) {
-        console.error(
-          `Failed to send email to ${uniqueRecipients.join(", ")}:`,
-          e.message,
-        );
-        return false;
+        try {
+          const emailResult = await sendEmail(mailOptions);
+          if (emailResult?.success) {
+            emailSuccess = uniqueEmailRecipients.length;
+            console.log(
+              `Sent reminder email to ${uniqueEmailRecipients.join(", ")} for ${med.medicationName}`,
+            );
+          }
+        } catch (e) {
+          console.error(
+            `Failed to send reminder email to ${uniqueEmailRecipients.join(", ")}:`,
+            e.message,
+          );
+        }
       }
+
+      if (uniqueWhatsAppRecipients.length > 0) {
+        const whatsappMessage = `*Medication Reminder*\n\n*Hello ${med.owner.username || "User"},*\nThis is a reminder to take your medication now.\n\n*Medication:* ${med.medicationName}\n*Dosage:* ${med.dosage}\n\nPlease follow your prescribed schedule.\n\n_Jotno Health App | Automated reminder_`;
+
+        const whatsappResults = await Promise.allSettled(
+          uniqueWhatsAppRecipients.map((phone) =>
+            sendWhatsAppMessage(phone, whatsappMessage),
+          ),
+        );
+
+        whatsappSuccess = whatsappResults.filter(
+          (result) => result.status === "fulfilled" && result.value?.success,
+        ).length;
+
+        if (whatsappSuccess > 0) {
+          console.log(
+            `Sent ${whatsappSuccess}/${uniqueWhatsAppRecipients.length} WhatsApp reminder(s) for ${med.medicationName}`,
+          );
+        }
+      }
+
+      return {
+        success: emailSuccess > 0 || whatsappSuccess > 0,
+        emailSuccess,
+        whatsappSuccess,
+      };
     };
 
     // Process in batches (chunks) to avoid overwhelming SMTP or memory
     const BATCH_SIZE = 20;
     let sentCount = 0;
+    let emailSentCount = 0;
+    let whatsappSentCount = 0;
 
     for (let i = 0; i < medicationsToNotify.length; i += BATCH_SIZE) {
       const batch = medicationsToNotify.slice(i, i + BATCH_SIZE);
       // Run the batch in parallel
       const results = await Promise.allSettled(
-        batch.map((med) => sendReminderEmail(med)),
+        batch.map((med) => sendReminderNotifications(med)),
       );
 
       // Count successes
       const batchSuccess = results.filter(
-        (r) => r.status === "fulfilled" && r.value === true,
+        (r) => r.status === "fulfilled" && r.value?.success,
       ).length;
       sentCount += batchSuccess;
+
+      const batchEmailSent = results.reduce((count, r) => {
+        if (r.status === "fulfilled") return count + (r.value?.emailSuccess || 0);
+        return count;
+      }, 0);
+
+      const batchWhatsAppSent = results.reduce((count, r) => {
+        if (r.status === "fulfilled") return count + (r.value?.whatsappSuccess || 0);
+        return count;
+      }, 0);
+
+      emailSentCount += batchEmailSent;
+      whatsappSentCount += batchWhatsAppSent;
 
       // Optional: small delay between batches if needed to respect rate limits
       // await new Promise(r => setTimeout(r, 100));
     }
 
     console.log(
-      `Sent ${sentCount}/${medicationsToNotify.length} emails.`,
+      `Processed ${sentCount}/${medicationsToNotify.length} reminder(s). Email notifications sent: ${emailSentCount}. WhatsApp notifications sent: ${whatsappSentCount}.`,
     );
 
     if (res) {
       return res
         .status(200)
-        .json({ success: true, processedCount: medicationsToNotify.length, sentCount });
+        .json({
+          success: true,
+          processedCount: medicationsToNotify.length,
+          sentCount,
+          emailSentCount,
+          whatsappSentCount,
+        });
     } else {
       return sentCount;
     }
