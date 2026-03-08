@@ -4,9 +4,14 @@ import axios from "axios";
  * Send a WhatsApp message using Meta's WhatsApp Business API
  * @param {string} recipientPhoneNumber - E.g., +8801312345678
  * @param {string} message - Message text to send
+ * @param {object} options - Optional settings { mode: "text" | "template" }
  * @returns {Promise<object>} - API response
  */
-export const sendWhatsAppMessage = async (recipientPhoneNumber, message) => {
+export const sendWhatsAppMessage = async (
+  recipientPhoneNumber,
+  message,
+  options = {},
+) => {
   try {
     // Read from process.env at runtime, not at module load time
     const WHATSAPP_API_URL =
@@ -19,6 +24,7 @@ export const sendWhatsAppMessage = async (recipientPhoneNumber, message) => {
       process.env.WHATSAPP_TEMPLATE_NAME || "hello_world";
     const WHATSAPP_TEMPLATE_LANG =
       process.env.WHATSAPP_TEMPLATE_LANG || "en_US";
+    const resolvedMode = options.mode || WHATSAPP_MESSAGE_MODE;
 
     if (!WHATSAPP_PHONE_ID || !WHATSAPP_ACCESS_TOKEN) {
       console.error("❌ WhatsApp API credentials missing");
@@ -33,7 +39,7 @@ export const sendWhatsAppMessage = async (recipientPhoneNumber, message) => {
     const phoneForAPI = recipientPhoneNumber.replace(/^\+/, "");
 
     const payload =
-      WHATSAPP_MESSAGE_MODE === "template"
+      resolvedMode === "template"
         ? {
             messaging_product: "whatsapp",
             recipient_type: "individual",
@@ -57,7 +63,7 @@ export const sendWhatsAppMessage = async (recipientPhoneNumber, message) => {
           };
 
     console.log(
-      `📤 Sending WhatsApp ${WHATSAPP_MESSAGE_MODE} message to: ${recipientPhoneNumber}`,
+      `📤 Sending WhatsApp ${resolvedMode} message to: ${recipientPhoneNumber}`,
     );
     console.log(`📞 Phone for API: ${phoneForAPI}`);
     console.log(`🔗 URL: ${url}`);
@@ -70,7 +76,7 @@ export const sendWhatsAppMessage = async (recipientPhoneNumber, message) => {
     });
 
     console.log(
-      `✅ WhatsApp ${WHATSAPP_MESSAGE_MODE} sent successfully to ${recipientPhoneNumber}`,
+      `✅ WhatsApp ${resolvedMode} sent successfully to ${recipientPhoneNumber}`,
     );
     console.log(`📊 Response:`, response.data);
     return { success: true, data: response.data };
@@ -94,5 +100,7 @@ export const sendSOSWhatsApp = async (recipientPhoneNumber, userData) => {
     userData.phone || "Not provided"
   }\n\nPlease contact them immediately or call emergency services.\n\nTime: ${new Date().toLocaleString()}`;
 
-  return sendWhatsAppMessage(recipientPhoneNumber, sosMessage);
+  return sendWhatsAppMessage(recipientPhoneNumber, sosMessage, {
+    mode: userData.mode,
+  });
 };

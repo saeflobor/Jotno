@@ -5,8 +5,11 @@ import Medication from "../models/Medication.js";
 import ChronicCondition from "../models/ChronicCondition.js";
 import MedicalReport from "../models/MedicalReport.js";
 import FamilyRequest from "../models/FamilyRequest.js";
+import WhatsAppRecipient from "../models/WhatsAppRecipient.js";
 import { logActivity } from "../utils/activityLogger.js";
 import { sendSOSWhatsApp } from "../utils/sendWhatsApp.js";
+
+const normalizePhoneForLookup = (phone) => String(phone || "").replace(/\D/g, "");
 
 // Create nodemailer transport
 function createMailTransport() {
@@ -239,11 +242,34 @@ export const sendSosAlert = async (req, res, next) => {
     const whatsappResults = [];
     if (recipientWhatsAppNumbers.length > 0) {
       for (const phoneNumber of recipientWhatsAppNumbers) {
+        const normalizedPhone = normalizePhoneForLookup(phoneNumber);
+        const recipientRecord = await WhatsAppRecipient.findOne({
+          phone: normalizedPhone,
+        });
+        const mode = recipientRecord?.templateSentAt ? "text" : "template";
+
         const result = await sendSOSWhatsApp(phoneNumber, {
           username: user.username,
           phone: user.phone,
+          mode,
         });
-        whatsappResults.push({ phone: phoneNumber, ...result });
+
+        if (result.success) {
+          await WhatsAppRecipient.findOneAndUpdate(
+            { phone: normalizedPhone },
+            {
+              $set: {
+                lastSentAt: new Date(),
+                lastSentMode: mode,
+                ...(mode === "template" ? { templateSentAt: new Date() } : {}),
+              },
+              $inc: { totalSends: 1 },
+            },
+            { upsert: true, new: true },
+          );
+        }
+
+        whatsappResults.push({ phone: phoneNumber, mode, ...result });
       }
     }
 
