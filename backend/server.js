@@ -23,6 +23,7 @@ import familyRoutes from "./routes/familyRoutes.js";
 import medicalReportRoutes from "./routes/medicalReportRoutes.js";
 import healthRoutes from "./routes/healthRoutes.js";
 import activityRoutes from "./routes/activityRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 import errorHandler from "./middleware/errorhandler.js";
 import medicineRoutes from "./routes/Medicines.js";
 import { connectDB } from "./config/db.js";
@@ -63,6 +64,7 @@ app.use("/api/family", familyRoutes);
 app.use("/api/medical-report", medicalReportRoutes);
 app.use("/api/health", healthRoutes);
 app.use("/api/activities", activityRoutes);
+app.use("/api/ai", aiRoutes);
 app.use("/api", medicineRoutes); // <-- Mount medicine routes here
 app.use(errorHandler);
 
