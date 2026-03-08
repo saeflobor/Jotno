@@ -241,6 +241,7 @@ const FamilyIntegration = ({ user, setUser }) => {
               className="relative px-3 sm:px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 text-sm sm:text-base"
             >
               {t('family.pendingRequests')}
+              {pendingRequests.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {pendingRequests.length}
                 </span>
