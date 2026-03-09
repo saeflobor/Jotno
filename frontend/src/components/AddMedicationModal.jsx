@@ -25,7 +25,7 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing, editingMedi
       setForm({
         medicationName: editingMedication.medicationName || "",
         dosage: editingMedication.dosage || "",
-        duration: editingMedication.duration || "",
+        duration: String(editingMedication.duration || ""),
         frequency: editingMedication.frequency || "once-daily",
         times: editingMedication.times && editingMedication.times.length > 0 
           ? editingMedication.times 
