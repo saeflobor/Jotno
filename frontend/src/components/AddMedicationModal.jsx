@@ -42,10 +42,12 @@ const AddMedicationModal = ({
   const [searchCompleted, setSearchCompleted] = useState(false);
   const debounceRef = useRef(null);
   const isSelectingRef = useRef(false);
+  const isEditingRef = useRef(false);
 
   // Populate form when editing an existing medication
   useEffect(() => {
     if (editingMedication) {
+      isEditingRef.current = true;
       setForm({
         medicationName: editingMedication.medicationName || "",
         dosage: editingMedication.dosage || "",
@@ -60,7 +62,9 @@ const AddMedicationModal = ({
       });
       setSuggestions([]);
       setShowSuggestions(false);
+      setSearchCompleted(false);
     } else {
+      isEditingRef.current = false;
       // Reset form when not editing
       setForm({
         medicationName: "",
@@ -134,7 +138,11 @@ const AddMedicationModal = ({
   const handleSelectMedicine = (medicine) => {
     isSelectingRef.current = true;
     const displayName = `${medicine.brand_name}${medicine.generic ? ` (${medicine.generic})` : ""}`;
-    setForm({ ...form, medicationName: displayName });
+    setForm({
+      ...form,
+      medicationName: displayName,
+      dosage: medicine.strength || "", // Auto-fill dosage from strength
+    });
     setSuggestions([]);
     setShowSuggestions(false);
     setSearchCompleted(false);
@@ -212,7 +220,7 @@ const AddMedicationModal = ({
 
             {/* Futuristic Medicine Input Container */}
             <div className="bg-gradient-to-r from-orange-50 via-blue-50 to-purple-50 border-2 border-gray-200 rounded-2xl p-4 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-500/20 transition-all backdrop-blur-sm">
-              <div className="flex flex-wrap items-center gap-2 mb-2">
+              <div className="flex flex-wrap items-center gap-2 mb-3">
                 {/* Main Medicine Name Input */}
                 <input
                   type="text"
@@ -244,6 +252,15 @@ const AddMedicationModal = ({
                   </div>
                 )}
               </div>
+
+              {/* Dosage Input Field */}
+              <input
+                type="text"
+                placeholder="Dosage (e.g., 500mg)"
+                value={form.dosage}
+                onChange={(e) => setForm({ ...form, dosage: e.target.value })}
+                className="w-full px-3 py-2 bg-white/60 border border-blue-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400 backdrop-blur-sm transition-all"
+              />
             </div>
 
             {/* Medicine Suggestions Dropdown */}
@@ -345,7 +362,8 @@ const AddMedicationModal = ({
               searchCompleted &&
               suggestions.length === 0 &&
               form.medicationName.trim().length > 0 &&
-              showSuggestions && (
+              showSuggestions &&
+              !isEditingRef.current && (
                 <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl z-50 border border-gray-100 overflow-hidden">
                   <div className="p-6 flex flex-col items-center justify-center text-center">
                     <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center mb-3">
