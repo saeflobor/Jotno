@@ -96,9 +96,13 @@ export const sendWhatsAppMessage = async (
  * @returns {Promise<object>}
  */
 export const sendSOSWhatsApp = async (recipientPhoneNumber, userData) => {
+  const locationText = userData.location
+    ? `📍 Location: https://www.google.com/maps?q=${userData.location.latitude},${userData.location.longitude}`
+    : "📍 Location: Not available";
+
   const sosMessage = `🚨 *EMERGENCY SOS ALERT* 🚨\n\n*${userData.username}* needs immediate help!\n📞 Phone: ${
     userData.phone || "Not provided"
-  }\n\nPlease contact them immediately or call emergency services.\n\nTime: ${new Date().toLocaleString()}`;
+  }\n${locationText}\n\nPlease contact them immediately or call emergency services.\n\nTime: ${new Date().toLocaleString()}`;
 
   return sendWhatsAppMessage(recipientPhoneNumber, sosMessage, {
     mode: userData.mode,

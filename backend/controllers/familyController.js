@@ -222,6 +222,21 @@ export const sendSosAlert = async (req, res, next) => {
       );
     }
 
+    // Build formatted SOS message to use for both email and WhatsApp
+    const locationText = location
+      ? `📍 Location: https://www.google.com/maps?q=${location.latitude},${location.longitude}`
+      : "📍 Location: Not available";
+
+    const sosMessageBody = `EMERGENCY SOS ALERT
+
+${user.username} needs immediate help!
+Phone: ${user.phone || "Not provided"}
+${locationText}
+
+Please contact them immediately or call emergency services.
+
+Time: ${new Date().toLocaleString()}`;
+
     // Send Email
     if (recipientEmails.length > 0) {
       try {
@@ -229,8 +244,8 @@ export const sendSosAlert = async (req, res, next) => {
         await transporter.sendMail({
           from: process.env.SMTP_USER,
           to: recipientEmails,
-          subject: `SOS alert from ${user.username}`,
-          text: message,
+          subject: `🚨 SOS ALERT from ${user.username}`,
+          text: sosMessageBody,
         });
         console.log("SOS emails sent");
       } catch (emailErr) {
@@ -252,6 +267,7 @@ export const sendSosAlert = async (req, res, next) => {
           username: user.username,
           phone: user.phone,
           mode,
+          location,
         });
 
         if (result.success) {

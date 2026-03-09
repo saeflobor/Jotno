@@ -114,9 +114,28 @@ const Dashboard = ({ user, setUser }) => {
     setSosMessage("");
     setSendingSOS(true);
     try {
+      // Try to get user's location
+      let location = null;
+      if (navigator.geolocation) {
+        try {
+          const position = await new Promise((resolve, reject) =>
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              timeout: 5000,
+              maximumAge: 60000,
+            })
+          );
+          location = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+        } catch (locErr) {
+          console.warn("Could not get location:", locErr.message);
+        }
+      }
+
       const response = await axios.post(
         "/api/family/sos",
-        { message: t('dashboard.sosMessage') },
+        { message: t('dashboard.sosMessage'), location },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
