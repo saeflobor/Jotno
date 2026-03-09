@@ -270,15 +270,6 @@ const UserCard = ({ user, onRemove }) => {
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
         className="relative overflow-hidden rounded-2xl shadow-lg bg-white border border-gray-200 w-full sm:max-w-[320px]"
       >
-        {/* Pink gradient top bar */}
-        <div
-          style={{
-            height: 6,
-            background:
-              "linear-gradient(90deg, rgb(211,46,149), rgb(236,72,153))",
-          }}
-        />
-
         <div className="p-5">
           <div className="flex items-center gap-4">
             <div
@@ -332,70 +323,13 @@ const UserCard = ({ user, onRemove }) => {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-3 text-sm">
-            <div className="py-2 px-3 rounded-lg bg-gray-50 border border-gray-200">
-              <div className="text-xs text-gray-600">{t('userCard.gender')}</div>
-              <div className="mt-1 font-medium text-gray-900">
-                {user.gender}
-              </div>
-            </div>
-          </div>
-
-          {/* Health Info Pills */}
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-red-50 border border-red-200">
-              <span className="text-red-600">❤️</span>
-              <span className="text-xs text-red-700 font-medium">
-                {t('userCard.chronicConditions')}
-              </span>
-              <span className="ml-auto text-xs font-bold text-red-700 bg-red-200 px-2 py-0.5 rounded-full">
-                {healthData.conditions.length}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-purple-50 border border-purple-200">
-              <span className="text-purple-600">💊</span>
-              <span className="text-xs text-purple-700 font-medium">
-                {t('userCard.medications')}
-              </span>
-              <span className="ml-auto text-xs font-bold text-purple-700 bg-purple-200 px-2 py-0.5 rounded-full">
-                {healthData.medications.length}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-blue-50 border border-blue-200">
-              <span className="text-blue-600">📄</span>
-              <span className="text-xs text-blue-700 font-medium">
-                {t('userCard.medicalReports')}
-              </span>
-              <span className="ml-auto text-xs font-bold text-blue-700 bg-blue-200 px-2 py-0.5 rounded-full">
-                {healthData.reports.length}
-              </span>
-            </div>
-
-            {!canEdit && (
-              <div className="mt-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200">
-                <p className="text-xs text-amber-700">{t('userCard.privacy')}</p>
-              </div>
-            )}
-          </div>
-
-          {/* View All Details Button */}
+          {/* Show Details Button */}
           <button
             onClick={handleViewDetails}
             className="mt-4 w-full py-2.5 rounded-lg font-semibold text-sm bg-[rgb(211,46,149)] hover:bg-[rgb(211,46,149)]/80 text-white transition-all"
           >
-            {t('userCard.viewAllDetails')}
+            {t('userCard.showDetails', { defaultValue: 'Show Details' })}
           </button>
-
-          <div className="mt-4 flex items-center justify-between gap-2">
-            <div className="text-xs text-gray-500">{t('userCard.memberSince')}</div>
-            <div className="text-xs text-gray-700 font-medium">
-              {user.createdAt
-                ? new Date(user.createdAt).toLocaleDateString()
-                : "—"}
-            </div>
-          </div>
         </div>
       </motion.div>
 
@@ -540,7 +474,7 @@ const UserCard = ({ user, onRemove }) => {
                                     }))
                                   }
                                   placeholder={t('userCard.conditionPlaceholder')}
-                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none text-gray-900 placeholder-gray-400"
+                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-[rgb(211,46,149)] transition-all outline-none text-gray-900 placeholder-gray-400"
                                 />
                               </div>
                               <div>
@@ -555,7 +489,7 @@ const UserCard = ({ user, onRemove }) => {
                                       severityLevel: e.target.value,
                                     }))
                                   }
-                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none text-gray-900 bg-white"
+                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-[rgb(211,46,149)] transition-all outline-none text-gray-900 bg-white"
                                 >
                                   <option value="mild">{t('userCard.mild')}</option>
                                   <option value="moderate">{t('userCard.moderate')}</option>
@@ -565,7 +499,7 @@ const UserCard = ({ user, onRemove }) => {
                               <div className="flex gap-3 pt-3">
                                 <button
                                   onClick={handleInlineAddCondition}
-                                  className="flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold rounded-xl shadow-lg shadow-purple-500/30 transition-all"
+                                  className="flex-1 py-3 px-4 bg-[rgb(211,46,149)] hover:bg-[rgb(190,35,130)] text-white font-semibold rounded-xl shadow-lg shadow-pink-500/25 transition-all"
                                 >
                                   {t('userCard.addConditionSubmit')}
                                 </button>
@@ -696,7 +630,7 @@ const UserCard = ({ user, onRemove }) => {
                                     }))
                                   }
                                   placeholder={t('userCard.namePlaceholder')}
-                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 placeholder-gray-400"
+                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-[rgb(211,46,149)] transition-all outline-none text-gray-900 placeholder-gray-400"
                                 />
                               </div>
                               <div className="grid grid-cols-2 gap-4">
@@ -714,7 +648,7 @@ const UserCard = ({ user, onRemove }) => {
                                       }))
                                     }
                                     placeholder={t('userCard.dosagePlaceholder')}
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 placeholder-gray-400"
+                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-[rgb(211,46,149)] transition-all outline-none text-gray-900 placeholder-gray-400"
                                   />
                                 </div>
                                 <div>
@@ -737,7 +671,7 @@ const UserCard = ({ user, onRemove }) => {
                                         times: newTimes,
                                       }));
                                     }}
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 bg-white"
+                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-[rgb(211,46,149)] transition-all outline-none text-gray-900 bg-white"
                                   >
                                     <option value="once-daily">
                                       {t('userCard.onceDaily')}
@@ -766,7 +700,7 @@ const UserCard = ({ user, onRemove }) => {
                                     }))
                                   }
                                   placeholder={t('userCard.durationPlaceholder')}
-                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 placeholder-gray-400"
+                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-[rgb(211,46,149)] transition-all outline-none text-gray-900 placeholder-gray-400"
                                 />
                               </div>
                               {inlineMedicationData.times &&
@@ -794,7 +728,7 @@ const UserCard = ({ user, onRemove }) => {
                                                 }),
                                               );
                                             }}
-                                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900"
+                                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-[rgb(211,46,149)] transition-all outline-none text-gray-900"
                                           />
                                         ),
                                       )}
@@ -813,7 +747,7 @@ const UserCard = ({ user, onRemove }) => {
                                       notificationType: e.target.value,
                                     }))
                                   }
-                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all outline-none text-gray-900 bg-white"
+                                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[rgb(211,46,149)] focus:border-[rgb(211,46,149)] transition-all outline-none text-gray-900 bg-white"
                                 >
                                   <option value="me">{t('userCard.onlyMe')}</option>
                                   <option value="family">{t('userCard.meAndFamily')}</option>
@@ -822,7 +756,7 @@ const UserCard = ({ user, onRemove }) => {
                               <div className="flex gap-3 pt-3">
                                 <button
                                   onClick={handleInlineAddMedication}
-                                  className="flex-1 py-3 px-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/30 transition-all"
+                                  className="flex-1 py-3 px-4 bg-[rgb(211,46,149)] hover:bg-[rgb(190,35,130)] text-white font-semibold rounded-xl shadow-lg shadow-pink-500/25 transition-all"
                                 >
                                   {t('userCard.addMedicationSubmit')}
                                 </button>
@@ -857,7 +791,7 @@ const UserCard = ({ user, onRemove }) => {
                           healthData.medications.map((medication) => (
                             <div
                               key={medication._id}
-                              className="p-4 rounded-xl bg-purple-50 border border-purple-200 flex items-start justify-between"
+                              className="p-4 rounded-xl bg-pink-50 border border-pink-200 flex items-start justify-between"
                             >
                               <div className="flex-1">
                                 <h3 className="text-lg font-bold text-gray-900">
@@ -937,7 +871,7 @@ const UserCard = ({ user, onRemove }) => {
                                       },
                                     });
                                   }}
-                                  className="ml-2 px-3 py-1.5 rounded-lg font-semibold text-sm bg-purple-100 hover:bg-purple-200 text-purple-700 border border-purple-300 shrink-0"
+                                  className="ml-2 px-3 py-1.5 rounded-lg font-semibold text-sm bg-pink-100 hover:bg-pink-200 text-pink-700 border border-pink-300 shrink-0"
                                   title={t('userCard.deleteMedTitle')}
                                 >
                                   🗑️

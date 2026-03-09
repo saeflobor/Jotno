@@ -1252,7 +1252,7 @@ const ProfileActivity = ({ user, setUser }) => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M7 16v-4a4 4 0 114 4h-1v4h4v-4h-1a4 4 0 114-4v4"
+                  d="M7 3h7l5 5v13H7V3zm7 0v5h5"
                 />
               </svg>
               <div className="text-sm text-gray-700 mb-2">

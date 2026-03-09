@@ -19,7 +19,6 @@ import {
   AlertTriangle,
   Heart,
   Stethoscope,
-  ChevronRight,
   TrendingUp,
   Bell,
 } from "lucide-react";
@@ -610,24 +609,15 @@ const Dashboard = ({ user, setUser }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="flex items-center justify-between mb-3">
+          <div className="mb-3">
             <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
             {t('dashboard.recentActivity')}
             </h2>
-            {activities.length > 5 && (
-              <button
-                onClick={() => navigate("/profile-activity")}
-                className="text-xs font-medium text-gray-400 hover:text-gray-600 transition flex items-center gap-1"
-              >
-                {t('dashboard.viewAll')}
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            )}
           </div>
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
             {activities.length > 0 ? (
-              <div className="divide-y divide-gray-50">
-                {activities.slice(0, 6).map((activity) => (
+              <div className="divide-y divide-gray-50 max-h-96 overflow-y-auto">
+                {activities.map((activity) => (
                   <div
                     key={activity._id}
                     className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50/50 transition"
