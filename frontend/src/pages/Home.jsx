@@ -44,32 +44,31 @@ const Home = ({ user, error }) => {
       visible: true,
     },
     {
-      id: 5,
+      id: 4,
       icon: Activity,
+      title: t('home.features.f4title'),
+      description: t('home.features.f4desc'),
+      visible: showAllFeatures,
+    },
+    {
+      id: 5,
+      icon: FileText,
       title: t('home.features.f5title'),
       description: t('home.features.f5desc'),
       visible: showAllFeatures,
     },
     {
       id: 6,
-      icon: FileText,
+      icon: Pill,
       title: t('home.features.f6title'),
       description: t('home.features.f6desc'),
       visible: showAllFeatures,
     },
     {
       id: 7,
-      icon: Pill,
+      icon: Sparkles,
       title: t('home.features.f7title'),
       description: t('home.features.f7desc'),
-      visible: showAllFeatures,
-    },
-    {
-      id: 8,
-      icon: Sparkles,
-      title: "Smart Scanning (AI)",
-      description:
-        "Data inputs automatically retrieved from prescriptions & reports using locally hosted AI (Ollama3.2)",
       visible: showAllFeatures,
     },
   ];
@@ -223,7 +222,7 @@ const Home = ({ user, error }) => {
                         boxShadow: "0px 20px 40px rgba(211, 46, 149, 0.4)",
                         transition: { duration: 0.3 }
                       }}
-                      className="bg-gray-100/60 backdrop-blur-[40px] p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300"
+                      className={`bg-gray-100/60 backdrop-blur-[40px] p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 ${feature.id === 7 ? 'md:col-start-2' : ''}`}
                     >
                       <motion.div
                         className="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mb-4"

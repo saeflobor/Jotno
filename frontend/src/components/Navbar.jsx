@@ -107,7 +107,7 @@ const Navbar = ({ user, setUser }) => {
             {/* Language toggle */}
             <motion.button
               onClick={toggleLanguage}
-              className='text-white border border-white/60 px-2.5 py-1 rounded-full text-xs sm:text-sm hover:bg-white/20 transition'
+              className='text-white border border-white/60 px-2.5 py-1 rounded-full text-xs sm:text-sm hover:bg-white/20 transition mr-10'
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               title={t('navbar.switchLangTitle')}
