@@ -279,6 +279,7 @@
     "docDeleted": "Document deleted",
     "conditionAdded": "Chronic condition added",
     "medicationAdded": "Medication added",
+    "medicationUpdated": "Medication updated successfully",
     "conditionDeleted": "Condition deleted",
     "medicationDeleted": "Medication deleted",
     "reportPrivate": "Report is now Private",
@@ -449,6 +450,7 @@
 
   "addMedication": {
     "title": "Add Medication",
+    "editTitle": "Edit Medication",
     "nameLabel": "Medication Name",
     "namePlaceholder": "e.g., Metformin, Lisinopril",
     "dosageLabel": "Dosage",
@@ -465,7 +467,9 @@
     "onlyMe": "Only Me",
     "meAndFamily": "Me & My Family",
     "adding": "Adding...",
+    "updating": "Updating...",
     "addBtn": "Add Medication",
+    "updateBtn": "Update Medication",
     "validation": "Please fill all required fields"
   },
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Pill, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -8,7 +8,7 @@ const DEFAULT_REMINDER_TIMES = {
   "three-times-daily": ["08:00", "15:00", "22:00"],
 };
 
-const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
+const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing, editingMedication }) => {
   const { t } = useTranslation();
   const [form, setForm] = useState({
     medicationName: "",
@@ -18,6 +18,32 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
     times: [""],
     notificationType: "me",
   });
+
+  // Populate form when editing an existing medication
+  useEffect(() => {
+    if (editingMedication) {
+      setForm({
+        medicationName: editingMedication.medicationName || "",
+        dosage: editingMedication.dosage || "",
+        duration: editingMedication.duration || "",
+        frequency: editingMedication.frequency || "once-daily",
+        times: editingMedication.times && editingMedication.times.length > 0 
+          ? editingMedication.times 
+          : [""],
+        notificationType: editingMedication.notificationType || "me",
+      });
+    } else {
+      // Reset form when not editing
+      setForm({
+        medicationName: "",
+        dosage: "",
+        duration: "",
+        frequency: "once-daily",
+        times: [""],
+        notificationType: "me",
+      });
+    }
+  }, [editingMedication, isOpen]);
 
   if (!isOpen) return null;
 
@@ -68,7 +94,9 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
               <Pill className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{t('addMedication.title')}</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
+              {editingMedication ? (t('addMedication.editTitle') || 'Edit Medication') : t('addMedication.title')}
+            </h3>
           </div>
           <button
             onClick={onClose}
@@ -211,7 +239,10 @@ const AddMedicationModal = ({ isOpen, onClose, onSave, isProcessing }) => {
               disabled={isProcessing}
               className="flex-1 py-3 px-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-orange-500/30 transition-all"
             >
-              {isProcessing ? t('addMedication.adding') : t('addMedication.addBtn')}
+              {isProcessing 
+                ? (editingMedication ? (t('addMedication.updating') || 'Updating...') : t('addMedication.adding'))
+                : (editingMedication ? (t('addMedication.updateBtn') || 'Update') : t('addMedication.addBtn'))
+              }
             </button>
           </div>
         </div>

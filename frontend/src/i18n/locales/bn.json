@@ -279,6 +279,7 @@
     "docDeleted": "নথি মুছে ফেলা হয়েছে",
     "conditionAdded": "দীর্ঘমেয়াদী অবস্থা যোগ করা হয়েছে",
     "medicationAdded": "ওষুধ যোগ করা হয়েছে",
+    "medicationUpdated": "ওষুধ সফলভাবে আপডেট হয়েছে",
     "conditionDeleted": "অবস্থা মুছে ফেলা হয়েছে",
     "medicationDeleted": "ওষুধ মুছে ফেলা হয়েছে",
     "reportPrivate": "রিপোর্টটি এখন প্রাইভেট",
@@ -449,6 +450,7 @@
 
   "addMedication": {
     "title": "ওষুধ যোগ করুন",
+    "editTitle": "ওষুধ সম্পাদনা করুন",
     "nameLabel": "ওষুধের নাম",
     "namePlaceholder": "যেমন: মেটফরমিন, লিসিনোপ্রিল",
     "dosageLabel": "ডোজ",
@@ -465,7 +467,9 @@
     "onlyMe": "শুধু আমি",
     "meAndFamily": "আমি ও আমার পরিবার",
     "adding": "যোগ হচ্ছে...",
+    "updating": "আপডেট হচ্ছে...",
     "addBtn": "ওষুধ যোগ করুন",
+    "updateBtn": "ওষুধ আপডেট করুন",
     "validation": "সব প্রয়োজনীয় ক্ষেত্র পূরণ করুন"
   },
 

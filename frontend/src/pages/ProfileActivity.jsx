@@ -41,6 +41,7 @@ const ProfileActivity = ({ user, setUser }) => {
   const [medications, setMedications] = useState([]);
   const [showConditionModal, setShowConditionModal] = useState(false);
   const [showMedicationModal, setShowMedicationModal] = useState(false);
+  const [editingMedication, setEditingMedication] = useState(null);
 
   const [healthError, setHealthError] = useState("");
   const [healthSuccess, setHealthSuccess] = useState("");
@@ -539,36 +540,53 @@ const ProfileActivity = ({ user, setUser }) => {
       setProcessingHealth(true);
       setHealthError("");
       const token = localStorage.getItem("token");
-      const res = await axios.post("/api/health/medications", formData, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-
-      if (res?.data?.medication) {
-        setMedications((p) => [res.data.medication, ...p]);
-        setHealthSuccess(t('profileActivity.medicationAdded'));
-        setShowMedicationModal(false);
-
-        
-        // Refresh health summary and activities
-        const summaryRes = await axios.get("/api/health/summary", {
-          headers: { Authorization: `Bearer ${token}` },
+      
+      // Check if we're editing or adding
+      if (editingMedication) {
+        // Update existing medication
+        const res = await axios.put(`/api/health/medications/${editingMedication._id}`, formData, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
-        if (summaryRes?.data?.summary) {
-          setHealthSummary(summaryRes.data.summary);
-        }
 
-        const activitiesRes = await axios.get("/api/activities", {
-          headers: { Authorization: `Bearer ${token}` },
+        if (res?.data?.medication) {
+          setMedications((p) => p.map(m => m._id === editingMedication._id ? res.data.medication : m));
+          setHealthSuccess(t('profileActivity.medicationUpdated') || 'Medication updated successfully');
+          setShowMedicationModal(false);
+          setEditingMedication(null);
+        }
+      } else {
+        // Add new medication
+        const res = await axios.post("/api/health/medications", formData, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
-        if (activitiesRes?.data?.activities) {
-          setActivities(activitiesRes.data.activities);
-        }
 
-        setTimeout(() => setHealthSuccess(""), 3000);
+        if (res?.data?.medication) {
+          setMedications((p) => [res.data.medication, ...p]);
+          setHealthSuccess(t('profileActivity.medicationAdded'));
+          setShowMedicationModal(false);
+        }
       }
+
+      
+      // Refresh health summary and activities
+      const summaryRes = await axios.get("/api/health/summary", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (summaryRes?.data?.summary) {
+        setHealthSummary(summaryRes.data.summary);
+      }
+
+      const activitiesRes = await axios.get("/api/activities", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (activitiesRes?.data?.activities) {
+        setActivities(activitiesRes.data.activities);
+      }
+
+      setTimeout(() => setHealthSuccess(""), 3000);
     } catch (err) {
       setHealthError(
-        err?.response?.data?.message || "Failed to add medication",
+        err?.response?.data?.message || (editingMedication ? "Failed to update medication" : "Failed to add medication"),
       );
     } finally {
       setProcessingHealth(false);
@@ -909,12 +927,27 @@ const ProfileActivity = ({ user, setUser }) => {
                         )}
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleDeleteMedication(medication._id)}
-                      className="ml-2 text-red-500 hover:text-red-700"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-2 ml-2">
+                      <button
+                        onClick={() => {
+                          setEditingMedication(medication);
+                          setShowMedicationModal(true);
+                        }}
+                        className="text-blue-500 hover:text-blue-700 transition"
+                        title="Edit medication"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteMedication(medication._id)}
+                        className="text-red-500 hover:text-red-700 transition"
+                        title="Delete medication"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -1540,9 +1573,13 @@ const ProfileActivity = ({ user, setUser }) => {
 
         <AddMedicationModal
           isOpen={showMedicationModal}
-          onClose={() => setShowMedicationModal(false)}
+          onClose={() => {
+            setShowMedicationModal(false);
+            setEditingMedication(null);
+          }}
           onSave={handleAddMedication}
           isProcessing={processingHealth}
+          editingMedication={editingMedication}
         />
 
         {/* Confirmation Modal */}

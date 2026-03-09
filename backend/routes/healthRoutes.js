@@ -9,6 +9,7 @@ import {
   deleteChronicConditionForUser,
   getMedications,
   addMedication,
+  updateMedication,
   addMedicationForUser,
   deleteMedication,
   deleteMedicationForUser,
@@ -38,6 +39,7 @@ router.delete(
 // Medications routes
 router.get("/medications", protect, getMedications);
 router.post("/medications", protect, addMedication);
+router.put("/medications/:id", protect, updateMedication);
 router.post("/medications-for-user", protect, addMedicationForUser);
 router.delete("/medications/:id", protect, deleteMedication);
 router.delete(

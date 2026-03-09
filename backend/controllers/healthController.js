@@ -194,6 +194,21 @@ export const addMedication = async (req, res, next) => {
       return next(new AppError("Duration must be a positive number", 400));
     }
 
+    // Check for existing active medication with same name and dosage
+    const existingMedication = await Medication.findOne({
+      owner: userId,
+      medicationName: { $regex: new RegExp(`^${medicationName.trim()}$`, 'i') }, // case-insensitive match
+      dosage: dosage.trim(),
+      expiryDate: { $gt: new Date() }, // Only check active medications (not expired)
+    });
+
+    if (existingMedication) {
+      return next(new AppError(
+        `This medication (${medicationName} - ${dosage}) is already in your active medications list.`,
+        409 // Conflict status code
+      ));
+    }
+
     const { times: resolvedTimes, error: timesError } =
       resolveMedicationTimes(frequency, times);
     if (timesError) {
@@ -224,6 +239,76 @@ export const addMedication = async (req, res, next) => {
     );
 
     return res.status(201).json({ success: true, medication });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// Update a medication
+export const updateMedication = async (req, res, next) => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) return next(new AppError("Unauthorized", 401));
+
+    const { id } = req.params;
+    const {
+      medicationName,
+      dosage,
+      frequency,
+      duration,
+      times,
+      notificationType,
+    } = req.body;
+
+    if (!medicationName || !dosage || !frequency || !duration) {
+      return next(new AppError("All fields are required", 400));
+    }
+
+    const durationNum = parseInt(duration);
+    if (isNaN(durationNum) || durationNum <= 0) {
+      return next(new AppError("Duration must be a positive number", 400));
+    }
+
+    const { times: resolvedTimes, error: timesError } =
+      resolveMedicationTimes(frequency, times);
+    if (timesError) {
+      return next(new AppError(timesError, 400));
+    }
+
+    // Find the medication and verify ownership
+    const medication = await Medication.findById(id);
+    if (!medication) {
+      return next(new AppError("Medication not found", 404));
+    }
+
+    if (medication.owner.toString() !== userId.toString()) {
+      return next(new AppError("Not authorized to update this medication", 403));
+    }
+
+    // Update the medication
+    const expiryDate = new Date(Date.now() + durationNum * 24 * 60 * 60 * 1000);
+    const maxReminders = getMaxReminderCount(durationNum, frequency, resolvedTimes);
+    
+    medication.medicationName = medicationName;
+    medication.dosage = dosage;
+    medication.frequency = frequency;
+    medication.duration = duration;
+    medication.expiryDate = expiryDate;
+    medication.times = resolvedTimes;
+    medication.maxReminders = maxReminders;
+    medication.notificationType = notificationType;
+
+    await medication.save();
+
+    // Log activity
+    await logActivity(
+      userId,
+      "updated_medication",
+      `Updated medication: ${medicationName}`,
+      { medicationId: medication._id, medicationName, dosage },
+    );
+
+    return res.status(200).json({ success: true, medication });
   } catch (err) {
     return next(err);
   }
