@@ -77,7 +77,7 @@ const FamilyRequestNotifications = ({
             {sentRequests.map((request) => (
               <div
                 key={request._id}
-                className="p-4 rounded-lg border border-gray-200 bg-blue-50"
+                className="p-4 rounded-lg border border-pink-200 bg-pink-50"
               >
                 <div className="flex items-center justify-between">
                   <div>
@@ -95,7 +95,7 @@ const FamilyRequestNotifications = ({
                   <button
                     onClick={() => onCancel(request._id)}
                     disabled={processing}
-                    className="px-4 py-2 rounded-lg bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold disabled:opacity-50 transition-colors"
+                    className="px-4 py-2 rounded-lg bg-[rgb(211,46,149)] hover:bg-[rgb(190,35,130)] text-white text-sm font-semibold disabled:opacity-50 transition-colors"
                   >
                     Cancel
                   </button>
