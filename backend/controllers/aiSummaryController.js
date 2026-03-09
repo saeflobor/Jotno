@@ -71,9 +71,30 @@ export const getAISummary = async (req, res, next) => {
             .join("\n")
         : "None uploaded";
 
-    const prompt = `You are a helpful medical information assistant. Based on the following patient records, provide a clear and concise summary of their current overall medical condition and also mention if any of the medications clash with any of the chronic conditions. Use simple language that a patient can understand. Structure your response with sections if needed. Do NOT provide diagnoses or treatment recommendations — only summarize what the records show.
+    const prompt = `You are a professional medical information assistant. Based on the following patient records, provide a clear and well-structured summary of their current overall medical condition.
 
-IMPORTANT: Keep the summary concise (under 300 words). Focus on the key points.
+FORMATTING REQUIREMENTS:
+- Use clear section headings with "###" prefix (e.g., "### Overview")
+- Use bullet points with "-" for lists
+- Keep the summary concise (under 300 words)
+- Use simple, patient-friendly language
+- Do NOT provide diagnoses or treatment recommendations — only summarize what the records show
+
+STRUCTURE YOUR RESPONSE AS FOLLOWS:
+### Overview
+[Brief general health status overview in 2-3 sentences]
+
+### Chronic Conditions
+[List and briefly describe the chronic conditions if any, or state "No chronic conditions reported"]
+
+### Current Medications
+[List active medications with their purpose/indication if inferable, or state "No medications recorded"]
+
+### Medical Documentation
+[Summarize types and recency of medical reports if any, or state "No recent reports"]
+
+### Key Considerations
+[Any notable patterns, interactions, or points requiring attention - keep brief]
 
 === PATIENT MEDICAL RECORDS ===
 
@@ -88,7 +109,7 @@ ${reportsText}
 
 === END OF RECORDS ===
 
-Please provide a brief, organized summary of this patient's current health status based on the records above.`;
+Provide the structured summary now:`;
 
     // Call Ollama API
     let ollamaResponse;

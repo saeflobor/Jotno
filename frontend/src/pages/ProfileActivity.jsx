@@ -808,6 +808,179 @@ const ProfileActivity = ({ user, setUser }) => {
           </button>
         </div>
 
+        {/* ============ AI HEALTH SUMMARY SECTION ============ */}
+        <div className="mb-8">
+          <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      AI Health Summary
+                    </h2>
+                    <p className="text-xs text-gray-400">
+                      Powered by Llama 3.2 (runs locally)
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleGenerateAISummary}
+                  disabled={aiLoading}
+                  className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white text-sm font-semibold rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+                >
+                  {aiLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      {aiSummary ? "Regenerate" : "Generate Summary"}
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* AI Error */}
+              <AnimatePresence>
+                {aiError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3"
+                  >
+                    <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-red-700 text-sm font-medium">{aiError}</p>
+                      <p className="text-red-500 text-xs mt-1">
+                        Make sure Ollama is running: open a terminal and run{" "}
+                        <code className="bg-red-100 px-1.5 py-0.5 rounded text-red-700 font-mono">
+                          ollama serve
+                        </code>
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setAiError("")}
+                      className="text-red-400 hover:text-red-600 ml-auto flex-shrink-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Loading state */}
+              {aiLoading && (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="w-10 h-10 border-3 border-purple-500 border-t-transparent rounded-full animate-spin mb-4" />
+                  <p className="text-sm text-gray-500 font-medium">
+                    Analyzing your medical records...
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    This may take a moment on first run
+                  </p>
+                </div>
+              )}
+
+              {/* Summary result */}
+              <AnimatePresence>
+                {aiSummary && !aiLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <div className="p-6 bg-gradient-to-br from-white to-purple-50/20 rounded-xl border-2 border-purple-100 shadow-sm">
+                      <div className="space-y-4">
+                        {aiSummary.split('\n').map((line, idx) => {
+                          // Section headings
+                          if (line.trim().startsWith('###')) {
+                            const heading = line.replace(/^###\s*/, '').trim();
+                            return (
+                              <h3
+                                key={idx}
+                                className="text-base font-bold text-gray-900 mt-5 first:mt-0 pb-2 border-b-2 border-purple-200 flex items-center gap-2"
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                                {heading}
+                              </h3>
+                            );
+                          }
+                          // Bullet points
+                          if (line.trim().startsWith('-')) {
+                            const text = line.replace(/^-\s*/, '').trim();
+                            return (
+                              <div key={idx} className="flex items-start gap-2 pl-4">
+                                <span className="text-purple-500 mt-1.5">•</span>
+                                <p className="text-sm text-gray-700 leading-relaxed flex-1">
+                                  {text}
+                                </p>
+                              </div>
+                            );
+                          }
+                          // Regular paragraphs
+                          if (line.trim().length > 0) {
+                            return (
+                              <p
+                                key={idx}
+                                className="text-sm text-gray-700 leading-relaxed pl-4"
+                              >
+                                {line.trim()}
+                              </p>
+                            );
+                          }
+                          // Empty lines (spacing)
+                          return <div key={idx} className="h-1" />;
+                        })}
+                      </div>
+                    </div>
+
+                    {aiMeta && (
+                      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+                        <span className="flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                          Model: {aiMeta.model}
+                        </span>
+                        <span>
+                          {aiMeta.recordCounts.conditions} conditions,{" "}
+                          {aiMeta.recordCounts.medications} medications,{" "}
+                          {aiMeta.recordCounts.reports} reports analyzed
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-amber-700">
+                        <span className="font-semibold">Disclaimer:</span> This
+                        AI-generated summary is for informational purposes only
+                        and is not medical advice. Always consult your doctor
+                        for medical decisions.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Empty state */}
+              {!aiSummary && !aiLoading && !aiError && (
+                <div className="text-center py-8">
+                  <Sparkles className="w-8 h-8 text-gray-300 mx-auto mb-3" />
+                  <p className="text-sm text-gray-400">
+                    Click "Generate Summary" to get an AI-powered overview of
+                    your health records
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* ============ CHRONIC CONDITIONS & MEDICATIONS SECTION ============ */}
         <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Chronic Conditions Card */}
@@ -966,140 +1139,6 @@ const ProfileActivity = ({ user, setUser }) => {
             {healthSuccess}
           </div>
         )}
-
-        {/* ============ AI HEALTH SUMMARY SECTION ============ */}
-        <div className="mb-8">
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900">
-                      AI Health Summary
-                    </h2>
-                    <p className="text-xs text-gray-400">
-                      Powered by Llama 3.2 (runs locally)
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleGenerateAISummary}
-                  disabled={aiLoading}
-                  className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white text-sm font-semibold rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
-                >
-                  {aiLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4" />
-                      {aiSummary ? "Regenerate" : "Generate Summary"}
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* AI Error */}
-              <AnimatePresence>
-                {aiError && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3"
-                  >
-                    <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-red-700 text-sm font-medium">{aiError}</p>
-                      <p className="text-red-500 text-xs mt-1">
-                        Make sure Ollama is running: open a terminal and run{" "}
-                        <code className="bg-red-100 px-1.5 py-0.5 rounded text-red-700 font-mono">
-                          ollama serve
-                        </code>
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setAiError("")}
-                      className="text-red-400 hover:text-red-600 ml-auto flex-shrink-0"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Loading state */}
-              {aiLoading && (
-                <div className="flex flex-col items-center justify-center py-12">
-                  <div className="w-10 h-10 border-3 border-purple-500 border-t-transparent rounded-full animate-spin mb-4" />
-                  <p className="text-sm text-gray-500 font-medium">
-                    Analyzing your medical records...
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    This may take a moment on first run
-                  </p>
-                </div>
-              )}
-
-              {/* Summary result */}
-              <AnimatePresence>
-                {aiSummary && !aiLoading && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <div className="p-5 bg-gradient-to-br from-gray-50 to-purple-50/30 rounded-xl border border-gray-200">
-                      <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap">
-                        {aiSummary}
-                      </div>
-                    </div>
-
-                    {aiMeta && (
-                      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-400">
-                        <span className="flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                          Model: {aiMeta.model}
-                        </span>
-                        <span>
-                          {aiMeta.recordCounts.conditions} conditions,{" "}
-                          {aiMeta.recordCounts.medications} medications,{" "}
-                          {aiMeta.recordCounts.reports} reports analyzed
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
-                      <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-amber-700">
-                        <span className="font-semibold">Disclaimer:</span> This
-                        AI-generated summary is for informational purposes only
-                        and is not medical advice. Always consult your doctor
-                        for medical decisions.
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Empty state */}
-              {!aiSummary && !aiLoading && !aiError && (
-                <div className="text-center py-8">
-                  <Sparkles className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-                  <p className="text-sm text-gray-400">
-                    Click "Generate Summary" to get an AI-powered overview of
-                    your health records
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
 
         {/* ============ EXISTING MEDICAL REPORTS SECTION (UNCHANGED) ============ */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
