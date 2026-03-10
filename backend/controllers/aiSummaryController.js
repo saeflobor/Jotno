@@ -71,7 +71,7 @@ export const getAISummary = async (req, res, next) => {
             .join("\n")
         : "None uploaded";
 
-    const prompt = `You are a professional medical information assistant. Based on the following patient records, provide a clear and well-structured summary of their current overall medical condition.
+    const prompt = `You are a professional medical information assistant. Based on the following patient records, provide a clear and well-structured summary of their current overall medical condition. Also check for risky interactions between their conditions & medications
 
 FORMATTING REQUIREMENTS:
 - Use clear section headings with "###" prefix (e.g., "### Overview")

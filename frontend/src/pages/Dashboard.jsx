@@ -521,7 +521,7 @@ const Dashboard = ({ user, setUser }) => {
           className="mb-6"
         >
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            {getGreeting()}, {user.username}
+            {getGreeting()}, <span style={{ color: 'rgb(211,46,149)' }}>{user.username}</span>
           </h1>
           <p className="text-gray-500 mt-1 text-sm">
             {t('dashboard.healthSnapshot')}
